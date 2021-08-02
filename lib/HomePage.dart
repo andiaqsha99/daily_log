@@ -31,50 +31,79 @@ class MenuPage extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Container(
-              child: Column(
-                children: [
-                  Card(
-                    color: Color(0xFFB0D8FD),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.desktop_windows),
-                      iconSize: 56,
-                    ),
+            Column(
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      Card(
+                        color: Color(0xFFB0D8FD),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.alarm),
+                          iconSize: 56,
+                        ),
+                      ),
+                      Text("Kehadiran")
+                    ],
                   ),
-                  Text("Pekerjaan Harian")
-                ],
-              ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Container(
+                  child: Column(
+                    children: [
+                      Card(
+                        color: Color(0xFFB0D8FD),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.desktop_windows),
+                          iconSize: 56,
+                        ),
+                      ),
+                      Text("Pekerjaan Harian")
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Container(
-              child: Column(
-                children: [
-                  Card(
-                    color: Color(0xFFB0D8FD),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.assignment_ind),
-                      iconSize: 56,
-                    ),
+            Column(
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      Card(
+                        color: Color(0xFFB0D8FD),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.assignment_ind),
+                          iconSize: 56,
+                        ),
+                      ),
+                      Text("Laporan Kinerja")
+                    ],
                   ),
-                  Text("Laporan Kinerja")
-                ],
-              ),
-            ),
-            Container(
-              child: Column(
-                children: [
-                  Card(
-                    color: Color(0xFFB0D8FD),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.assignment_turned_in),
-                      iconSize: 56,
-                    ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Container(
+                  child: Column(
+                    children: [
+                      Card(
+                        color: Color(0xFFB0D8FD),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.assignment_turned_in),
+                          iconSize: 56,
+                        ),
+                      ),
+                      Text("Persetujuan")
+                    ],
                   ),
-                  Text("Persetujuan")
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

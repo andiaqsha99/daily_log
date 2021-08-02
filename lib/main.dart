@@ -1,5 +1,8 @@
+import 'package:daily_log/CheckInPresensiPage.dart';
+import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/DetailValidasiPage.dart';
 import 'package:daily_log/HomePage.dart';
+import 'package:daily_log/LaporanKinerjaAtasanPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/LoginPage.dart';
 import 'package:daily_log/PekerjaanHarianPage.dart';
@@ -21,6 +24,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: DetailValidasePage());
+        home: CheckOutPresensiPage());
   }
 }
