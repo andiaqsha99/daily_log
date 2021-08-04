@@ -1,5 +1,6 @@
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,8 @@ class PekerjaanHarianPage extends StatefulWidget {
 }
 
 class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
+  var items = List<String>.generate(4, (index) => "Pekerjaan $index");
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,80 +24,104 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
           IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
         ],
       ),
-      body: Column(
-        children: [
-          ProfilStatus(),
-          Container(
-            padding: EdgeInsets.only(left: 16, top: 8),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Tupoksi",
-              style: TextStyle(
-                color: Colors.blue,
-              ),
-            ),
-          ),
-          PekerjaanListWidget(),
-          Container(
-            alignment: Alignment.centerRight,
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: MaterialButton(
-              onPressed: () => {},
-              height: 56,
-              minWidth: 96,
-              color: Colors.blue,
-              textColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            ProfilStatus(),
+            Container(
+              padding: EdgeInsets.only(left: 16, top: 8),
+              alignment: Alignment.centerLeft,
               child: Text(
-                "SUBMIT",
-                style: TextStyle(fontSize: 14),
+                "Tupoksi",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
               ),
             ),
-          )
-        ],
+            ListView.builder(
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return PekerjaanListWidget(headerText: items[index]);
+              },
+              itemCount: items.length,
+            ),
+            Container(
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: MaterialButton(
+                onPressed: () => {},
+                height: 56,
+                minWidth: 96,
+                color: Colors.blue,
+                textColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                child: Text(
+                  "SUBMIT",
+                  style: TextStyle(fontSize: 14),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
       bottomSheet: MenuBottom(),
     );
   }
 }
 
-class PekerjaanListWidget extends StatelessWidget {
-  const PekerjaanListWidget({Key? key}) : super(key: key);
+class PekerjaanListWidget extends StatefulWidget {
+  final String headerText;
+  const PekerjaanListWidget({Key? key, required this.headerText})
+      : super(key: key);
+
+  @override
+  _PekerjaanListWidgetState createState() => _PekerjaanListWidgetState();
+}
+
+class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
+  late int _counter;
+
+  @override
+  void initState() {
+    super.initState();
+    _counter = 1;
+  }
 
   @override
   Widget build(BuildContext context) {
-    var items = List<String>.generate(4, (index) => "Pekerjaan $index");
-    return SingleChildScrollView(
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return ExpansionTile(
-            title: Text(items[index]),
-            children: [
-              InputPekerjaanWidget(),
-              Container(
-                alignment: Alignment.centerRight,
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: MaterialButton(
-                  onPressed: () => {},
-                  height: 56,
-                  minWidth: 96,
-                  color: Colors.blue,
-                  textColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Text(
-                    "TAMBAH",
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-              )
-            ],
-          );
-        },
-        itemCount: items.length,
-      ),
+    return ExpansionTile(
+      maintainState: true,
+      title: Text(widget.headerText),
+      children: [
+        ListView.builder(
+            shrinkWrap: true,
+            itemCount: _counter,
+            itemBuilder: (context, index) {
+              return InputPekerjaanWidget();
+            }),
+        Container(
+          alignment: Alignment.centerRight,
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: MaterialButton(
+            onPressed: () {
+              setState(() {
+                _counter += 1;
+              });
+            },
+            height: 56,
+            minWidth: 96,
+            color: Colors.blue,
+            textColor: Colors.white,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: Text(
+              "TAMBAH",
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+        )
+      ],
     );
   }
 }
@@ -110,6 +137,13 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
   String duration = "00:00";
   int jam = 1;
   int menit = 1;
+  late TextEditingController _textEditingController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textEditingController = TextEditingController();
+  }
 
   currentJamValue(value) {
     setState(() {
@@ -133,6 +167,7 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
           Text("Keterangan"),
           Container(
             child: TextFormField(
+              controller: _textEditingController,
               decoration: InputDecoration(
                   hintText: "Keterangan",
                   hintStyle: TextStyle(color: Colors.grey),
@@ -162,36 +197,21 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      content: Column(
-                        children: [
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [Text("JAM"), Text("MENIT")]),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              NumberPicker(
-                                  minValue: 1,
-                                  maxValue: 12,
-                                  value: jam,
-                                  infiniteLoop: true,
-                                  haptics: true,
-                                  onChanged: (val) => currentJamValue(val)),
-                              NumberPicker(
-                                  minValue: 0,
-                                  maxValue: 59,
-                                  value: menit,
-                                  infiniteLoop: true,
-                                  haptics: true,
-                                  onChanged: (val) => currentMenitValue(val)),
-                            ],
-                          ),
-                        ],
+                      content: Container(
+                        height: 200,
+                        width: 300,
+                        child: CupertinoTimerPicker(
+                          onTimerDurationChanged: (duration) => {
+                            currentJamValue(duration.inHours),
+                            currentMenitValue(duration.inMinutes % 60)
+                          },
+                          mode: CupertinoTimerPickerMode.hm,
+                        ),
                       ),
                       actions: [
                         TextButton(
                             onPressed: () {
-                              setState(() => duration = "0$jam:0$menit");
+                              setState(() => duration = "$jam:$menit");
                               Navigator.of(context).pop();
                             },
                             child: Text("OK")),

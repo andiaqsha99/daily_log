@@ -64,12 +64,12 @@ class _ProfilStatusState extends State<ProfilStatus> {
               ),
             ),
           ),
-          Expanded(
-              flex: 1,
-              child: Text(
-                "0%",
-                style: TextStyle(color: Colors.white),
-              ))
+          // Expanded(
+          //     flex: 1,
+          //     child: Text(
+          //       "0%",
+          //       style: TextStyle(color: Colors.white),
+          //     ))
         ],
       ),
     );
