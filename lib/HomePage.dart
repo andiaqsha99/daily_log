@@ -1,6 +1,13 @@
+import 'package:daily_log/CheckInPresensiPage.dart';
+import 'package:daily_log/LaporanKinerjaAtasanPage.dart';
+import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/PekerjaanHarianPage.dart';
+import 'package:daily_log/PersetujuanAtasanPage.dart';
+import 'package:daily_log/PersetujuanPage.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,8 +26,28 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class MenuPage extends StatelessWidget {
+class MenuPage extends StatefulWidget {
   const MenuPage({Key? key}) : super(key: key);
+
+  @override
+  _MenuPageState createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  String jabatan = " ";
+
+  @override
+  void initState() {
+    super.initState();
+    getLoginData();
+  }
+
+  getLoginData() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      jabatan = sharedPreferences.getString("jabatan")!;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +66,13 @@ class MenuPage extends StatelessWidget {
                       Card(
                         color: Color(0xFFB0D8FD),
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        CheckInPresensiPage()));
+                          },
                           icon: Icon(Icons.alarm),
                           iconSize: 56,
                         ),
@@ -57,12 +90,19 @@ class MenuPage extends StatelessWidget {
                       Card(
                         color: Color(0xFFB0D8FD),
                         child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.desktop_windows),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => jabatan == "staff"
+                                        ? LaporanKinerjaPage()
+                                        : LaporanKinerjaAtasanPage()));
+                          },
+                          icon: Icon(Icons.assignment_ind),
                           iconSize: 56,
                         ),
                       ),
-                      Text("Pekerjaan Harian")
+                      Text("Laporan Kinerja")
                     ],
                   ),
                 ),
@@ -76,12 +116,18 @@ class MenuPage extends StatelessWidget {
                       Card(
                         color: Color(0xFFB0D8FD),
                         child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.assignment_ind),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        PekerjaanHarianPage()));
+                          },
+                          icon: Icon(Icons.desktop_windows),
                           iconSize: 56,
                         ),
                       ),
-                      Text("Laporan Kinerja")
+                      Text("Pekerjaan Harian")
                     ],
                   ),
                 ),
@@ -94,7 +140,14 @@ class MenuPage extends StatelessWidget {
                       Card(
                         color: Color(0xFFB0D8FD),
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => jabatan == "staff"
+                                        ? PersetujuanPage()
+                                        : PersetujuanAtasanPage()));
+                          },
                           icon: Icon(Icons.assignment_turned_in),
                           iconSize: 56,
                         ),

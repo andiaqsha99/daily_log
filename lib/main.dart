@@ -1,13 +1,5 @@
-import 'package:daily_log/CheckInPresensiPage.dart';
-import 'package:daily_log/CheckOutPresensiPage.dart';
-import 'package:daily_log/DetailValidasiPage.dart';
-import 'package:daily_log/HomePage.dart';
-import 'package:daily_log/LaporanKinerjaAtasanPage.dart';
-import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/LoginPage.dart';
-import 'package:daily_log/PekerjaanHarianPage.dart';
-import 'package:daily_log/PersetujuanAtasanPage.dart';
-import 'package:daily_log/PersetujuanPage.dart';
+import 'package:daily_log/LoginWrapper.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -24,6 +16,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: CheckOutPresensiPage());
+        home: LoginWrapper());
   }
 }

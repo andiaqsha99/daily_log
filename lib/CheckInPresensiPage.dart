@@ -1,10 +1,17 @@
+import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CheckInPresensiPage extends StatelessWidget {
+class CheckInPresensiPage extends StatefulWidget {
   const CheckInPresensiPage({Key? key}) : super(key: key);
 
+  @override
+  _CheckInPresensiPageState createState() => _CheckInPresensiPageState();
+}
+
+class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,9 +86,13 @@ class CheckInPresensiPage extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: MaterialButton(
-                    onPressed: () => {},
+                    onPressed: () => {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CheckOutPresensiPage()))
+                    },
                     height: 48,
-                    minWidth: 96,
                     color: Colors.blue,
                     textColor: Colors.white,
                     shape: RoundedRectangleBorder(

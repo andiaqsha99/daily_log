@@ -1,7 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfilStatus extends StatelessWidget {
+class ProfilStatus extends StatefulWidget {
   const ProfilStatus({Key? key}) : super(key: key);
+
+  @override
+  _ProfilStatusState createState() => _ProfilStatusState();
+}
+
+class _ProfilStatusState extends State<ProfilStatus> {
+  String username = " ";
+
+  @override
+  void initState() {
+    super.initState();
+    getLoginData();
+  }
+
+  getLoginData() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      username = sharedPreferences.getString("username")!;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +53,7 @@ class ProfilStatus extends StatelessWidget {
                     height: 8,
                   ),
                   Text(
-                    "Username",
+                    username,
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   Text(

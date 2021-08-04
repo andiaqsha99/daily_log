@@ -2,10 +2,16 @@ import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class PekerjaanHarianPage extends StatelessWidget {
+class PekerjaanHarianPage extends StatefulWidget {
   const PekerjaanHarianPage({Key? key}) : super(key: key);
 
+  @override
+  _PekerjaanHarianPageState createState() => _PekerjaanHarianPageState();
+}
+
+class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

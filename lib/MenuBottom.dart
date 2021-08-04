@@ -1,4 +1,8 @@
+import 'package:daily_log/HomePage.dart';
+import 'package:daily_log/LoginPage.dart';
+import 'package:daily_log/LoginWrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuBottom extends StatelessWidget {
   const MenuBottom({Key? key}) : super(key: key);
@@ -11,8 +15,20 @@ class MenuBottom extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.home)),
-          IconButton(onPressed: () => {}, icon: Icon(Icons.logout))
+          IconButton(
+              onPressed: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomePage()))
+                  },
+              icon: Icon(Icons.home)),
+          IconButton(
+              onPressed: () async {
+                final sharedPreferences = await SharedPreferences.getInstance();
+                sharedPreferences.setBool("isLogin", false);
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => LoginWrapper()));
+              },
+              icon: Icon(Icons.logout))
         ],
       ),
     );

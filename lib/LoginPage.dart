@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'InputWrapper.dart';
+import 'InputField.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -32,7 +32,7 @@ class LoginPage extends StatelessWidget {
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30))),
-              child: InputWrapper(),
+              child: InputField(),
             ))
           ],
         ),
