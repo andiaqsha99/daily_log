@@ -1,4 +1,6 @@
 import 'package:daily_log/HomePage.dart';
+import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/Pengguna.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,19 +92,17 @@ class _InputFieldState extends State<InputField> {
           MaterialButton(
             onPressed: () async {
               final sharedPreferences = await SharedPreferences.getInstance();
-
-              if (_usernameController.text.trim() == "staff" &&
-                  _passwordController.text.trim() == "12345678") {
-                sharedPreferences.setString("username", "Staff Username");
+              Pengguna pengguna = Pengguna(
+                  id: 1,
+                  username: _usernameController.text.trim(),
+                  password: _passwordController.text.trim(),
+                  jabatan: 'staff');
+              Pengguna api = await ApiService().login(pengguna);
+              if (_usernameController.text.trim() == api.username) {
+                sharedPreferences.setString("username", api.username);
                 sharedPreferences.setBool("isLogin", true);
-                sharedPreferences.setString("jabatan", "staff");
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => HomePage()));
-              } else if (_usernameController.text.trim() == "atasan" &&
-                  _passwordController.text.trim() == "12345678") {
-                sharedPreferences.setString("username", "Atasan Username");
-                sharedPreferences.setBool("isLogin", true);
-                sharedPreferences.setString("jabatan", "atasan");
+                sharedPreferences.setString("jabatan", api.jabatan);
+                sharedPreferences.setInt("id_user", api.id);
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => HomePage()));
               }

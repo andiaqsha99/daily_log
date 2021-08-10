@@ -35,6 +35,7 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   String jabatan = " ";
+  int idUSer = 0;
 
   @override
   void initState() {
@@ -46,6 +47,7 @@ class _MenuPageState extends State<MenuPage> {
     final sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       jabatan = sharedPreferences.getString("jabatan")!;
+      idUSer = sharedPreferences.getInt("id_user")!;
     });
   }
 
@@ -120,8 +122,9 @@ class _MenuPageState extends State<MenuPage> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        PekerjaanHarianPage()));
+                                    builder: (context) => PekerjaanHarianPage(
+                                          idUser: this.idUSer,
+                                        )));
                           },
                           icon: Icon(Icons.desktop_windows),
                           iconSize: 56,

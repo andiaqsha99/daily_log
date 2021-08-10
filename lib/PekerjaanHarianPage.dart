@@ -1,19 +1,29 @@
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
+import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/Pekerjaan.dart';
+import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PekerjaanHarianPage extends StatefulWidget {
-  const PekerjaanHarianPage({Key? key}) : super(key: key);
+  final int idUser;
+  const PekerjaanHarianPage({Key? key, required this.idUser}) : super(key: key);
 
   @override
   _PekerjaanHarianPageState createState() => _PekerjaanHarianPageState();
 }
 
 class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
-  var items = List<String>.generate(4, (index) => "Pekerjaan $index");
+  late Future<PekerjaanResponse> pekerjaanResponse;
+
+  @override
+  void initState() {
+    super.initState();
+    pekerjaanResponse = ApiService().getPekerjaan(widget.idUser);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +48,26 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                 ),
               ),
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return PekerjaanListWidget(headerText: items[index]);
-              },
-              itemCount: items.length,
-            ),
+            FutureBuilder<PekerjaanResponse>(
+                future: pekerjaanResponse,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    var a = snapshot.data;
+                    List<Pekerjaan> items = a!.data;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return PekerjaanListWidget(
+                            headerText: items[index].nama);
+                      },
+                      itemCount: items.length,
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text("Error");
+                  }
+
+                  return CircularProgressIndicator();
+                }),
             Container(
               alignment: Alignment.centerRight,
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
