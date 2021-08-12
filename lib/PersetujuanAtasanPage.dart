@@ -1,4 +1,9 @@
+import 'package:daily_log/DetailValidasiPage.dart';
+import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/SubPekerjaan.dart';
+import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'MenuBottom.dart';
 
@@ -70,176 +75,229 @@ class PekerjaanMenungguCard extends StatefulWidget {
 }
 
 class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
-  List<Pekerjaan> listPekerjaan = List<Pekerjaan>.generate(
-      6,
-      (index) => Pekerjaan(
-          nama: "Pekerjaan $index",
-          tanggal: "$index/07/2021",
-          durasi: "01:00",
-          keterangan: "keterangan $index"));
+  late Future<SubPekerjaanResponse> subPekerjaanResponse;
+  int idUser = 0;
 
-  List<EditingContoller> listController = List<EditingContoller>.generate(
-      6,
-      (index) => EditingContoller(
-          nama: TextEditingController(),
-          keterangan: TextEditingController(),
-          durasi: TextEditingController(),
-          tanggal: TextEditingController()));
+  @override
+  void initState() {
+    super.initState();
+    getLoginData();
+    loadData();
+  }
+
+  loadData() {
+    subPekerjaanResponse = ApiService().getSubmitPekerjaan(idUser);
+  }
+
+  getLoginData() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      idUser = sharedPreferences.getInt("id_user")!;
+      loadData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemBuilder: (context, index) {
-        return Card(
-            child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(8),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              listPekerjaan[index].nama,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              listPekerjaan[index].tanggal,
-              style: TextStyle(color: Colors.grey),
-            ),
-            Text(
-              listPekerjaan[index].durasi,
-              style: TextStyle(color: Colors.grey),
-            ),
-            Text(
-              listPekerjaan[index].keterangan,
-              style: TextStyle(color: Colors.grey),
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            Row(
-              children: [
-                MaterialButton(
-                  onPressed: () => {
-                    showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) => AlertDialog(
-                        title: const Text('Edit Pekerjaan'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              child: TextFormField(
-                                controller: listController[index].nama,
-                                decoration: InputDecoration(
-                                    hintText: "Nama Pekerjaan",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Container(
-                              child: TextFormField(
-                                controller: listController[index].keterangan,
-                                decoration: InputDecoration(
-                                    hintText: "Keterangan",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Container(
-                              child: TextFormField(
-                                controller: listController[index].durasi,
-                                decoration: InputDecoration(
-                                    hintText: "Durasi",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Container(
-                              child: TextFormField(
-                                controller: listController[index].tanggal,
-                                decoration: InputDecoration(
-                                    hintText: "Tanggal",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                              ),
-                            ),
-                          ],
+    return FutureBuilder<SubPekerjaanResponse>(
+        future: subPekerjaanResponse,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            var data = snapshot.data;
+            List<SubPekerjaan> items = data!.data;
+            List<EditingContoller> listController =
+                List<EditingContoller>.generate(
+                    items.length,
+                    (index) => EditingContoller(
+                        nama: TextEditingController(),
+                        keterangan: TextEditingController(),
+                        durasi: TextEditingController(),
+                        tanggal: TextEditingController()));
+            return ListView.builder(
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                listController[index].nama.text = items[index].nama;
+                listController[index].durasi.text =
+                    items[index].durasi.toString();
+                listController[index].tanggal.text = items[index].tanggal;
+                return Card(
+                    child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(8),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          items[index].nama,
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context, 'SIMPAN');
-                              setState(() {
-                                listPekerjaan[index].nama =
-                                    listController[index].nama.text;
-                                listPekerjaan[index].keterangan =
-                                    listController[index].keterangan.text;
-                                listPekerjaan[index].durasi =
-                                    listController[index].durasi.text;
-                                listPekerjaan[index].tanggal =
-                                    listController[index].tanggal.text;
-                              });
-                            },
-                            child: const Text('SIMPAN'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, 'BATAL'),
-                            child: const Text(
-                              'BATAL',
-                              style: TextStyle(color: Colors.black),
+                        Text(
+                          items[index].tanggal,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        Text(
+                          "0${items[index].durasi}:00",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        Text(
+                          "Keterangan",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Row(
+                          children: [
+                            MaterialButton(
+                              onPressed: () => {
+                                showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    title: const Text('Edit Pekerjaan'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          child: TextFormField(
+                                            controller:
+                                                listController[index].nama,
+                                            decoration: InputDecoration(
+                                                hintText: "Nama Pekerjaan",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.grey),
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10))),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Container(
+                                          child: TextFormField(
+                                            controller: listController[index]
+                                                .keterangan,
+                                            decoration: InputDecoration(
+                                                hintText: "Keterangan",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.grey),
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10))),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Container(
+                                          child: TextFormField(
+                                            controller:
+                                                listController[index].durasi,
+                                            decoration: InputDecoration(
+                                                hintText: "Durasi",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.grey),
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10))),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Container(
+                                          child: TextFormField(
+                                            controller:
+                                                listController[index].tanggal,
+                                            decoration: InputDecoration(
+                                                hintText: "Tanggal",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.grey),
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10))),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () async {
+                                          var subPekerjaan = items[index];
+                                          subPekerjaan.nama =
+                                              listController[index].nama.text;
+                                          subPekerjaan.tanggal =
+                                              listController[index]
+                                                  .tanggal
+                                                  .text;
+                                          subPekerjaan.durasi = int.parse(
+                                              listController[index]
+                                                  .durasi
+                                                  .text);
+                                          var update = await ApiService()
+                                              .updateSubPekerjaan(subPekerjaan);
+                                          setState(() {
+                                            loadData();
+                                          });
+                                          Navigator.pop(context, 'SIMPAN');
+                                        },
+                                        child: const Text('SIMPAN'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, 'BATAL'),
+                                        child: const Text(
+                                          'BATAL',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              },
+                              child: Text("EDIT"),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6)),
+                              color: Color(0xFF1A73E9),
+                              textColor: Colors.white,
+                              height: 40,
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  },
-                  child: Text("EDIT"),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                  color: Color(0xFF1A73E9),
-                  textColor: Colors.white,
-                  height: 40,
-                ),
-                SizedBox(
-                  width: 16,
-                ),
-                MaterialButton(
-                  onPressed: () => {
-                    setState(() {
-                      listPekerjaan.removeAt(index);
-                    })
-                  },
-                  child: Text("DELETE"),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                  color: Color(0xFFEB5757),
-                  textColor: Colors.white,
-                  height: 40,
-                )
-              ],
-            )
-          ]),
-        ));
-      },
-      itemCount: listPekerjaan.length,
-    );
+                            SizedBox(
+                              width: 16,
+                            ),
+                            MaterialButton(
+                              onPressed: () async {
+                                var delete = await ApiService()
+                                    .deleteSubPekerjaan(items[index].id);
+                                setState(() {
+                                  loadData();
+                                });
+                              },
+                              child: Text("DELETE"),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6)),
+                              color: Color(0xFFEB5757),
+                              textColor: Colors.white,
+                              height: 40,
+                            )
+                          ],
+                        )
+                      ]),
+                ));
+              },
+              itemCount: items.length,
+            );
+          } else if (snapshot.hasError) {
+            return Text("Error");
+          }
+
+          return CircularProgressIndicator();
+        });
   }
 }
 
@@ -279,201 +337,249 @@ class PekerjaanDitolakCard extends StatefulWidget {
 }
 
 class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
-  List<Pekerjaan> listPekerjaan = List<Pekerjaan>.generate(
-      6,
-      (index) => Pekerjaan(
-          nama: "Pekerjaan $index",
-          tanggal: "$index/07/2021",
-          durasi: "01:00",
-          keterangan: "keterangan $index"));
+  late Future<SubPekerjaanResponse> subPekerjaanRejectResponse;
+  int idUser = 0;
 
-  List<EditingContoller> listController = List<EditingContoller>.generate(
-      6,
-      (index) => EditingContoller(
-          nama: TextEditingController(),
-          keterangan: TextEditingController(),
-          durasi: TextEditingController(),
-          tanggal: TextEditingController()));
+  @override
+  void initState() {
+    super.initState();
+    getLoginData();
+    loadData();
+  }
+
+  loadData() {
+    subPekerjaanRejectResponse = ApiService().getRejectPekerjaan(idUser);
+  }
+
+  getLoginData() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      idUser = sharedPreferences.getInt("id_user")!;
+      loadData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: listPekerjaan.length,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return Card(
-              child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(8),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                listPekerjaan[index].nama,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                listPekerjaan[index].tanggal,
-                style: TextStyle(color: Colors.grey),
-              ),
-              Text(
-                "Durasi: ${listPekerjaan[index].durasi}",
-                style: TextStyle(color: Colors.grey),
-              ),
-              Text(
-                listPekerjaan[index].keterangan,
-                style: TextStyle(color: Colors.grey),
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              Row(
-                children: [
-                  MaterialButton(
-                    onPressed: () => {
-                      showDialog<String>(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          title: const Text('Edit Pekerjaan'),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
+    return FutureBuilder<SubPekerjaanResponse>(
+        future: subPekerjaanRejectResponse,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            var data = snapshot.data;
+            List<SubPekerjaan> items = data!.data;
+            List<EditingContoller> listController =
+                List<EditingContoller>.generate(
+                    items.length,
+                    (index) => EditingContoller(
+                        nama: TextEditingController(),
+                        keterangan: TextEditingController(),
+                        durasi: TextEditingController(),
+                        tanggal: TextEditingController()));
+            return ListView.builder(
+                itemCount: items.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  listController[index].nama.text = items[index].nama;
+                  listController[index].durasi.text =
+                      items[index].durasi.toString();
+                  listController[index].tanggal.text = items[index].tanggal;
+                  return Card(
+                      child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            items[index].nama,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            items[index].tanggal,
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          Text(
+                            "Durasi: 0${items[index].durasi}:00",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          Text(
+                            "keterangan",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Row(
                             children: [
-                              Container(
-                                child: TextFormField(
-                                  controller: listController[index].nama,
-                                  decoration: InputDecoration(
-                                      hintText: "Nama Pekerjaan",
-                                      hintStyle: TextStyle(color: Colors.grey),
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                ),
+                              MaterialButton(
+                                onPressed: () => {
+                                  showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      title: const Text('Edit Pekerjaan'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            child: TextFormField(
+                                              controller:
+                                                  listController[index].nama,
+                                              decoration: InputDecoration(
+                                                  hintText: "Nama Pekerjaan",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.grey),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10))),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          Container(
+                                            child: TextFormField(
+                                              controller: listController[index]
+                                                  .keterangan,
+                                              decoration: InputDecoration(
+                                                  hintText: "Keterangan",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.grey),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10))),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          Container(
+                                            child: TextFormField(
+                                              controller:
+                                                  listController[index].durasi,
+                                              decoration: InputDecoration(
+                                                  hintText: "Durasi",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.grey),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10))),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          Container(
+                                            child: TextFormField(
+                                              controller:
+                                                  listController[index].tanggal,
+                                              decoration: InputDecoration(
+                                                  hintText: "Tanggal",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.grey),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10))),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () async {
+                                            var subPekerjaan = items[index];
+                                            subPekerjaan.nama =
+                                                listController[index].nama.text;
+                                            subPekerjaan.tanggal =
+                                                listController[index]
+                                                    .tanggal
+                                                    .text;
+                                            subPekerjaan.durasi = int.parse(
+                                                listController[index]
+                                                    .durasi
+                                                    .text);
+                                            var update = await ApiService()
+                                                .updateSubPekerjaan(
+                                                    subPekerjaan);
+                                            loadData();
+                                            Navigator.pop(context, 'SIMPAN');
+                                          },
+                                          child: const Text('SIMPAN'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, 'BATAL'),
+                                          child: const Text(
+                                            'BATAL',
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                },
+                                child: Text("EDIT"),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                                color: Color(0xFF1A73E9),
+                                textColor: Colors.white,
+                                height: 40,
                               ),
                               SizedBox(
-                                height: 8,
+                                width: 16,
                               ),
-                              Container(
-                                child: TextFormField(
-                                  controller: listController[index].keterangan,
-                                  decoration: InputDecoration(
-                                      hintText: "Keterangan",
-                                      hintStyle: TextStyle(color: Colors.grey),
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              Container(
-                                child: TextFormField(
-                                  controller: listController[index].durasi,
-                                  decoration: InputDecoration(
-                                      hintText: "Durasi",
-                                      hintStyle: TextStyle(color: Colors.grey),
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                ),
+                              MaterialButton(
+                                onPressed: () async {
+                                  var delete = await ApiService()
+                                      .deleteSubPekerjaan(items[index].id);
+                                  setState(() {
+                                    loadData();
+                                  });
+                                },
+                                child: Text("DELETE"),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                                color: Color(0xFFEB5757),
+                                textColor: Colors.white,
+                                height: 40,
                               ),
                               SizedBox(
-                                height: 8,
+                                width: 16,
                               ),
-                              Container(
-                                child: TextFormField(
-                                  controller: listController[index].tanggal,
-                                  decoration: InputDecoration(
-                                      hintText: "Tanggal",
-                                      hintStyle: TextStyle(color: Colors.grey),
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                ),
+                              MaterialButton(
+                                onPressed: () async {
+                                  var subPekerjaan = items[index];
+                                  subPekerjaan.status = "submit";
+                                  var update = await ApiService()
+                                      .updateSubPekerjaan(subPekerjaan);
+                                  setState(() {
+                                    loadData();
+                                  });
+                                },
+                                child: Text("SUBMIT"),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                                color: Color(0xFF00FF57),
+                                textColor: Colors.white,
+                                height: 40,
                               ),
                             ],
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context, 'SIMPAN');
-                                setState(() {
-                                  listPekerjaan[index].nama =
-                                      listController[index].nama.text;
-                                  listPekerjaan[index].keterangan =
-                                      listController[index].keterangan.text;
-                                  listPekerjaan[index].durasi =
-                                      listController[index].durasi.text;
-                                  listPekerjaan[index].tanggal =
-                                      listController[index].tanggal.text;
-                                });
-                              },
-                              child: const Text('SIMPAN'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, 'BATAL'),
-                              child: const Text(
-                                'BATAL',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    },
-                    child: Text("EDIT"),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
-                    color: Color(0xFF1A73E9),
-                    textColor: Colors.white,
-                    height: 40,
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  MaterialButton(
-                    onPressed: () => {
-                      setState(() {
-                        listPekerjaan.removeAt(index);
-                      })
-                    },
-                    child: Text("DELETE"),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
-                    color: Color(0xFFEB5757),
-                    textColor: Colors.white,
-                    height: 40,
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  MaterialButton(
-                    onPressed: () => {},
-                    child: Text("SUBMIT"),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
-                    color: Color(0xFF00FF57),
-                    textColor: Colors.white,
-                    height: 40,
-                  ),
-                ],
-              )
-            ]),
-          ));
+                          )
+                        ]),
+                  ));
+                });
+          } else if (snapshot.hasError) {
+            return Text("Error");
+          }
+
+          return CircularProgressIndicator();
         });
   }
-}
-
-class Pekerjaan {
-  String nama;
-  String tanggal;
-  String durasi;
-  String keterangan;
-
-  Pekerjaan(
-      {required this.nama,
-      required this.tanggal,
-      required this.durasi,
-      required this.keterangan});
 }
 
 class EditingContoller {
@@ -499,20 +605,27 @@ class ListValidasiPage extends StatelessWidget {
       padding: EdgeInsets.all(8),
       child: ListView.builder(
         itemBuilder: (context, index) {
-          return Card(
-              child: Container(
-                  padding: EdgeInsets.all(8),
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        items[index],
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      Text("Jabatan")
-                    ],
-                  )));
+          return GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                return DetailValidasePage();
+              }));
+            },
+            child: Card(
+                child: Container(
+                    padding: EdgeInsets.all(8),
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          items[index],
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Text("Jabatan")
+                      ],
+                    ))),
+          );
         },
         itemCount: items.length,
       ),

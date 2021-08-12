@@ -1,4 +1,5 @@
 import 'package:daily_log/CheckInPresensiPage.dart';
+import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/LaporanKinerjaAtasanPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
@@ -36,6 +37,7 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   String jabatan = " ";
   int idUSer = 0;
+  bool isCheckIn = false;
 
   @override
   void initState() {
@@ -48,6 +50,7 @@ class _MenuPageState extends State<MenuPage> {
     setState(() {
       jabatan = sharedPreferences.getString("jabatan")!;
       idUSer = sharedPreferences.getInt("id_user")!;
+      isCheckIn = sharedPreferences.getBool("is_checkin")!;
     });
   }
 
@@ -72,8 +75,9 @@ class _MenuPageState extends State<MenuPage> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        CheckInPresensiPage()));
+                                    builder: (context) => isCheckIn
+                                        ? CheckOutPresensiPage()
+                                        : CheckInPresensiPage()));
                           },
                           icon: Icon(Icons.alarm),
                           iconSize: 56,

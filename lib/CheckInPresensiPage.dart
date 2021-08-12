@@ -1,4 +1,5 @@
 import 'package:daily_log/CheckOutPresensiPage.dart';
+import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:flutter/material.dart';
@@ -107,11 +108,14 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: MaterialButton(
-                      onPressed: () => {
-                        Navigator.push(
+                      onPressed: () async {
+                        var sharedPreference =
+                            await SharedPreferences.getInstance();
+                        sharedPreference.setBool("is_checkin", true);
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CheckOutPresensiPage()))
+                                builder: (context) => HomePage()));
                       },
                       height: 48,
                       color: Colors.blue,

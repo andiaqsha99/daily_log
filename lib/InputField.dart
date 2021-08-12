@@ -103,6 +103,7 @@ class _InputFieldState extends State<InputField> {
                 sharedPreferences.setBool("isLogin", true);
                 sharedPreferences.setString("jabatan", api.jabatan);
                 sharedPreferences.setInt("id_user", api.id);
+                sharedPreferences.setBool("is_checkin", false);
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => HomePage()));
               }

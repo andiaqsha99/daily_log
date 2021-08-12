@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/SubPekerjaan.dart';
+import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
@@ -24,5 +26,46 @@ class ApiService {
         await client.get((Uri.parse("$baseUrl/pekerjaan/pengguna/$id")));
     var data = jsonDecode(response.body);
     return PekerjaanResponse.fromJson(data);
+  }
+
+  Future<void> submitSubPekerjaan(SubPekerjaan subPekerjaan) async {
+    final response = await client.post(Uri.parse("$baseUrl/subpekerjaan/store"),
+        headers: {"content-type": "application/json"},
+        body: subPekerjaanToJson(subPekerjaan));
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<SubPekerjaanResponse> getSubmitPekerjaan(int idUser) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/pengguna/$idUser/subpekerjaan/submit")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return SubPekerjaanResponse.fromJson(data);
+  }
+
+  Future<SubPekerjaanResponse> getRejectPekerjaan(int idUser) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/pengguna/$idUser/subpekerjaan/reject")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return SubPekerjaanResponse.fromJson(data);
+  }
+
+  Future<bool> updateSubPekerjaan(SubPekerjaan subPekerjaan) async {
+    final response = await client.post(
+        Uri.parse("$baseUrl/subpekerjaan/update"),
+        headers: {"content-type": "application/json"},
+        body: subPekerjaanToJson(subPekerjaan));
+    var data = jsonDecode(response.body);
+    print(data);
+    return data['data'];
+  }
+
+  Future<void> deleteSubPekerjaan(int idSubpekerjaan) async {
+    final response =
+        await client.delete(Uri.parse("$baseUrl/subpekerjaan/$idSubpekerjaan"));
+    var data = jsonDecode(response.body);
+    print(data);
   }
 }

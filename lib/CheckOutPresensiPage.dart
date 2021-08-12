@@ -2,6 +2,7 @@ import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckOutPresensiPage extends StatefulWidget {
@@ -12,6 +13,15 @@ class CheckOutPresensiPage extends StatefulWidget {
 }
 
 class _CheckOutPresensiPageState extends State<CheckOutPresensiPage> {
+  String date = "dd-MM-yyyy";
+
+  @override
+  void initState() {
+    super.initState();
+    DateTime dateTime = DateTime.now();
+    date = DateFormat("dd-MM-yyyy").format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +42,7 @@ class _CheckOutPresensiPageState extends State<CheckOutPresensiPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "PRESENSI PEGAWAI TANGGAL 30-07-2021",
+                  "PRESENSI PEGAWAI TANGGAL $date",
                   style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(
@@ -41,23 +51,28 @@ class _CheckOutPresensiPageState extends State<CheckOutPresensiPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    // MaterialButton(
+                    //   onPressed: () => {},
+                    //   height: 48,
+                    //   minWidth: 96,
+                    //   color: Colors.blue,
+                    //   textColor: Colors.white,
+                    //   shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(10)),
+                    //   child: Text(
+                    //     "CHECK IN",
+                    //     style: TextStyle(fontSize: 14),
+                    //   ),
+                    // ),
                     MaterialButton(
-                      onPressed: () => {},
-                      height: 48,
-                      minWidth: 96,
-                      color: Colors.blue,
-                      textColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Text(
-                        "CHECK IN",
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ),
-                    MaterialButton(
-                      onPressed: () => {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => HomePage()))
+                      onPressed: () async {
+                        var sharedPreferences =
+                            await SharedPreferences.getInstance();
+                        sharedPreferences.setBool("is_checkin", false);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomePage()));
                       },
                       height: 48,
                       minWidth: 96,

@@ -1,10 +1,13 @@
+import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +21,8 @@ class PekerjaanHarianPage extends StatefulWidget {
 
 class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
   late Future<PekerjaanResponse> pekerjaanResponse;
+  List<SubPekerjaan> listSubPekerjaan = [SubPekerjaan()];
+  List<List<SubPekerjaan>> mapPekerjaan = [];
 
   @override
   void initState() {
@@ -52,13 +57,17 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                 future: pekerjaanResponse,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    var a = snapshot.data;
-                    List<Pekerjaan> items = a!.data;
+                    var listPekerjaan = snapshot.data;
+                    List<Pekerjaan> items = listPekerjaan!.data;
                     return ListView.builder(
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
+                        mapPekerjaan.add([newSubPekerjaan(items[index].id)]);
                         return PekerjaanListWidget(
-                            headerText: items[index].nama);
+                          headerText: items[index].nama,
+                          idPekerjaan: items[index].id,
+                          listSubPekerjaan: mapPekerjaan[index],
+                        );
                       },
                       itemCount: items.length,
                     );
@@ -72,7 +81,18 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
               alignment: Alignment.centerRight,
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: MaterialButton(
-                onPressed: () => {},
+                onPressed: () async {
+                  mapPekerjaan.forEach((element) {
+                    element.forEach((element) {
+                      print(element.nama);
+                      ApiService().submitSubPekerjaan(element);
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
+                        return HomePage();
+                      }));
+                    });
+                  });
+                },
                 height: 56,
                 minWidth: 96,
                 color: Colors.blue,
@@ -95,7 +115,13 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
 
 class PekerjaanListWidget extends StatefulWidget {
   final String headerText;
-  const PekerjaanListWidget({Key? key, required this.headerText})
+  final int idPekerjaan;
+  final List<SubPekerjaan> listSubPekerjaan;
+  const PekerjaanListWidget(
+      {Key? key,
+      required this.headerText,
+      required this.idPekerjaan,
+      required this.listSubPekerjaan})
       : super(key: key);
 
   @override
@@ -103,12 +129,9 @@ class PekerjaanListWidget extends StatefulWidget {
 }
 
 class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
-  late int _counter;
-
   @override
   void initState() {
     super.initState();
-    _counter = 1;
   }
 
   @override
@@ -119,9 +142,11 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
       children: [
         ListView.builder(
             shrinkWrap: true,
-            itemCount: _counter,
+            itemCount: widget.listSubPekerjaan.length,
             itemBuilder: (context, index) {
-              return InputPekerjaanWidget();
+              return InputPekerjaanWidget(
+                subPekerjaan: widget.listSubPekerjaan[index],
+              );
             }),
         Container(
           alignment: Alignment.centerRight,
@@ -129,7 +154,8 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
           child: MaterialButton(
             onPressed: () {
               setState(() {
-                _counter += 1;
+                widget.listSubPekerjaan
+                    .add(newSubPekerjaan(widget.idPekerjaan));
               });
             },
             height: 56,
@@ -149,8 +175,17 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
   }
 }
 
+SubPekerjaan newSubPekerjaan(int idPekerjaan) {
+  DateTime date = DateTime.now();
+  String formatDate = DateFormat("yyyy-MM-dd").format(date);
+  return SubPekerjaan(
+      idPekerjaan: idPekerjaan, tanggal: formatDate, status: 'submit');
+}
+
 class InputPekerjaanWidget extends StatefulWidget {
-  const InputPekerjaanWidget({Key? key}) : super(key: key);
+  final SubPekerjaan subPekerjaan;
+  const InputPekerjaanWidget({Key? key, required this.subPekerjaan})
+      : super(key: key);
 
   @override
   _InputPekerjaanWidgetState createState() => _InputPekerjaanWidgetState();
@@ -171,6 +206,7 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
   currentJamValue(value) {
     setState(() {
       jam = value;
+      widget.subPekerjaan.durasi = jam;
     });
   }
 
@@ -190,6 +226,7 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
           Text("Keterangan"),
           Container(
             child: TextFormField(
+              onChanged: (value) => widget.subPekerjaan.nama = value,
               controller: _textEditingController,
               decoration: InputDecoration(
                   hintText: "Keterangan",
