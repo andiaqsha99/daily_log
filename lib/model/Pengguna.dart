@@ -3,7 +3,7 @@ import 'dart:convert';
 class Pengguna {
   int id;
   String username;
-  String password;
+  String? password;
   String jabatan;
 
   Pengguna(

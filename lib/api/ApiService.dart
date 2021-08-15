@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:http/http.dart' as http;
@@ -67,5 +68,22 @@ class ApiService {
         await client.delete(Uri.parse("$baseUrl/subpekerjaan/$idSubpekerjaan"));
     var data = jsonDecode(response.body);
     print(data);
+  }
+
+  Future<PenggunaResponse> getPenggunaStaff() async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/pengguna/list/staff")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PenggunaResponse.fromJson(data);
+  }
+
+  Future<SubPekerjaanResponse> getSubmitPekerjaanByIdPengguna(
+      int idUser) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/pengguna/$idUser/pekerjaan/subpekerjaan/submit")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return SubPekerjaanResponse.fromJson(data);
   }
 }

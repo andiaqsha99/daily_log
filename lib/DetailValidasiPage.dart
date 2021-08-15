@@ -1,27 +1,54 @@
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/PersetujuanAtasanPage.dart';
+import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/SubPekerjaan.dart';
+import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
 
 class DetailValidasePage extends StatelessWidget {
-  const DetailValidasePage({Key? key}) : super(key: key);
+  final Pengguna staff;
+  const DetailValidasePage({Key? key, required this.staff}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: Text("Staff 1"),
+        title: Text(this.staff.username),
         actions: [
           IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
         ],
       ),
-      body: SafeArea(child: ListValidasiPekerjaanPage()),
+      body: SafeArea(
+          child: ListValidasiPekerjaanPage(
+        idStaff: staff.id,
+      )),
       bottomSheet: MenuBottom(),
     );
   }
 }
 
-class ListValidasiPekerjaanPage extends StatelessWidget {
-  const ListValidasiPekerjaanPage({Key? key}) : super(key: key);
+class ListValidasiPekerjaanPage extends StatefulWidget {
+  final int idStaff;
+  const ListValidasiPekerjaanPage({Key? key, required this.idStaff})
+      : super(key: key);
+
+  @override
+  _ListValidasiPekerjaanPageState createState() =>
+      _ListValidasiPekerjaanPageState();
+}
+
+class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
+  late Future<SubPekerjaanResponse> listPekerjaanSubmit;
+  List<SubPekerjaan> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    listPekerjaanSubmit =
+        ApiService().getSubmitPekerjaanByIdPengguna(widget.idStaff);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,60 +56,34 @@ class ListValidasiPekerjaanPage extends StatelessWidget {
       padding: EdgeInsets.all(8),
       child: Column(
         children: [
-          Card(
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Judul Pekerjaan",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Text("Keterangan"),
-                  Text("Durasi: 01:00"),
-                  Row(
-                    children: [
-                      Text("Validasi"),
-                      Switch(value: true, onChanged: (val) => {})
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Judul Pekerjaan",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Text("Keterangan"),
-                  Text("Durasi: 01:00"),
-                  Row(
-                    children: [
-                      Text("Validasi"),
-                      Switch(value: false, onChanged: (val) => {})
-                    ],
-                  ),
-                  Text("Saran"),
-                  SizedBox(height: 8),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        hintText: "Saran",
-                        hintStyle: TextStyle(color: Colors.grey),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                  )
-                ],
-              ),
-            ),
+          FutureBuilder<SubPekerjaanResponse>(
+              future: listPekerjaanSubmit,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  items.addAll(snapshot.data!.data);
+                  if (items.length > 0) {
+                    return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return ValidasiCard(
+                            subPekerjaan: items[index],
+                          );
+                        });
+                  } else {
+                    return Center(
+                      child: Text("No Data"),
+                    );
+                  }
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Error"),
+                  );
+                }
+                return CircularProgressIndicator();
+              }),
+          SizedBox(
+            height: 8,
           ),
           Align(
             alignment: Alignment.centerRight,
@@ -91,7 +92,7 @@ class ListValidasiPekerjaanPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 MaterialButton(
-                  onPressed: () => {},
+                  onPressed: () => {Navigator.of(context).pop()},
                   child: Text("KEMBALI"),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),
@@ -103,7 +104,15 @@ class ListValidasiPekerjaanPage extends StatelessWidget {
                   width: 16,
                 ),
                 MaterialButton(
-                  onPressed: () => {},
+                  onPressed: () async {
+                    items.forEach((element) {
+                      var update = ApiService().updateSubPekerjaan(element);
+                    });
+                    Navigator.of(context)
+                        .pushReplacement(MaterialPageRoute(builder: (context) {
+                      return PersetujuanAtasanPage();
+                    }));
+                  },
                   child: Text("VALIDASI"),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),
@@ -115,6 +124,77 @@ class ListValidasiPekerjaanPage extends StatelessWidget {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class ValidasiCard extends StatefulWidget {
+  final SubPekerjaan subPekerjaan;
+  const ValidasiCard({Key? key, required this.subPekerjaan}) : super(key: key);
+
+  @override
+  _ValidasiCardState createState() => _ValidasiCardState();
+}
+
+class _ValidasiCardState extends State<ValidasiCard> {
+  bool isChecked = true;
+  late TextEditingController _textSaranController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textSaranController = TextEditingController();
+    isChecked
+        ? widget.subPekerjaan.status = 'valid'
+        : widget.subPekerjaan.status = 'reject';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.subPekerjaan.nama,
+              style: TextStyle(fontSize: 16),
+            ),
+            Text("Durasi: 0${widget.subPekerjaan.durasi}:00"),
+            Row(
+              children: [
+                Text("Validasi"),
+                Switch(
+                    value: isChecked,
+                    onChanged: (val) => {
+                          setState(() {
+                            isChecked = val;
+                            val
+                                ? widget.subPekerjaan.status = 'valid'
+                                : widget.subPekerjaan.status = 'reject';
+                          })
+                        })
+              ],
+            ),
+            if (!isChecked) Text("Saran"),
+            if (!isChecked) SizedBox(height: 8),
+            if (!isChecked)
+              TextFormField(
+                onChanged: (value) {
+                  widget.subPekerjaan.saran = value;
+                },
+                controller: _textSaranController,
+                decoration: InputDecoration(
+                    hintText: "Saran",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10))),
+              )
+          ],
+        ),
       ),
     );
   }

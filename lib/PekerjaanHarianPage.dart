@@ -223,13 +223,13 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Keterangan"),
+          Text("Detail Pekerjaan"),
           Container(
             child: TextFormField(
               onChanged: (value) => widget.subPekerjaan.nama = value,
               controller: _textEditingController,
               decoration: InputDecoration(
-                  hintText: "Keterangan",
+                  hintText: "Detail Pekerjaan",
                   hintStyle: TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10))),
@@ -271,7 +271,8 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
                       actions: [
                         TextButton(
                             onPressed: () {
-                              setState(() => duration = "$jam:$menit");
+                              setState(() => duration =
+                                  menit < 9 ? "0$jam:0$menit" : "0$jam:$menit");
                               Navigator.of(context).pop();
                             },
                             child: Text("OK")),
