@@ -1,9 +1,48 @@
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/DurasiHarian.dart';
+import 'package:daily_log/model/Pekerjaan.dart';
+import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/SubPekerjaan.dart';
+import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class LaporanKinerjaPage extends StatelessWidget {
-  const LaporanKinerjaPage({Key? key}) : super(key: key);
+class LaporanKinerjaPage extends StatefulWidget {
+  final int idUser;
+  const LaporanKinerjaPage({Key? key, required this.idUser}) : super(key: key);
+
+  @override
+  _LaporanKinerjaPageState createState() => _LaporanKinerjaPageState();
+}
+
+class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
+  late Future<PekerjaanResponse> pekerjaanResponse;
+  int totalPekerjaan = 0;
+  List<DurasiHarian> listDurasiHarian = [];
+
+  @override
+  void initState() {
+    super.initState();
+    pekerjaanResponse = ApiService().getPekerjaan(widget.idUser);
+    loadDataTotalPekerjaan();
+    loadDurasiHarian();
+  }
+
+  loadDataTotalPekerjaan() async {
+    int count = await ApiService().getValidPekerjaanCount(widget.idUser);
+    setState(() {
+      totalPekerjaan = count;
+    });
+  }
+
+  loadDurasiHarian() async {
+    var durasiResponse =
+        await ApiService().getDurasiHarian("2021-08-01", "2021-08-31");
+    setState(() {
+      listDurasiHarian = durasiResponse.data;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +61,11 @@ class LaporanKinerjaPage extends StatelessWidget {
             children: [
               DropDownFilter(),
               Container(
-                  height: 150,
+                  height: 200,
                   width: double.infinity,
                   child: SimpleTimeSeriesChart(
-                      SimpleTimeSeriesChart._createSampleData())),
+                      SimpleTimeSeriesChart._createSampleData(
+                          listDurasiHarian))),
               SizedBox(
                 height: 8,
               ),
@@ -36,7 +76,7 @@ class LaporanKinerjaPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "100",
+                      "$totalPekerjaan",
                       style: TextStyle(color: Colors.white),
                     ),
                     Text(
@@ -50,8 +90,25 @@ class LaporanKinerjaPage extends StatelessWidget {
                 height: 8,
               ),
               Text("Daftar Pekerjaan"),
-              ListPekerjaanValid(),
-              ListPekerjaanValid()
+              FutureBuilder<PekerjaanResponse>(
+                  future: pekerjaanResponse,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text("Error");
+                    } else if (snapshot.hasData) {
+                      List<Pekerjaan> items = snapshot.data!.data;
+                      return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            return ListPekerjaanValid(
+                              pekerjaan: items[index],
+                            );
+                          });
+                    }
+
+                    return CircularProgressIndicator();
+                  })
             ],
           ),
         ),
@@ -67,14 +124,6 @@ class SimpleTimeSeriesChart extends StatelessWidget {
 
   SimpleTimeSeriesChart(this.seriesList);
 
-  /// Creates a [TimeSeriesChart] with sample data and no transition.
-  factory SimpleTimeSeriesChart.withSampleData() {
-    return new SimpleTimeSeriesChart(
-      _createSampleData(),
-      // Disable animations for image tests.
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return new charts.TimeSeriesChart(
@@ -87,33 +136,18 @@ class SimpleTimeSeriesChart extends StatelessWidget {
     );
   }
 
-  /// Create one series with sample hard coded data.
-  static List<charts.Series<TimeSeriesSales, DateTime>> _createSampleData() {
-    final data = [
-      new TimeSeriesSales(new DateTime(2017, 9, 19), 5),
-      new TimeSeriesSales(new DateTime(2017, 9, 26), 25),
-      new TimeSeriesSales(new DateTime(2017, 10, 3), 100),
-      new TimeSeriesSales(new DateTime(2017, 10, 10), 75),
-    ];
-
+  static List<charts.Series<DurasiHarian, DateTime>> _createSampleData(
+      List<DurasiHarian> data) {
     return [
-      new charts.Series<TimeSeriesSales, DateTime>(
+      new charts.Series<DurasiHarian, DateTime>(
         id: 'Sales',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (TimeSeriesSales sales, _) => sales.time,
-        measureFn: (TimeSeriesSales sales, _) => sales.sales,
+        domainFn: (DurasiHarian durasiHarian, _) => durasiHarian.tanggal,
+        measureFn: (DurasiHarian durasiHarian, _) => durasiHarian.durasi,
         data: data,
       )
     ];
   }
-}
-
-/// Sample time series data type.
-class TimeSeriesSales {
-  final DateTime time;
-  final int sales;
-
-  TimeSeriesSales(this.time, this.sales);
 }
 
 class DropDownFilter extends StatefulWidget {
@@ -162,12 +196,36 @@ class _DropDownFilterState extends State<DropDownFilter> {
   }
 }
 
-class ListPekerjaanValid extends StatelessWidget {
-  const ListPekerjaanValid({Key? key}) : super(key: key);
+class ListPekerjaanValid extends StatefulWidget {
+  final Pekerjaan pekerjaan;
+  const ListPekerjaanValid({Key? key, required this.pekerjaan})
+      : super(key: key);
+
+  @override
+  _ListPekerjaanValidState createState() => _ListPekerjaanValidState();
+}
+
+class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
+  late Future<SubPekerjaanResponse> subPekerjaanResponse;
+  int durasi = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    subPekerjaanResponse = ApiService().getValidPekerjaan(widget.pekerjaan.id);
+    setTotalDurasi();
+  }
+
+  setTotalDurasi() async {
+    await subPekerjaanResponse.then((value) => (value.data.forEach((element) {
+          setState(() {
+            durasi = durasi + element.durasi;
+          });
+        })));
+  }
 
   @override
   Widget build(BuildContext context) {
-    var items = List<String>.generate(2, (index) => "$index");
     return Container(
       child: Card(
         child: Container(
@@ -176,49 +234,47 @@ class ListPekerjaanValid extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Nama Pekerjaan"),
-              Text("21/07/2021"),
-              Text("Durasi: 01:00"),
+              Text(this.widget.pekerjaan.nama),
+              Text(this.widget.pekerjaan.tanggal),
+              Text("Durasi: 0$durasi:00"),
               const Divider(
                 height: 20,
                 thickness: 2,
                 indent: 0,
                 endIndent: 0,
               ),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(left: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Detail Pekerjaan"),
-                    Text("Durasi: 01:00"),
-                    const Divider(
-                      height: 20,
-                      thickness: 2,
-                      indent: 0,
-                      endIndent: 0,
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(left: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Detail Pekerjaan"),
-                    Text("Durasi: 01:00"),
-                    const Divider(
-                      height: 20,
-                      thickness: 2,
-                      indent: 0,
-                      endIndent: 0,
-                    ),
-                  ],
-                ),
-              )
+              FutureBuilder<SubPekerjaanResponse>(
+                  future: subPekerjaanResponse,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text("Error");
+                    } else if (snapshot.hasData) {
+                      List<SubPekerjaan> items = snapshot.data!.data;
+                      return ListView.builder(
+                          itemCount: items.length,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.only(left: 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(items[index].nama),
+                                  Text("Durasi: 0${items[index].durasi}:00"),
+                                  const Divider(
+                                    height: 20,
+                                    thickness: 2,
+                                    indent: 0,
+                                    endIndent: 0,
+                                  ),
+                                ],
+                              ),
+                            );
+                          });
+                    }
+                    return CircularProgressIndicator();
+                  })
             ],
           ),
         ),

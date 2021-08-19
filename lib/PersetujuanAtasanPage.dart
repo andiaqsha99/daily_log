@@ -569,7 +569,9 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                                               var update = await ApiService()
                                                   .updateSubPekerjaan(
                                                       subPekerjaan);
-                                              loadData();
+                                              setState(() {
+                                                loadData();
+                                              });
                                               Navigator.pop(context, 'SIMPAN');
                                             },
                                             child: const Text('SIMPAN'),

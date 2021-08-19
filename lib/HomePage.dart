@@ -101,7 +101,9 @@ class _MenuPageState extends State<MenuPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => jabatan == "staff"
-                                        ? LaporanKinerjaPage()
+                                        ? LaporanKinerjaPage(
+                                            idUser: this.idUSer,
+                                          )
                                         : LaporanKinerjaAtasanPage()));
                           },
                           icon: Icon(Icons.assignment_ind),

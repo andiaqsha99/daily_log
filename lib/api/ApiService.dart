@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:daily_log/model/DurasiHarianResponse.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
@@ -37,9 +38,9 @@ class ApiService {
     print(data);
   }
 
-  Future<SubPekerjaanResponse> getSubmitPekerjaan(int idUser) async {
+  Future<SubPekerjaanResponse> getSubmitPekerjaan(int idPekerjaan) async {
     final response = await client
-        .get((Uri.parse("$baseUrl/pengguna/$idUser/subpekerjaan/submit")));
+        .get((Uri.parse("$baseUrl/pengguna/$idPekerjaan/subpekerjaan/submit")));
     var data = jsonDecode(response.body);
     print(data);
     return SubPekerjaanResponse.fromJson(data);
@@ -85,5 +86,30 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return SubPekerjaanResponse.fromJson(data);
+  }
+
+  Future<int> getValidPekerjaanCount(int idUser) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/pengguna/$idUser/subpekerjaan/valid/count")));
+    var data = jsonDecode(response.body);
+    print(data['data']);
+    return data['data'];
+  }
+
+  Future<SubPekerjaanResponse> getValidPekerjaan(int idPekerjaan) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/pengguna/$idPekerjaan/subpekerjaan/valid")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return SubPekerjaanResponse.fromJson(data);
+  }
+
+  Future<DurasiHarianResponse> getDurasiHarian(
+      String dateFrom, String dateTo) async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return DurasiHarianResponse.fromJson(data);
   }
 }
