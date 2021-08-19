@@ -104,7 +104,8 @@ class _MenuPageState extends State<MenuPage> {
                                         ? LaporanKinerjaPage(
                                             idUser: this.idUSer,
                                           )
-                                        : LaporanKinerjaAtasanPage()));
+                                        : LaporanKinerjaAtasanPage(
+                                            idUser: this.idUSer)));
                           },
                           icon: Icon(Icons.assignment_ind),
                           iconSize: 56,

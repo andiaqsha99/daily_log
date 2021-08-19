@@ -112,4 +112,13 @@ class ApiService {
     print(data);
     return DurasiHarianResponse.fromJson(data);
   }
+
+  Future<PekerjaanResponse> getPekerjaanSatuBulan(
+      int idUser, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/pekerjaan/pengguna/$idUser/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PekerjaanResponse.fromJson(data);
+  }
 }
