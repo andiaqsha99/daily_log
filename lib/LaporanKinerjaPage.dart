@@ -28,18 +28,25 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
   @override
   void initState() {
     super.initState();
-    loadDataTotalPekerjaan();
 
     String thisMonth = DateFormat("MMMM yyyy").format(now);
     selectedDate = thisMonth;
 
     DateTime firstDate = DateTime(now.year, now.month, 1);
     loadDurasiHarianPerBulan(firstDate);
+    loadDataTotalPekerjaan(firstDate);
     loadPekeraanSatuBulan(firstDate);
   }
 
-  loadDataTotalPekerjaan() async {
-    int count = await ApiService().getValidPekerjaanCount(widget.idUser);
+  loadDataTotalPekerjaan(DateTime date) async {
+    var lastDayDateTime = (date.month < 12)
+        ? new DateTime(date.year, date.month + 1, 0)
+        : new DateTime(date.year + 1, 1, 0);
+    print(lastDayDateTime);
+    String firstDate = DateFormat("yyyy-MM-dd").format(date);
+    String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
+    int count = await ApiService()
+        .getValidPekerjaanCount(widget.idUser, firstDate, endDate);
     setState(() {
       totalPekerjaan = count;
     });
@@ -108,6 +115,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
                               print(selectedDate);
                               loadDurasiHarianPerBulan(date);
                               loadPekeraanSatuBulan(date);
+                              loadDataTotalPekerjaan(date);
                             });
                           }
                         });

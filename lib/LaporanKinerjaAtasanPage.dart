@@ -62,18 +62,25 @@ class _LaporanKinerjaPersonalState extends State<LaporanKinerjaPersonal> {
   @override
   void initState() {
     super.initState();
-    loadDataTotalPekerjaan();
 
     String thisMonth = DateFormat("MMMM yyyy").format(now);
     selectedDate = thisMonth;
 
     DateTime firstDate = DateTime(now.year, now.month, 1);
     loadDurasiHarianPerBulan(firstDate);
+    loadDataTotalPekerjaan(firstDate);
     loadPekeraanSatuBulan(firstDate);
   }
 
-  loadDataTotalPekerjaan() async {
-    int count = await ApiService().getValidPekerjaanCount(widget.idUser);
+  loadDataTotalPekerjaan(DateTime date) async {
+    var lastDayDateTime = (date.month < 12)
+        ? new DateTime(date.year, date.month + 1, 0)
+        : new DateTime(date.year + 1, 1, 0);
+    print(lastDayDateTime);
+    String firstDate = DateFormat("yyyy-MM-dd").format(date);
+    String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
+    int count = await ApiService()
+        .getValidPekerjaanCount(widget.idUser, firstDate, endDate);
     setState(() {
       totalPekerjaan = count;
     });
@@ -110,107 +117,98 @@ class _LaporanKinerjaPersonalState extends State<LaporanKinerjaPersonal> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Laporan Kinerja"),
-        actions: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-        ],
-      ),
-      body: Container(
-        padding: EdgeInsets.fromLTRB(8, 8, 8, 56),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                  width: double.infinity,
-                  height: 40,
-                  child: ElevatedButton(
-                      onPressed: () {
-                        showMonthPicker(
-                                context: context,
-                                initialDate:
-                                    DateFormat("MMMM yyyy").parse(selectedDate))
-                            .then((date) {
-                          if (date != null) {
-                            setState(() {
-                              print(date);
-                              String thisMonth =
-                                  DateFormat("MMMM yyyy").format(date);
-                              selectedDate = thisMonth;
-                              print(selectedDate);
-                              loadDurasiHarianPerBulan(date);
-                              loadPekeraanSatuBulan(date);
-                            });
-                          }
-                        });
-                      },
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Text(
-                          selectedDate,
-                          textAlign: TextAlign.right,
-                        ),
-                      ))),
-              Container(
-                  height: 200,
-                  width: double.infinity,
-                  child: SimpleTimeSeriesChart(
-                      SimpleTimeSeriesChart._createSampleData(
-                          listDurasiHarian))),
-              SizedBox(
-                height: 8,
+    return Container(
+      padding: EdgeInsets.fromLTRB(8, 8, 8, 56),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: ElevatedButton(
+                    onPressed: () {
+                      showMonthPicker(
+                              context: context,
+                              initialDate:
+                                  DateFormat("MMMM yyyy").parse(selectedDate))
+                          .then((date) {
+                        if (date != null) {
+                          setState(() {
+                            print(date);
+                            String thisMonth =
+                                DateFormat("MMMM yyyy").format(date);
+                            selectedDate = thisMonth;
+                            print(selectedDate);
+                            loadDurasiHarianPerBulan(date);
+                            loadPekeraanSatuBulan(date);
+                            loadDataTotalPekerjaan(date);
+                          });
+                        }
+                      });
+                    },
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        selectedDate,
+                        textAlign: TextAlign.right,
+                      ),
+                    ))),
+            Container(
+                height: 200,
+                width: double.infinity,
+                child: SimpleTimeSeriesChart(
+                    SimpleTimeSeriesChart._createSampleData(listDurasiHarian))),
+            SizedBox(
+              height: 8,
+            ),
+            Container(
+              padding: EdgeInsets.all(8),
+              color: Colors.blue,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "$totalPekerjaan",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Total Pekerjaan",
+                    style: TextStyle(color: Colors.white),
+                  )
+                ],
               ),
-              Container(
-                padding: EdgeInsets.all(8),
-                color: Colors.blue,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "$totalPekerjaan",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      "Total Pekerjaan",
-                      style: TextStyle(color: Colors.white),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              Text("Daftar Pekerjaan"),
-              FutureBuilder<PekerjaanResponse>(
-                  future: pekerjaanResponse,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text("Error");
-                    } else if (snapshot.hasData) {
-                      List<Pekerjaan> items = snapshot.data!.data;
-                      if (items.length > 0) {
-                        return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: items.length,
-                            itemBuilder: (context, index) {
-                              return ListPekerjaanValid(
-                                pekerjaan: items[index],
-                              );
-                            });
-                      } else {
-                        return Center(child: Text("No Data"));
-                      }
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text("Daftar Pekerjaan"),
+            FutureBuilder<PekerjaanResponse>(
+                future: pekerjaanResponse,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text("Error");
+                  } else if (snapshot.hasData) {
+                    List<Pekerjaan> items = snapshot.data!.data;
+                    if (items.length > 0) {
+                      return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            return ListPekerjaanValid(
+                              pekerjaan: items[index],
+                            );
+                          });
+                    } else {
+                      return Center(child: Text("No Data"));
                     }
+                  }
 
-                    return CircularProgressIndicator();
-                  })
-            ],
-          ),
+                  return CircularProgressIndicator();
+                })
+          ],
         ),
       ),
-      bottomSheet: MenuBottom(),
     );
   }
 }

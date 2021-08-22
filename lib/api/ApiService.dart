@@ -88,9 +88,10 @@ class ApiService {
     return SubPekerjaanResponse.fromJson(data);
   }
 
-  Future<int> getValidPekerjaanCount(int idUser) async {
-    final response = await client
-        .get((Uri.parse("$baseUrl/pengguna/$idUser/subpekerjaan/valid/count")));
+  Future<int> getValidPekerjaanCount(
+      int idUser, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/pengguna/$idUser/subpekerjaan/$dateFrom/$dateTo/valid/count")));
     var data = jsonDecode(response.body);
     print(data['data']);
     return data['data'];
