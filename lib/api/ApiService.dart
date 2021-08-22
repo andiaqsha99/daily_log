@@ -105,9 +105,9 @@ class ApiService {
   }
 
   Future<DurasiHarianResponse> getDurasiHarian(
-      String dateFrom, String dateTo) async {
-    final response =
-        await client.get((Uri.parse("$baseUrl/tanggal/$dateFrom/$dateTo")));
+      int id, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/chart/pengguna/$id/tanggal/$dateFrom/$dateTo")));
     var data = jsonDecode(response.body);
     print(data);
     return DurasiHarianResponse.fromJson(data);

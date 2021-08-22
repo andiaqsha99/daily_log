@@ -8,6 +8,7 @@ import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class LaporanKinerjaAtasanPage extends StatelessWidget {
   final int idUser;
@@ -55,23 +56,8 @@ class _LaporanKinerjaPersonalState extends State<LaporanKinerjaPersonal> {
   late Future<PekerjaanResponse> pekerjaanResponse;
   int totalPekerjaan = 0;
   List<DurasiHarian> listDurasiHarian = [];
-  String dropdownValue = '';
+  String selectedDate = '';
   var now = new DateTime.now();
-  List<String> listBulanDropdown = [];
-  List<String> listBulan = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
 
   @override
   void initState() {
@@ -79,13 +65,11 @@ class _LaporanKinerjaPersonalState extends State<LaporanKinerjaPersonal> {
     loadDataTotalPekerjaan();
 
     String thisMonth = DateFormat("MMMM yyyy").format(now);
-    dropdownValue = thisMonth;
-    loadDurasiHarianPerBulan(thisMonth);
-    loadPekeraanSatuBulan(thisMonth);
+    selectedDate = thisMonth;
 
-    listBulan.forEach((element) {
-      listBulanDropdown.add(element + " " + now.year.toString());
-    });
+    DateTime firstDate = DateTime(now.year, now.month, 1);
+    loadDurasiHarianPerBulan(firstDate);
+    loadPekeraanSatuBulan(firstDate);
   }
 
   loadDataTotalPekerjaan() async {
@@ -95,32 +79,30 @@ class _LaporanKinerjaPersonalState extends State<LaporanKinerjaPersonal> {
     });
   }
 
-  loadPekeraanSatuBulan(String date) {
-    var selectedMonth = DateFormat("MMMM yyyy").parse(date);
+  loadPekeraanSatuBulan(DateTime date) {
     // Find the last day of the month.
-    var lastDayDateTime = (selectedMonth.month < 12)
-        ? new DateTime(selectedMonth.year, selectedMonth.month + 1, 0)
-        : new DateTime(selectedMonth.year + 1, 1, 0);
+    var lastDayDateTime = (date.month < 12)
+        ? new DateTime(date.year, date.month + 1, 0)
+        : new DateTime(date.year + 1, 1, 0);
     print(lastDayDateTime);
-    String firstDate = DateFormat("yyyy-MM").format(lastDayDateTime);
+    String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
 
     pekerjaanResponse =
         ApiService().getPekerjaanSatuBulan(widget.idUser, firstDate, endDate);
   }
 
-  loadDurasiHarianPerBulan(String date) async {
-    var selectedMonth = DateFormat("MMMM yyyy").parse(date);
+  loadDurasiHarianPerBulan(DateTime date) async {
     // Find the last day of the month.
-    var lastDayDateTime = (selectedMonth.month < 12)
-        ? new DateTime(selectedMonth.year, selectedMonth.month + 1, 0)
-        : new DateTime(selectedMonth.year + 1, 1, 0);
+    var lastDayDateTime = (date.month < 12)
+        ? new DateTime(date.year, date.month + 1, 0)
+        : new DateTime(date.year + 1, 1, 0);
     print(lastDayDateTime);
-    String firstDate = DateFormat("yyyy-MM").format(lastDayDateTime);
+    String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
 
     var durasiResponse =
-        await ApiService().getDurasiHarian("$firstDate-01", endDate);
+        await ApiService().getDurasiHarian(widget.idUser, firstDate, endDate);
     setState(() {
       listDurasiHarian = durasiResponse.data;
     });
@@ -128,98 +110,107 @@ class _LaporanKinerjaPersonalState extends State<LaporanKinerjaPersonal> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(8, 8, 8, 56),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                  color: Color(0xFF5A9EFF),
-                  borderRadius: BorderRadius.circular(8)),
-              child: DropdownButton<String>(
-                isExpanded: true,
-                value: dropdownValue,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize: 24,
-                iconEnabledColor: Colors.white,
-                elevation: 16,
-                underline: SizedBox(),
-                style: const TextStyle(color: Colors.black),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                    loadDurasiHarianPerBulan(dropdownValue);
-                    loadPekeraanSatuBulan(dropdownValue);
-                  });
-                  print(dropdownValue);
-                },
-                items: listBulanDropdown
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Laporan Kinerja"),
+        actions: [
+          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
+        ],
+      ),
+      body: Container(
+        padding: EdgeInsets.fromLTRB(8, 8, 8, 56),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                  width: double.infinity,
+                  height: 40,
+                  child: ElevatedButton(
+                      onPressed: () {
+                        showMonthPicker(
+                                context: context,
+                                initialDate:
+                                    DateFormat("MMMM yyyy").parse(selectedDate))
+                            .then((date) {
+                          if (date != null) {
+                            setState(() {
+                              print(date);
+                              String thisMonth =
+                                  DateFormat("MMMM yyyy").format(date);
+                              selectedDate = thisMonth;
+                              print(selectedDate);
+                              loadDurasiHarianPerBulan(date);
+                              loadPekeraanSatuBulan(date);
+                            });
+                          }
+                        });
+                      },
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Text(
+                          selectedDate,
+                          textAlign: TextAlign.right,
+                        ),
+                      ))),
+              Container(
+                  height: 200,
+                  width: double.infinity,
+                  child: SimpleTimeSeriesChart(
+                      SimpleTimeSeriesChart._createSampleData(
+                          listDurasiHarian))),
+              SizedBox(
+                height: 8,
               ),
-            ),
-            Container(
-                height: 200,
-                width: double.infinity,
-                child: SimpleTimeSeriesChart(
-                    SimpleTimeSeriesChart._createSampleData(listDurasiHarian))),
-            SizedBox(
-              height: 8,
-            ),
-            Container(
-              padding: EdgeInsets.all(8),
-              color: Colors.blue,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "$totalPekerjaan",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Total Pekerjaan",
-                    style: TextStyle(color: Colors.white),
-                  )
-                ],
+              Container(
+                padding: EdgeInsets.all(8),
+                color: Colors.blue,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "$totalPekerjaan",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      "Total Pekerjaan",
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            Text("Daftar Pekerjaan"),
-            FutureBuilder<PekerjaanResponse>(
-                future: pekerjaanResponse,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text("Error");
-                  } else if (snapshot.hasData) {
-                    List<Pekerjaan> items = snapshot.data!.data;
-                    if (items.length > 0) {
-                      return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            return ListPekerjaanValid(
-                              pekerjaan: items[index],
-                            );
-                          });
-                    } else {
-                      return Center(child: Text("No Data"));
+              SizedBox(
+                height: 8,
+              ),
+              Text("Daftar Pekerjaan"),
+              FutureBuilder<PekerjaanResponse>(
+                  future: pekerjaanResponse,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text("Error");
+                    } else if (snapshot.hasData) {
+                      List<Pekerjaan> items = snapshot.data!.data;
+                      if (items.length > 0) {
+                        return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: items.length,
+                            itemBuilder: (context, index) {
+                              return ListPekerjaanValid(
+                                pekerjaan: items[index],
+                              );
+                            });
+                      } else {
+                        return Center(child: Text("No Data"));
+                      }
                     }
-                  }
 
-                  return CircularProgressIndicator();
-                })
-          ],
+                    return CircularProgressIndicator();
+                  })
+            ],
+          ),
         ),
       ),
+      bottomSheet: MenuBottom(),
     );
   }
 }

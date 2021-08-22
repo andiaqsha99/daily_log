@@ -8,6 +8,7 @@ class SubPekerjaan {
   String status;
   String? saran;
   int idPekerjaan;
+  int idUser;
 
   SubPekerjaan(
       {this.id = 0,
@@ -16,7 +17,8 @@ class SubPekerjaan {
       this.tanggal = '',
       this.status = '',
       this.saran = '',
-      this.idPekerjaan = 0});
+      this.idPekerjaan = 0,
+      this.idUser = 0});
 
   factory SubPekerjaan.fromJson(Map<String, dynamic> json) {
     return SubPekerjaan(
@@ -26,7 +28,8 @@ class SubPekerjaan {
         tanggal: json['tanggal'],
         status: json['status'],
         saran: json['saran'],
-        idPekerjaan: json['id_pekerjaan']);
+        idPekerjaan: json['id_pekerjaan'],
+        idUser: json['id_user']);
   }
 
   Map<String, dynamic> toJson() {
@@ -37,7 +40,8 @@ class SubPekerjaan {
       "tanggal": tanggal,
       "status": status,
       "saran": saran,
-      "id_pekerjaan": idPekerjaan
+      "id_pekerjaan": idPekerjaan,
+      "id_user": idUser
     };
   }
 }

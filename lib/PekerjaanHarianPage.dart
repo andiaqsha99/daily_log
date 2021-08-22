@@ -62,11 +62,13 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                     return ListView.builder(
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        mapPekerjaan.add([newSubPekerjaan(items[index].id)]);
+                        mapPekerjaan.add(
+                            [newSubPekerjaan(items[index].id, widget.idUser)]);
                         return PekerjaanListWidget(
                           headerText: items[index].nama,
                           idPekerjaan: items[index].id,
                           listSubPekerjaan: mapPekerjaan[index],
+                          idUser: widget.idUser,
                         );
                       },
                       itemCount: items.length,
@@ -114,6 +116,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
 }
 
 class PekerjaanListWidget extends StatefulWidget {
+  final int idUser;
   final String headerText;
   final int idPekerjaan;
   final List<SubPekerjaan> listSubPekerjaan;
@@ -121,7 +124,8 @@ class PekerjaanListWidget extends StatefulWidget {
       {Key? key,
       required this.headerText,
       required this.idPekerjaan,
-      required this.listSubPekerjaan})
+      required this.listSubPekerjaan,
+      required this.idUser})
       : super(key: key);
 
   @override
@@ -155,7 +159,7 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
             onPressed: () {
               setState(() {
                 widget.listSubPekerjaan
-                    .add(newSubPekerjaan(widget.idPekerjaan));
+                    .add(newSubPekerjaan(widget.idPekerjaan, widget.idUser));
               });
             },
             height: 56,
@@ -175,11 +179,14 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
   }
 }
 
-SubPekerjaan newSubPekerjaan(int idPekerjaan) {
+SubPekerjaan newSubPekerjaan(int idPekerjaan, int idUser) {
   DateTime date = DateTime.now();
   String formatDate = DateFormat("yyyy-MM-dd").format(date);
   return SubPekerjaan(
-      idPekerjaan: idPekerjaan, tanggal: formatDate, status: 'submit');
+      idPekerjaan: idPekerjaan,
+      tanggal: formatDate,
+      status: 'submit',
+      idUser: idUser);
 }
 
 class InputPekerjaanWidget extends StatefulWidget {
