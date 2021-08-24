@@ -1,8 +1,12 @@
+import 'package:daily_log/CheckInPresensiPage.dart';
+import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/Position.dart';
+import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
@@ -338,8 +342,16 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
   }
 }
 
-class LaporanKinerjaTim extends StatelessWidget {
+class LaporanKinerjaTim extends StatefulWidget {
   const LaporanKinerjaTim({Key? key}) : super(key: key);
+
+  @override
+  _LaporanKinerjaTimState createState() => _LaporanKinerjaTimState();
+}
+
+class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
+  String dropdownValue = '1 Hari';
+  DateTimeRange? dateTimeRange;
 
   @override
   Widget build(BuildContext context) {
@@ -389,82 +401,106 @@ class LaporanKinerjaTim extends StatelessWidget {
                         SizedBox(
                           width: 8,
                         ),
-                        DropDownFilterTim()
+                        Expanded(
+                          child: Container(
+                            height: 36,
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                                color: Color(0xFFE3F5FF),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.black)),
+                            child: DropdownButton<String>(
+                              isExpanded: true,
+                              value: dropdownValue,
+                              icon: const Icon(Icons.arrow_downward),
+                              iconSize: 16,
+                              iconEnabledColor: Colors.black,
+                              elevation: 16,
+                              style: const TextStyle(color: Colors.black),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  dropdownValue = newValue!;
+                                });
+                              },
+                              items: <String>[
+                                '1 Hari',
+                                '1 Minggu',
+                                '1 Bulan',
+                                'By Calendar'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        )
                       ],
                     ),
                     SizedBox(
                       height: 8,
                     ),
-                    Row(
-                      children: [
-                        Text("Tanggal"),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Expanded(
-                          child: SizedBox(
-                            height: 36,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 8),
-                                  fillColor: Color(0xFFE3F5FF),
-                                  filled: true,
-                                  hintText: " ",
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10))),
+                    if (dropdownValue == "By Calendar")
+                      Row(
+                        children: [
+                          Text("Tanggal"),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(
+                            child: SizedBox(
+                              height: 36,
+                              child: GestureDetector(
+                                onTap: () {
+                                  pickDateRange(context);
+                                },
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(left: 8),
+                                      fillColor: Color(0xFFE3F5FF),
+                                      filled: true,
+                                      hintText: getFromDate(),
+                                      hintStyle: TextStyle(color: Colors.black),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10))),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Text("to"),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Expanded(
-                          child: SizedBox(
-                            height: 36,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 8),
-                                  fillColor: Color(0xFFE3F5FF),
-                                  filled: true,
-                                  hintText: " ",
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10))),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text("to"),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(
+                            child: SizedBox(
+                              height: 36,
+                              child: GestureDetector(
+                                onTap: () {
+                                  pickDateRange(context);
+                                },
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(left: 8),
+                                      fillColor: Color(0xFFE3F5FF),
+                                      filled: true,
+                                      hintText: getUntilDate(),
+                                      hintStyle: TextStyle(color: Colors.black),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10))),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      children: [
-                        Text("Unit Kerja"),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Expanded(
-                          child: SizedBox(
-                            height: 36,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 8),
-                                  fillColor: Color(0xFFE3F5FF),
-                                  filled: true,
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     SizedBox(
                       height: 8,
                     ),
@@ -491,112 +527,155 @@ class LaporanKinerjaTim extends StatelessWidget {
       ),
     );
   }
-}
 
-class DropDownFilterTim extends StatefulWidget {
-  const DropDownFilterTim({Key? key}) : super(key: key);
+  Future pickDateRange(BuildContext context) async {
+    final initialDateRange = DateTimeRange(
+        start: DateTime.now(),
+        end: DateTime.now().add(Duration(hours: 24 * 2)));
+    final newDateRange = await showDateRangePicker(
+        context: context,
+        firstDate: DateTime(DateTime.now().year - 5),
+        lastDate: DateTime(DateTime.now().year + 5),
+        initialDateRange: dateTimeRange ?? initialDateRange);
 
-  @override
-  _DropDownFilterTimState createState() => _DropDownFilterTimState();
-}
+    if (newDateRange == null) {
+      return;
+    } else {
+      setState(() {
+        dateTimeRange = newDateRange;
+      });
+    }
+  }
 
-class _DropDownFilterTimState extends State<DropDownFilterTim> {
-  String dropdownValue = '1 Hari';
+  String getFromDate() {
+    if (dateTimeRange == null) {
+      return '';
+    } else {
+      return DateFormat("dd/MM/yyyy").format(dateTimeRange!.start);
+    }
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        height: 36,
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-            color: Color(0xFFE3F5FF),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.black)),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: dropdownValue,
-          icon: const Icon(Icons.arrow_downward),
-          iconSize: 16,
-          iconEnabledColor: Colors.black,
-          elevation: 16,
-          style: const TextStyle(color: Colors.black),
-          onChanged: (String? newValue) {
-            setState(() {
-              dropdownValue = newValue!;
-            });
-          },
-          items: <String>['1 Hari', '1 Minggu', '1 Bulan', 'By Calendar']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
-      ),
-    );
+  String getUntilDate() {
+    if (dateTimeRange == null) {
+      return '';
+    } else {
+      return DateFormat("dd/MM/yyyy").format(dateTimeRange!.end);
+    }
   }
 }
 
-class ListTeam extends StatelessWidget {
+class ListTeam extends StatefulWidget {
   const ListTeam({Key? key}) : super(key: key);
+
+  @override
+  _ListTeamState createState() => _ListTeamState();
+}
+
+class _ListTeamState extends State<ListTeam> {
+  late Future<PositionResponse> positionResponse;
+
+  @override
+  void initState() {
+    positionResponse = ApiService().getPosition();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Column(
-        children: [
-          ItemListTim(),
-          ItemListTim(),
-          ItemListTim(),
-          ItemListTim(),
-          ItemListTim()
-        ],
-      ),
-    );
+        child: FutureBuilder<PositionResponse>(
+      future: positionResponse,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text("No Data"),
+          );
+        } else if (snapshot.hasData) {
+          List<Position> items = snapshot.data!.data;
+          var listStaf =
+              items.where((element) => element.parentId == 1).toList();
+          var filteredList =
+              items.where((element) => element.level > 1).toList();
+          return ListView.builder(
+              shrinkWrap: true,
+              itemCount: listStaf.length,
+              itemBuilder: (context, index) {
+                return ItemListTim(
+                    position: listStaf[index], listPosition: filteredList);
+              });
+        }
+
+        return CircularProgressIndicator();
+      },
+    ));
   }
 }
 
-class ItemListTim extends StatelessWidget {
-  const ItemListTim({Key? key}) : super(key: key);
+class ItemListTim extends StatefulWidget {
+  final Position position;
+  final List<Position> listPosition;
+  const ItemListTim(
+      {Key? key, required this.position, required this.listPosition})
+      : super(key: key);
+
+  @override
+  _ItemListTimState createState() => _ItemListTimState();
+}
+
+class _ItemListTimState extends State<ItemListTim> {
+  bool isExpanded = false;
+  bool isAtasan = true;
+  late List<Position> filteredList;
+  late List<Position> listStaf;
+
+  @override
+  void initState() {
+    filteredList = widget.listPosition
+        .where((element) => element.level > widget.position.level)
+        .toList();
+    listStaf = filteredList
+        .where((element) => element.parentId == widget.position.id)
+        .toList();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Container(
-        padding: EdgeInsets.all(8),
-        child: Row(
-          children: [
-            Expanded(flex: 1, child: CircleAvatar()),
-            SizedBox(
-              width: 8,
-            ),
-            Expanded(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text("Staff 1"), Text("Jabatan")],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 24,
-                  height: 24,
-                  color: Colors.blue,
-                  child: Text(
-                    "2",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
+    return Column(
+      children: [
+        Card(
+            child: ListTile(
+          onTap: () {},
+          leading: CircleAvatar(),
+          title: Text(widget.position.position),
+          subtitle: Text(widget.position.position),
+          trailing: listStaf.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isExpanded = !isExpanded;
+                    });
+                  },
+                  child: isExpanded
+                      ? Icon(Icons.keyboard_arrow_up)
+                      : Icon(Icons.keyboard_arrow_down),
+                )
+              : SizedBox(),
+        )),
+        if (isExpanded)
+          Container(
+            padding: EdgeInsets.only(left: 10),
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: listStaf.length,
+                itemBuilder: (context, index) {
+                  return ItemListTim(
+                    position: listStaf[index],
+                    listPosition: filteredList,
+                  );
+                }),
+          )
+      ],
     );
   }
 }

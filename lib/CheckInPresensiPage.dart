@@ -2,22 +2,49 @@ import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/ProfilStatus.dart';
+import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/City.dart';
+import 'package:daily_log/model/CityResponse.dart';
+import 'package:daily_log/model/Presence.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckInPresensiPage extends StatefulWidget {
-  const CheckInPresensiPage({Key? key}) : super(key: key);
+  final int idUser;
+  const CheckInPresensiPage({Key? key, required this.idUser}) : super(key: key);
 
   @override
   _CheckInPresensiPageState createState() => _CheckInPresensiPageState();
 }
 
 class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
+  final formKey = GlobalKey<FormState>();
+  late Future<CityResponse> cityResponse;
+
+  List<City> listCity = [];
+  TextEditingController _cityController = TextEditingController();
+  TextEditingController _suhuController = TextEditingController();
+  TextEditingController _noteController = TextEditingController();
+
   int valueRadio = 0;
   bool valueCheck = false;
   bool valueCheck1 = false;
   bool valueCheck2 = false;
   bool valueCheck3 = false;
+  bool valueCheck4 = false;
+
+  String condition = 'sehat';
+  List<String> notes = [];
+  City? city;
+
+  @override
+  void initState() {
+    cityResponse = ApiService().getCity();
+    cityResponse.then((value) => listCity.addAll(value.data));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,107 +58,174 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
       bottomSheet: MenuBottom(),
       body: SafeArea(
           child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ProfilStatus(),
-            Container(
-              padding: EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Kota/Kabupaten"),
-                  Container(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                          fillColor: Color(0xFFE3F5FF),
-                          filled: true,
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(child: Text("Kondisi saat ini")),
-                      Expanded(
-                          child: Row(
-                        children: [
-                          Radio(
-                              value: 0,
-                              groupValue: valueRadio,
-                              onChanged: (int? val) {
-                                setState(() {
-                                  valueRadio = val!;
-                                });
-                              }),
-                          Text("Sehat"),
-                        ],
-                      )),
-                      Expanded(
-                          child: Row(
-                        children: [
-                          Radio(
-                              value: 1,
-                              groupValue: valueRadio,
-                              onChanged: (int? val) => {
-                                    setState(() {
-                                      valueRadio = val!;
-                                    })
-                                  }),
-                          Text("Sakit"),
-                        ],
-                      ))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text("Suhu Tubuh"),
-                  Container(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                          fillColor: Color(0xFFE3F5FF),
-                          filled: true,
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  valueRadio == 1 ? listCheckBox() : SizedBox(),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: MaterialButton(
-                      onPressed: () async {
-                        var sharedPreference =
-                            await SharedPreferences.getInstance();
-                        sharedPreference.setBool("is_checkin", true);
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomePage()));
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ProfilStatus(),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Kota/Kabupaten"),
+                    TypeAheadFormField<City>(
+                      textFieldConfiguration: TextFieldConfiguration(
+                          controller: _cityController,
+                          decoration: InputDecoration(
+                              fillColor: Color(0xFFE3F5FF),
+                              filled: true,
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10)))),
+                      itemBuilder: (context, suggestion) {
+                        return ListTile(
+                          title: Text(suggestion.city),
+                        );
                       },
-                      height: 48,
-                      color: Colors.blue,
-                      textColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Text(
-                        "CHECK IN",
-                        style: TextStyle(fontSize: 14),
+                      suggestionsCallback: (pattern) {
+                        return listCity.where((element) => element.city
+                            .toLowerCase()
+                            .contains(pattern.toLowerCase()));
+                      },
+                      onSuggestionSelected: (suggesion) {
+                        setState(() {
+                          _cityController.text = suggesion.city;
+                          city = City(
+                              id: suggesion.id,
+                              city: suggesion.city,
+                              latitude: suggesion.latitude,
+                              longitude: suggesion.longitude);
+                        });
+                      },
+                      validator: (value) {
+                        return value != null && value.isEmpty
+                            ? 'Masukkan kota'
+                            : null;
+                      },
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Text("Kondisi saat ini")),
+                        Expanded(
+                            child: Row(
+                          children: [
+                            Radio(
+                                value: 0,
+                                groupValue: valueRadio,
+                                onChanged: (int? val) {
+                                  setState(() {
+                                    valueRadio = val!;
+                                    condition = "sehat";
+                                  });
+                                }),
+                            Text("Sehat"),
+                          ],
+                        )),
+                        Expanded(
+                            child: Row(
+                          children: [
+                            Radio(
+                                value: 1,
+                                groupValue: valueRadio,
+                                onChanged: (int? val) => {
+                                      setState(() {
+                                        valueRadio = val!;
+                                        condition = "sakit";
+                                      })
+                                    }),
+                            Text("Sakit"),
+                          ],
+                        ))
+                      ],
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Text("Suhu Tubuh"),
+                    Container(
+                      child: TextFormField(
+                        controller: _suhuController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                            fillColor: Color(0xFFE3F5FF),
+                            filled: true,
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        validator: (value) {
+                          return value != null && value.isEmpty
+                              ? 'Masukkan suhu tubuh'
+                              : null;
+                        },
                       ),
                     ),
-                  )
-                ],
+                    SizedBox(
+                      height: 16,
+                    ),
+                    valueRadio == 1 ? listCheckBox() : SizedBox(),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: MaterialButton(
+                        onPressed: () async {
+                          final form = formKey.currentState;
+
+                          if (form!.validate()) {
+                            if (_noteController.text.isEmpty) {
+                              notes.add(_noteController.text);
+                            }
+                            DateTime dateTime = DateTime.now();
+                            var time = DateFormat("HH:mm:ss").format(dateTime);
+                            var date =
+                                DateFormat("yyyy-MM-dd").format(dateTime);
+                            Presence presence = Presence(
+                                id: 1,
+                                idUser: widget.idUser,
+                                temperature: _suhuController.text,
+                                conditions: this.condition,
+                                city: city!.city,
+                                latitude: city!.latitude,
+                                longitude: city!.longitude,
+                                date: date,
+                                checkInTime: time,
+                                checkOutTime: null,
+                                notes: null);
+
+                            if (notes.isNotEmpty) {
+                              presence.notes = notes.join(", ");
+                            }
+                            await ApiService().submitPresence(presence);
+                            var sharedPreference =
+                                await SharedPreferences.getInstance();
+                            sharedPreference.setBool("is_checkin", true);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage()));
+                          }
+                        },
+                        height: 48,
+                        color: Colors.blue,
+                        textColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Text(
+                          "CHECK IN",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 48,
+                    )
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       )),
     );
@@ -142,71 +236,126 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Keterangan"),
-        CheckboxListTile(
-          controlAffinity: ListTileControlAffinity.leading,
-          value: valueCheck,
-          onChanged: (value) {
-            setState(() {
-              this.valueCheck = value!;
-            });
-          },
-          title: Text("Suhu tubuh lebih dari 37 derajat"),
-        ),
-        CheckboxListTile(
-          controlAffinity: ListTileControlAffinity.leading,
-          value: valueCheck1,
-          onChanged: (value) {
-            setState(() {
-              this.valueCheck1 = value!;
-            });
-          },
-          title: Text("Gangguan Pernafasan"),
-        ),
-        CheckboxListTile(
-          controlAffinity: ListTileControlAffinity.leading,
-          value: valueCheck2,
-          onChanged: (value) {
-            setState(() {
-              this.valueCheck2 = value!;
-            });
-          },
-          title: Text("Batuk"),
-        ),
-        CheckboxListTile(
-          controlAffinity: ListTileControlAffinity.leading,
-          value: valueCheck3,
-          onChanged: (value) {
-            setState(() {
-              this.valueCheck3 = value!;
-            });
-          },
-          title: Text("Flu"),
+        Row(
+          children: [
+            Checkbox(
+                value: valueCheck,
+                onChanged: (value) {
+                  setState(() {
+                    this.valueCheck = value!;
+                    if (value) {
+                      insertNotes("Demam di atas 37 derajat");
+                    } else {
+                      if (notes.isNotEmpty) {
+                        deleteNotes("Demam di atas 37 derajat");
+                      }
+                    }
+                  });
+                }),
+            Text("Demam di atas 37 derajat")
+          ],
         ),
         Row(
           children: [
-            SizedBox(
-              width: 24,
-            ),
-            Text("Lainnya"),
-            SizedBox(
-              width: 36,
-            ),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                    fillColor: Color(0xFFE3F5FF),
-                    filled: true,
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10))),
-              ),
-            ),
+            Checkbox(
+                value: valueCheck1,
+                onChanged: (value) {
+                  setState(() {
+                    this.valueCheck1 = value!;
+                    if (value) {
+                      insertNotes("Batuk");
+                    } else {
+                      if (notes.isNotEmpty) {
+                        deleteNotes("Batuk");
+                      }
+                    }
+                  });
+                }),
+            Text("Batuk")
           ],
+        ),
+        Row(
+          children: [
+            Checkbox(
+                value: valueCheck2,
+                onChanged: (value) {
+                  setState(() {
+                    this.valueCheck2 = value!;
+                    if (value) {
+                      insertNotes("Bersin-bersin");
+                    } else {
+                      if (notes.isNotEmpty) {
+                        deleteNotes("Bersin-bersin");
+                      }
+                    }
+                  });
+                }),
+            Text("Bersin-bersin")
+          ],
+        ),
+        Row(
+          children: [
+            Checkbox(
+                value: valueCheck3,
+                onChanged: (value) {
+                  setState(() {
+                    this.valueCheck3 = value!;
+                    if (value) {
+                      insertNotes("Sakit tenggorokan");
+                    } else {
+                      if (notes.isNotEmpty) {
+                        deleteNotes("Sakit tenggorokan");
+                      }
+                    }
+                  });
+                }),
+            Text("Sakit tenggorokan")
+          ],
+        ),
+        Row(
+          children: [
+            Checkbox(
+                value: valueCheck4,
+                onChanged: (value) {
+                  setState(() {
+                    this.valueCheck4 = value!;
+                    if (value) {
+                      insertNotes("Kesulitan bernafas");
+                    } else {
+                      if (notes.isNotEmpty) {
+                        deleteNotes("Kesulitan bernafas");
+                      }
+                    }
+                  });
+                }),
+            Text("Kesulitan bernafas")
+          ],
+        ),
+        Text("Lainnya"),
+        SizedBox(
+          width: 32,
+        ),
+        TextFormField(
+          controller: _noteController,
+          decoration: InputDecoration(
+              fillColor: Color(0xFFE3F5FF),
+              filled: true,
+              hintStyle: TextStyle(color: Colors.grey),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
         ),
         SizedBox(
           height: 8,
         )
       ],
     );
+  }
+
+  insertNotes(String value) {
+    notes.add(value);
+  }
+
+  deleteNotes(String value) {
+    notes.remove(value);
   }
 }

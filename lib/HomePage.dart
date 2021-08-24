@@ -76,8 +76,11 @@ class _MenuPageState extends State<MenuPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => isCheckIn
-                                        ? CheckOutPresensiPage()
-                                        : CheckInPresensiPage()));
+                                        ? CheckOutPresensiPage(
+                                            idUser: this.idUSer,
+                                          )
+                                        : CheckInPresensiPage(
+                                            idUser: this.idUSer)));
                           },
                           icon: Icon(Icons.alarm),
                           iconSize: 56,

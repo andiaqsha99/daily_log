@@ -1,10 +1,14 @@
 import 'dart:convert';
 
+import 'package:daily_log/model/CityResponse.dart';
 import 'package:daily_log/model/DurasiHarianResponse.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
+import 'package:daily_log/model/PositionResponse.dart';
+import 'package:daily_log/model/Presence.dart';
+import 'package:daily_log/model/PresenceResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:http/http.dart' as http;
@@ -121,5 +125,42 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return PekerjaanResponse.fromJson(data);
+  }
+
+  Future<PositionResponse> getPosition() async {
+    final response = await client.get((Uri.parse("$baseUrl/position")));
+    var data = jsonDecode(response.body);
+    return PositionResponse.fromJson(data);
+  }
+
+  Future<PresenceResponse> getTodayPresence(int idUser, String date) async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/presence/$idUser/$date")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PresenceResponse.fromJson(data);
+  }
+
+  Future<bool> updatePresence(Presence presence) async {
+    final response = await client.post(Uri.parse("$baseUrl/presence/update"),
+        headers: {"content-type": "application/json"},
+        body: presenceToJson(presence));
+    var data = jsonDecode(response.body);
+    print(data);
+    return data['data'];
+  }
+
+  Future<void> submitPresence(Presence presence) async {
+    final response = await client.post(Uri.parse("$baseUrl/presence/store"),
+        headers: {"content-type": "application/json"},
+        body: presenceToJson(presence));
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<CityResponse> getCity() async {
+    final response = await client.get((Uri.parse("$baseUrl/city")));
+    var data = jsonDecode(response.body);
+    return CityResponse.fromJson(data);
   }
 }
