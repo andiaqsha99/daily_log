@@ -233,6 +233,8 @@ class ListPekerjaanValid extends StatefulWidget {
 class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
   late Future<SubPekerjaanResponse> subPekerjaanResponse;
   int durasi = 0;
+  int jam = 0;
+  int menit = 0;
 
   @override
   void initState() {
@@ -247,6 +249,10 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
             durasi = durasi + element.durasi;
           });
         })));
+    setState(() {
+      jam = durasi ~/ 60;
+      menit = durasi % 60;
+    });
   }
 
   @override
@@ -261,7 +267,8 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
             children: [
               Text(this.widget.pekerjaan.nama),
               Text(this.widget.pekerjaan.tanggal),
-              Text("Durasi: 0$durasi:00"),
+              Text(
+                  menit > 9 ? "Durasi: 0$jam:$menit" : "Durasi: 0$jam:0$menit"),
               const Divider(
                 height: 20,
                 thickness: 2,
@@ -287,7 +294,9 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(items[index].nama),
-                                    Text("Durasi: 0${items[index].durasi}:00"),
+                                    Text(items[index].durasi < 10
+                                        ? "Durasi: 00:0${items[index].durasi}"
+                                        : "Durasi: 00:${items[index].durasi}"),
                                     const Divider(
                                       height: 20,
                                       thickness: 2,

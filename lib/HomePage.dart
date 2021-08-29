@@ -37,6 +37,7 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   String jabatan = " ";
   int idUSer = 0;
+  int idPosition = 0;
   bool isCheckIn = false;
 
   @override
@@ -51,6 +52,7 @@ class _MenuPageState extends State<MenuPage> {
       jabatan = sharedPreferences.getString("jabatan")!;
       idUSer = sharedPreferences.getInt("id_user")!;
       isCheckIn = sharedPreferences.getBool("is_checkin")!;
+      idPosition = sharedPreferences.getInt("position_id")!;
     });
   }
 
@@ -108,7 +110,9 @@ class _MenuPageState extends State<MenuPage> {
                                             idUser: this.idUSer,
                                           )
                                         : LaporanKinerjaAtasanPage(
-                                            idUser: this.idUSer)));
+                                            idUser: this.idUSer,
+                                            idPosition: this.idPosition,
+                                          )));
                           },
                           icon: Icon(Icons.assignment_ind),
                           iconSize: 56,

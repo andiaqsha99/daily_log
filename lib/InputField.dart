@@ -96,12 +96,14 @@ class _InputFieldState extends State<InputField> {
                   id: 1,
                   username: _usernameController.text.trim(),
                   password: _passwordController.text.trim(),
-                  jabatan: 'staff');
+                  jabatan: 'staff',
+                  positionId: 1);
               Pengguna api = await ApiService().login(pengguna);
               if (_usernameController.text.trim() == api.username) {
                 sharedPreferences.setString("username", api.username);
                 sharedPreferences.setBool("isLogin", true);
                 sharedPreferences.setString("jabatan", api.jabatan);
+                sharedPreferences.setInt("position_id", api.positionId);
                 sharedPreferences.setInt("id_user", api.id);
                 sharedPreferences.setBool("is_checkin", false);
                 Navigator.pushReplacement(context,

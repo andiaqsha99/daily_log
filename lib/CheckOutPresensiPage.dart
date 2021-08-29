@@ -54,45 +54,55 @@ class _CheckOutPresensiPageState extends State<CheckOutPresensiPage> {
                     future: presenceResponse,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        Presence presence = snapshot.data!.data.first;
+                        Presence presence = snapshot.data!.data.last;
                         updatePresence = presence;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Presensi tanggal $date",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Jam Check In: ${presence.checkInTime},",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Kabupaten/Kota: ${presence.city},",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "Kondisi ${presence.conditions},",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            if (presence.notes != null)
+                        return Container(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                "Keterangan: ${presence.notes}",
+                                "Presensi tanggal $date",
                                 style: TextStyle(fontSize: 16),
                               ),
-                          ],
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "Jam Check In: ${presence.checkInTime},",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "Kabupaten/Kota: ${presence.city},",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "Suhu tubuh ${presence.temperature} derajat,",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "Kondisi ${presence.conditions},",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              if (presence.notes != null)
+                                Text(
+                                  "Keterangan: ${presence.notes}",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                            ],
+                          ),
                         );
                       } else if (snapshot.hasError) {
                         return Text("Something Error");

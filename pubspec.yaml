@@ -33,6 +33,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   month_picker_dialog: ^0.4.0
   flutter_typeahead: ^3.2.0
+  location: ^4.2.0
 
 dev_dependencies:
   flutter_test:

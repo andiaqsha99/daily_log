@@ -12,6 +12,7 @@ import 'package:daily_log/model/PresenceResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class ApiService {
   final String baseUrl = "http://localhost:8000/api";
@@ -27,9 +28,15 @@ class ApiService {
     return Pengguna.fromJson(data['data']);
   }
 
-  Future<PekerjaanResponse> getPekerjaan(int id) async {
-    final response =
-        await client.get((Uri.parse("$baseUrl/pekerjaan/pengguna/$id")));
+  Future<PekerjaanResponse> getPekerjaan(int idUser) async {
+    DateTime now = DateTime.now();
+    DateTime threeDayTomorrow = now.subtract(Duration(days: 3));
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    String dateTo = dateFormat.format(now);
+    String dateFrom = dateFormat.format(threeDayTomorrow);
+
+    final response = await client.get((Uri.parse(
+        "$baseUrl/pekerjaan/pengguna/$idUser/tanggal/$dateFrom/$dateTo")));
     var data = jsonDecode(response.body);
     return PekerjaanResponse.fromJson(data);
   }
@@ -75,9 +82,9 @@ class ApiService {
     print(data);
   }
 
-  Future<PenggunaResponse> getPenggunaStaff() async {
-    final response =
-        await client.get((Uri.parse("$baseUrl/pengguna/list/staff")));
+  Future<PenggunaResponse> getPenggunaStaff(int idPosition) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/pengguna/$idPosition/list/staff")));
     var data = jsonDecode(response.body);
     print(data);
     return PenggunaResponse.fromJson(data);
@@ -97,7 +104,6 @@ class ApiService {
     final response = await client.get((Uri.parse(
         "$baseUrl/pengguna/$idUser/subpekerjaan/$dateFrom/$dateTo/valid/count")));
     var data = jsonDecode(response.body);
-    print(data['data']);
     return data['data'];
   }
 
@@ -162,5 +168,22 @@ class ApiService {
     final response = await client.get((Uri.parse("$baseUrl/city")));
     var data = jsonDecode(response.body);
     return CityResponse.fromJson(data);
+  }
+
+  Future<Pengguna> getPenggunaByPosition(int idPosition) async {
+    final response =
+        await client.get(Uri.parse("$baseUrl/pengguna/position/$idPosition"));
+    var data = jsonDecode(response.body);
+    print(data['data']);
+    return Pengguna.fromJson(data['data']);
+  }
+
+  Future<DurasiHarianResponse> getDurasiHarianTim(
+      int idPosition, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/chart/tim/$idPosition/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return DurasiHarianResponse.fromJson(data);
   }
 }

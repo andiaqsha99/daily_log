@@ -675,15 +675,25 @@ class ListValidasiPage extends StatefulWidget {
 
 class _ListValidasiPageState extends State<ListValidasiPage> {
   late Future<PenggunaResponse> listStaff;
+  int idPosition = 0;
 
   @override
   void initState() {
     super.initState();
+    getLoginData();
     loadStaffData();
   }
 
   loadStaffData() async {
-    listStaff = ApiService().getPenggunaStaff();
+    listStaff = ApiService().getPenggunaStaff(idPosition);
+  }
+
+  getLoginData() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      idPosition = sharedPreferences.getInt("position_id")!;
+      loadStaffData();
+    });
   }
 
   @override

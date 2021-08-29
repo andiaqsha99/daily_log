@@ -177,7 +177,9 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                             style: TextStyle(color: Colors.grey),
                           ),
                           Text(
-                            "0${items[index].durasi}:00",
+                            items[index].durasi < 10
+                                ? "Durasi: 00:0${items[index].durasi}"
+                                : "Durasi: 00:${items[index].durasi}",
                             style: TextStyle(color: Colors.grey),
                           ),
                           SizedBox(
@@ -352,6 +354,7 @@ class _DitolakPageState extends State<DitolakPage> {
     final sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       idUser = sharedPreferences.getInt("id_user")!;
+      loadPekerjaanData();
     });
   }
 
@@ -397,6 +400,9 @@ class _DitolakPageState extends State<DitolakPage> {
                   }
                   return CircularProgressIndicator();
                 }),
+            SizedBox(
+              height: 56,
+            )
           ],
         ),
       ),
@@ -468,7 +474,9 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                               style: TextStyle(color: Colors.grey),
                             ),
                             Text(
-                              "Durasi: 0${items[index].durasi}:00",
+                              items[index].durasi < 10
+                                  ? "Durasi: 00:0${items[index].durasi}"
+                                  : "Durasi: 00:${items[index].durasi}",
                               style: TextStyle(color: Colors.grey),
                             ),
                             Text(

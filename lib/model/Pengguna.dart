@@ -5,19 +5,22 @@ class Pengguna {
   String username;
   String? password;
   String jabatan;
+  int positionId;
 
   Pengguna(
       {required this.id,
       required this.username,
       required this.password,
-      required this.jabatan});
+      required this.jabatan,
+      required this.positionId});
 
   factory Pengguna.fromJson(Map<String, dynamic> map) {
     return Pengguna(
         id: map['id'],
         username: map['username'],
         password: map['password'],
-        jabatan: map['jabatan']);
+        jabatan: map['jabatan'],
+        positionId: map['position_id']);
   }
 
   Map<String, dynamic> toJson() {
@@ -25,7 +28,8 @@ class Pengguna {
       "id": id,
       "username": username,
       "password": password,
-      "jabatan": jabatan
+      "jabatan": jabatan,
+      "position_id": positionId
     };
   }
 }

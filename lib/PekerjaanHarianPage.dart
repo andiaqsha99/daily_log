@@ -59,20 +59,27 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                   if (snapshot.hasData) {
                     var listPekerjaan = snapshot.data;
                     List<Pekerjaan> items = listPekerjaan!.data;
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        mapPekerjaan.add(
-                            [newSubPekerjaan(items[index].id, widget.idUser)]);
-                        return PekerjaanListWidget(
-                          headerText: items[index].nama,
-                          idPekerjaan: items[index].id,
-                          listSubPekerjaan: mapPekerjaan[index],
-                          idUser: widget.idUser,
-                        );
-                      },
-                      itemCount: items.length,
-                    );
+                    if (items.length > 0) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          mapPekerjaan.add([
+                            newSubPekerjaan(items[index].id, widget.idUser)
+                          ]);
+                          return PekerjaanListWidget(
+                            headerText: items[index].nama,
+                            idPekerjaan: items[index].id,
+                            listSubPekerjaan: mapPekerjaan[index],
+                            idUser: widget.idUser,
+                          );
+                        },
+                        itemCount: items.length,
+                      );
+                    } else {
+                      return Center(
+                        child: Text("No Data"),
+                      );
+                    }
                   } else if (snapshot.hasError) {
                     return Text("Error");
                   }
@@ -106,6 +113,9 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                   style: TextStyle(fontSize: 14),
                 ),
               ),
+            ),
+            SizedBox(
+              height: 52,
             )
           ],
         ),
@@ -200,8 +210,8 @@ class InputPekerjaanWidget extends StatefulWidget {
 
 class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
   String duration = "00:00";
-  int jam = 1;
-  int menit = 1;
+  int jam = 0;
+  int menit = 0;
   late TextEditingController _textEditingController;
 
   @override
@@ -213,7 +223,7 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
   currentJamValue(value) {
     setState(() {
       jam = value;
-      widget.subPekerjaan.durasi = jam;
+      // widget.subPekerjaan.durasi = jam;
     });
   }
 
@@ -280,6 +290,7 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
                             onPressed: () {
                               setState(() => duration =
                                   menit < 9 ? "0$jam:0$menit" : "0$jam:$menit");
+                              widget.subPekerjaan.durasi = (jam * 60) + menit;
                               Navigator.of(context).pop();
                             },
                             child: Text("OK")),

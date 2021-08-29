@@ -1,10 +1,13 @@
 import 'package:daily_log/CheckInPresensiPage.dart';
 import 'package:daily_log/CheckOutPresensiPage.dart';
+import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
@@ -13,10 +16,13 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LaporanKinerjaAtasanPage extends StatelessWidget {
   final int idUser;
-  const LaporanKinerjaAtasanPage({Key? key, required this.idUser})
+  final int idPosition;
+  const LaporanKinerjaAtasanPage(
+      {Key? key, required this.idUser, required this.idPosition})
       : super(key: key);
 
   @override
@@ -40,7 +46,9 @@ class LaporanKinerjaAtasanPage extends StatelessWidget {
           ),
           body: TabBarView(children: [
             LaporanKinerjaPersonal(idUser: this.idUser),
-            LaporanKinerjaTim()
+            LaporanKinerjaTim(
+              idPosition: this.idPosition,
+            )
           ]),
           bottomSheet: MenuBottom(),
         ));
@@ -343,7 +351,9 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
 }
 
 class LaporanKinerjaTim extends StatefulWidget {
-  const LaporanKinerjaTim({Key? key}) : super(key: key);
+  final int idPosition;
+  const LaporanKinerjaTim({Key? key, required this.idPosition})
+      : super(key: key);
 
   @override
   _LaporanKinerjaTimState createState() => _LaporanKinerjaTimState();
@@ -352,6 +362,63 @@ class LaporanKinerjaTim extends StatefulWidget {
 class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   String dropdownValue = '1 Hari';
   DateTimeRange? dateTimeRange;
+  int totalPekerjaan = 0;
+
+  List<DurasiHarian> listDurasiHarian = [];
+
+  TextEditingController _fromDateController = TextEditingController();
+  TextEditingController _untilDateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadDataTotalPekerjaan();
+
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    DateTime now = DateTime.now();
+    DateTime firstDate = DateTime(now.year, now.month, 1);
+    var lastDayDateTime = (now.month < 12)
+        ? new DateTime(now.year, now.month + 1, 0)
+        : new DateTime(now.year + 1, 1, 0);
+    loadDurasiHarianTim(
+        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
+  }
+
+  loadDataTotalPekerjaan() async {
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    DateTime now = DateTime.now();
+    DateTime firstDateofMonth = DateTime(now.year, now.month, 1);
+    var lastDayDateTime = (now.month < 12)
+        ? new DateTime(now.year, now.month + 1, 0)
+        : new DateTime(now.year + 1, 1, 0);
+
+    String firstDate = dateFormat.format(firstDateofMonth);
+    String endDate = dateFormat.format(lastDayDateTime);
+
+    final sharedPreferences = await SharedPreferences.getInstance();
+    int idPosition = sharedPreferences.getInt("position_id")!;
+
+    int count = 0;
+    PenggunaResponse penggunaResponse =
+        await ApiService().getPenggunaStaff(idPosition);
+    List<Pengguna> listStaff = penggunaResponse.data;
+    listStaff.forEach((element) async {
+      int counter = await ApiService()
+          .getValidPekerjaanCount(element.id, firstDate, endDate);
+      count += counter;
+      setState(() {
+        totalPekerjaan = count;
+      });
+    });
+  }
+
+  loadDurasiHarianTim(String firstDate, String endDate) async {
+    var durasiResponse = await ApiService()
+        .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
+    setState(() {
+      listDurasiHarian = durasiResponse.data;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -364,8 +431,8 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
             Container(
                 height: 150,
                 width: double.infinity,
-                child: SimpleTimeSeriesChartTim(
-                    SimpleTimeSeriesChartTim._createSampleData())),
+                child: SimpleTimeSeriesChart(
+                    SimpleTimeSeriesChart._createSampleData(listDurasiHarian))),
             SizedBox(
               height: 8,
             ),
@@ -376,7 +443,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "100",
+                    totalPekerjaan.toString(),
                     style: TextStyle(color: Colors.white),
                   ),
                   Text(
@@ -457,12 +524,12 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                                 },
                                 child: TextFormField(
                                   enabled: false,
+                                  controller: _fromDateController,
                                   decoration: InputDecoration(
                                       contentPadding: EdgeInsets.only(left: 8),
                                       fillColor: Color(0xFFE3F5FF),
                                       filled: true,
-                                      hintText: getFromDate(),
-                                      hintStyle: TextStyle(color: Colors.black),
+                                      hintStyle: TextStyle(color: Colors.grey),
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(10))),
@@ -486,11 +553,11 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                                 },
                                 child: TextFormField(
                                   enabled: false,
+                                  controller: _untilDateController,
                                   decoration: InputDecoration(
                                       contentPadding: EdgeInsets.only(left: 8),
                                       fillColor: Color(0xFFE3F5FF),
                                       filled: true,
-                                      hintText: getUntilDate(),
                                       hintStyle: TextStyle(color: Colors.black),
                                       border: OutlineInputBorder(
                                           borderRadius:
@@ -505,7 +572,55 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                       height: 8,
                     ),
                     MaterialButton(
-                      onPressed: () => {},
+                      onPressed: () {
+                        DateTime now = DateTime.now();
+                        DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+                        switch (dropdownValue) {
+                          case '1 Hari':
+                            print(dateFormat.format(now));
+                            String date = dateFormat.format(now);
+                            setState(() {
+                              loadDurasiHarianTim(date, date);
+                            });
+                            break;
+                          case '1 Minggu':
+                            DateTime firstDayofWeek =
+                                now.subtract(Duration(days: now.weekday - 1));
+                            DateTime lastDateofWeek =
+                                firstDayofWeek.add(Duration(days: 6));
+                            print(dateFormat.format(firstDayofWeek));
+                            print(dateFormat.format(lastDateofWeek));
+                            String firstDate =
+                                dateFormat.format(firstDayofWeek);
+                            String endDate = dateFormat.format(lastDateofWeek);
+                            setState(() {
+                              loadDurasiHarianTim(firstDate, endDate);
+                            });
+                            break;
+                          case '1 Bulan':
+                            DateTime firstDate =
+                                DateTime(now.year, now.month, 1);
+                            var lastDayDateTime = (now.month < 12)
+                                ? new DateTime(now.year, now.month + 1, 0)
+                                : new DateTime(now.year + 1, 1, 0);
+                            print(dateFormat.format(firstDate));
+                            print(dateFormat.format(lastDayDateTime));
+                            setState(() {
+                              loadDurasiHarianTim(dateFormat.format(firstDate),
+                                  dateFormat.format(lastDayDateTime));
+                            });
+                            break;
+                          default:
+                            print(dateFormat.format(dateTimeRange!.start));
+                            print(dateFormat.format(dateTimeRange!.end));
+                            setState(() {
+                              loadDurasiHarianTim(
+                                  dateFormat.format(dateTimeRange!.start),
+                                  dateFormat.format(dateTimeRange!.end));
+                            });
+                            break;
+                        }
+                      },
                       height: 48,
                       minWidth: 96,
                       color: Colors.blue,
@@ -543,6 +658,8 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
     } else {
       setState(() {
         dateTimeRange = newDateRange;
+        _untilDateController.text = getUntilDate();
+        _fromDateController.text = getFromDate();
       });
     }
   }
@@ -645,7 +762,13 @@ class _ItemListTimState extends State<ItemListTim> {
       children: [
         Card(
             child: ListTile(
-          onTap: () {},
+          onTap: () async {
+            Pengguna pengguna =
+                await ApiService().getPenggunaByPosition(widget.position.id);
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return LaporanKinerjaPage(idUser: pengguna.id);
+            }));
+          },
           leading: CircleAvatar(),
           title: Text(widget.position.position),
           subtitle: Text(widget.position.position),
@@ -678,59 +801,4 @@ class _ItemListTimState extends State<ItemListTim> {
       ],
     );
   }
-}
-
-class SimpleTimeSeriesChartTim extends StatelessWidget {
-  final List<charts.Series<dynamic, DateTime>> seriesList;
-  final bool animate = false;
-
-  SimpleTimeSeriesChartTim(this.seriesList);
-
-  /// Creates a [TimeSeriesChart] with sample data and no transition.
-  factory SimpleTimeSeriesChartTim.withSampleData() {
-    return new SimpleTimeSeriesChartTim(
-      _createSampleData(),
-      // Disable animations for image tests.
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new charts.TimeSeriesChart(
-      seriesList,
-      animate: animate,
-      // Optionally pass in a [DateTimeFactory] used by the chart. The factory
-      // should create the same type of [DateTime] as the data provided. If none
-      // specified, the default creates local date time.
-      dateTimeFactory: const charts.LocalDateTimeFactory(),
-    );
-  }
-
-  /// Create one series with sample hard coded data.
-  static List<charts.Series<TimeSeriesSales, DateTime>> _createSampleData() {
-    final data = [
-      new TimeSeriesSales(new DateTime(2017, 9, 19), 5),
-      new TimeSeriesSales(new DateTime(2017, 9, 26), 25),
-      new TimeSeriesSales(new DateTime(2017, 10, 3), 100),
-      new TimeSeriesSales(new DateTime(2017, 10, 10), 75),
-    ];
-
-    return [
-      new charts.Series<TimeSeriesSales, DateTime>(
-        id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (TimeSeriesSales sales, _) => sales.time,
-        measureFn: (TimeSeriesSales sales, _) => sales.sales,
-        data: data,
-      )
-    ];
-  }
-}
-
-/// Sample time series data type.
-class TimeSeriesSales {
-  final DateTime time;
-  final int sales;
-
-  TimeSeriesSales(this.time, this.sales);
 }

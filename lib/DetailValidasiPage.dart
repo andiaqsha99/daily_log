@@ -52,78 +52,80 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      child: Column(
-        children: [
-          FutureBuilder<SubPekerjaanResponse>(
-              future: listPekerjaanSubmit,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  items.addAll(snapshot.data!.data);
-                  if (items.length > 0) {
-                    return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          return ValidasiCard(
-                            subPekerjaan: items[index],
-                          );
-                        });
-                  } else {
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.all(8),
+        child: Column(
+          children: [
+            FutureBuilder<SubPekerjaanResponse>(
+                future: listPekerjaanSubmit,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    items.addAll(snapshot.data!.data);
+                    if (items.length > 0) {
+                      return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            return ValidasiCard(
+                              subPekerjaan: items[index],
+                            );
+                          });
+                    } else {
+                      return Center(
+                        child: Text("No Data"),
+                      );
+                    }
+                  } else if (snapshot.hasError) {
                     return Center(
-                      child: Text("No Data"),
+                      child: Text("Error"),
                     );
                   }
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error"),
-                  );
-                }
-                return CircularProgressIndicator();
-              }),
-          SizedBox(
-            height: 8,
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                MaterialButton(
-                  onPressed: () => {Navigator.of(context).pop()},
-                  child: Text("KEMBALI"),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                  color: Color(0xFF1A73E9),
-                  textColor: Colors.white,
-                  height: 40,
-                ),
-                SizedBox(
-                  width: 16,
-                ),
-                MaterialButton(
-                  onPressed: () async {
-                    items.forEach((element) {
-                      var update = ApiService().updateSubPekerjaan(element);
-                    });
-                    Navigator.of(context)
-                        .pushReplacement(MaterialPageRoute(builder: (context) {
-                      return PersetujuanAtasanPage();
-                    }));
-                  },
-                  child: Text("VALIDASI"),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                  color: Color(0xFF1A73E9),
-                  textColor: Colors.white,
-                  height: 40,
-                )
-              ],
+                  return CircularProgressIndicator();
+                }),
+            SizedBox(
+              height: 8,
             ),
-          )
-        ],
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MaterialButton(
+                    onPressed: () => {Navigator.of(context).pop()},
+                    child: Text("KEMBALI"),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                    color: Color(0xFF1A73E9),
+                    textColor: Colors.white,
+                    height: 40,
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  MaterialButton(
+                    onPressed: () async {
+                      items.forEach((element) {
+                        var update = ApiService().updateSubPekerjaan(element);
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("VALIDASI"),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                    color: Color(0xFF1A73E9),
+                    textColor: Colors.white,
+                    height: 40,
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 52,
+            )
+          ],
+        ),
       ),
     );
   }
@@ -163,7 +165,9 @@ class _ValidasiCardState extends State<ValidasiCard> {
               widget.subPekerjaan.nama,
               style: TextStyle(fontSize: 16),
             ),
-            Text("Durasi: 0${widget.subPekerjaan.durasi}:00"),
+            Text(widget.subPekerjaan.durasi < 10
+                ? "Durasi: 00:0${widget.subPekerjaan.durasi}"
+                : "Durasi: 00:${widget.subPekerjaan.durasi}"),
             Row(
               children: [
                 Text("Validasi"),
