@@ -372,7 +372,6 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   @override
   void initState() {
     super.initState();
-    loadDataTotalPekerjaan();
 
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     DateTime now = DateTime.now();
@@ -380,21 +379,13 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
     var lastDayDateTime = (now.month < 12)
         ? new DateTime(now.year, now.month + 1, 0)
         : new DateTime(now.year + 1, 1, 0);
+    loadDataTotalPekerjaan(
+        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
     loadDurasiHarianTim(
         dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
   }
 
-  loadDataTotalPekerjaan() async {
-    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
-    DateTime now = DateTime.now();
-    DateTime firstDateofMonth = DateTime(now.year, now.month, 1);
-    var lastDayDateTime = (now.month < 12)
-        ? new DateTime(now.year, now.month + 1, 0)
-        : new DateTime(now.year + 1, 1, 0);
-
-    String firstDate = dateFormat.format(firstDateofMonth);
-    String endDate = dateFormat.format(lastDayDateTime);
-
+  loadDataTotalPekerjaan(String firstDate, String endDate) async {
     final sharedPreferences = await SharedPreferences.getInstance();
     int idPosition = sharedPreferences.getInt("position_id")!;
 
@@ -581,6 +572,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                             String date = dateFormat.format(now);
                             setState(() {
                               loadDurasiHarianTim(date, date);
+                              loadDataTotalPekerjaan(date, date);
                             });
                             break;
                           case '1 Minggu':
@@ -595,6 +587,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                             String endDate = dateFormat.format(lastDateofWeek);
                             setState(() {
                               loadDurasiHarianTim(firstDate, endDate);
+                              loadDataTotalPekerjaan(firstDate, endDate);
                             });
                             break;
                           case '1 Bulan':
@@ -608,15 +601,21 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                             setState(() {
                               loadDurasiHarianTim(dateFormat.format(firstDate),
                                   dateFormat.format(lastDayDateTime));
+                              loadDataTotalPekerjaan(
+                                  dateFormat.format(firstDate),
+                                  dateFormat.format(lastDayDateTime));
                             });
                             break;
                           default:
                             print(dateFormat.format(dateTimeRange!.start));
                             print(dateFormat.format(dateTimeRange!.end));
+                            String firstDate =
+                                dateFormat.format(dateTimeRange!.start);
+                            String endDate =
+                                dateFormat.format(dateTimeRange!.end);
                             setState(() {
-                              loadDurasiHarianTim(
-                                  dateFormat.format(dateTimeRange!.start),
-                                  dateFormat.format(dateTimeRange!.end));
+                              loadDurasiHarianTim(firstDate, endDate);
+                              loadDataTotalPekerjaan(firstDate, endDate);
                             });
                             break;
                         }

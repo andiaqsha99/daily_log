@@ -104,6 +104,7 @@ class ApiService {
     final response = await client.get((Uri.parse(
         "$baseUrl/pengguna/$idUser/subpekerjaan/$dateFrom/$dateTo/valid/count")));
     var data = jsonDecode(response.body);
+    print(data['data']);
     return data['data'];
   }
 
