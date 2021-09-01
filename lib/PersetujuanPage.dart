@@ -1,19 +1,25 @@
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PersetujuanPage extends StatelessWidget {
-  const PersetujuanPage({Key? key}) : super(key: key);
+  final int intialIndex;
+  final SubPekerjaan? subPekerjaan;
+  const PersetujuanPage({Key? key, this.intialIndex = 0, this.subPekerjaan})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
+        initialIndex: this.intialIndex,
         length: 2,
         child: Scaffold(
           appBar: AppBar(
@@ -26,11 +32,14 @@ class PersetujuanPage extends StatelessWidget {
                 text: "DITOLAK",
               )
             ]),
-            actions: [
-              IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-            ],
+            actions: [NotificationWidget()],
           ),
-          body: TabBarView(children: [MenungguPage(), DitolakPage()]),
+          body: TabBarView(children: [
+            MenungguPage(),
+            DitolakPage(
+              subPekerjaan: this.subPekerjaan,
+            )
+          ]),
           bottomSheet: MenuBottom(),
         ));
   }
@@ -329,7 +338,8 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
 }
 
 class DitolakPage extends StatefulWidget {
-  const DitolakPage({Key? key}) : super(key: key);
+  final SubPekerjaan? subPekerjaan;
+  const DitolakPage({Key? key, this.subPekerjaan}) : super(key: key);
 
   @override
   _DitolakPageState createState() => _DitolakPageState();
@@ -338,6 +348,7 @@ class DitolakPage extends StatefulWidget {
 class _DitolakPageState extends State<DitolakPage> {
   late Future<PekerjaanResponse> pekerjaanResponse;
   int idUser = 1;
+  final ItemScrollController itemScrollController = ItemScrollController();
 
   @override
   void initState() {
@@ -362,25 +373,35 @@ class _DitolakPageState extends State<DitolakPage> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 8, right: 8, top: 8),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Tupoksi",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            FutureBuilder<PekerjaanResponse>(
-                future: pekerjaanResponse,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    var data = snapshot.data!.data;
-                    List<Pekerjaan> listPekerjaan = data;
-                    return ListView.builder(
-                        shrinkWrap: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Tupoksi",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          FutureBuilder<PekerjaanResponse>(
+              future: pekerjaanResponse,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  var data = snapshot.data!.data;
+                  List<Pekerjaan> listPekerjaan = data;
+                  if (widget.subPekerjaan != null) {
+                    var position = listPekerjaan.indexWhere((element) =>
+                        element.id == widget.subPekerjaan!.idPekerjaan);
+                    SchedulerBinding.instance!
+                        .addPostFrameCallback((timeStamp) {
+                      itemScrollController.jumpTo(
+                          index: position, alignment: 0);
+                    });
+                  }
+                  return Expanded(
+                    child: ScrollablePositionedList.builder(
+                        itemScrollController: itemScrollController,
+                        scrollDirection: Axis.vertical,
                         itemCount: listPekerjaan.length,
                         itemBuilder: (context, index) {
                           return Column(
@@ -394,17 +415,17 @@ class _DitolakPageState extends State<DitolakPage> {
                               )
                             ],
                           );
-                        });
-                  } else if (snapshot.hasError) {
-                    return Text("Error");
-                  }
-                  return CircularProgressIndicator();
-                }),
-            SizedBox(
-              height: 56,
-            )
-          ],
-        ),
+                        }),
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("Error");
+                }
+                return CircularProgressIndicator();
+              }),
+          SizedBox(
+            height: 56,
+          )
+        ],
       ),
     );
   }

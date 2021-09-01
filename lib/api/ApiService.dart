@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:daily_log/model/CityResponse.dart';
 import 'package:daily_log/model/DurasiHarianResponse.dart';
-import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
@@ -12,7 +11,6 @@ import 'package:daily_log/model/PresenceResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 class ApiService {
   final String baseUrl = "http://localhost:8000/api";
@@ -29,14 +27,14 @@ class ApiService {
   }
 
   Future<PekerjaanResponse> getPekerjaan(int idUser) async {
-    DateTime now = DateTime.now();
-    DateTime threeDayTomorrow = now.subtract(Duration(days: 3));
-    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
-    String dateTo = dateFormat.format(now);
-    String dateFrom = dateFormat.format(threeDayTomorrow);
+    // DateTime now = DateTime.now();
+    // DateTime threeDayTomorrow = now.subtract(Duration(days: 10));
+    // DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    // String dateTo = dateFormat.format(now);
+    // String dateFrom = dateFormat.format(threeDayTomorrow);
 
-    final response = await client.get((Uri.parse(
-        "$baseUrl/pekerjaan/pengguna/$idUser/tanggal/$dateFrom/$dateTo")));
+    final response =
+        await client.get((Uri.parse("$baseUrl/pekerjaan/pengguna/$idUser")));
     var data = jsonDecode(response.body);
     return PekerjaanResponse.fromJson(data);
   }
