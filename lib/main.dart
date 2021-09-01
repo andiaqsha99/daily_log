@@ -1,5 +1,3 @@
-import 'package:daily_log/DetailValidasiPage.dart';
-import 'package:daily_log/LoginPage.dart';
 import 'package:daily_log/LoginWrapper.dart';
 import 'package:flutter/material.dart';
 

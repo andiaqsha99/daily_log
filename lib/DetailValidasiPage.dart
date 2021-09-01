@@ -1,5 +1,5 @@
 import 'package:daily_log/MenuBottom.dart';
-import 'package:daily_log/PersetujuanAtasanPage.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
@@ -16,9 +16,7 @@ class DetailValidasePage extends StatelessWidget {
       appBar: AppBar(
         leading: BackButton(),
         title: Text(this.staff.username),
-        actions: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-        ],
+        actions: [NotificationWidget()],
       ),
       body: SafeArea(
           child: ListValidasiPekerjaanPage(

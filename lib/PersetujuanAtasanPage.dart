@@ -1,4 +1,5 @@
 import 'package:daily_log/DetailValidasiPage.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
@@ -32,9 +33,7 @@ class PersetujuanAtasanPage extends StatelessWidget {
                 text: "DITOLAK",
               )
             ]),
-            actions: [
-              IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-            ],
+            actions: [NotificationWidget()],
           ),
           body: TabBarView(
               children: [ListValidasiPage(), MenungguPage(), DitolakPage()]),

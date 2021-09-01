@@ -1,6 +1,6 @@
-import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/City.dart';
@@ -82,9 +82,7 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Kehadiran"),
-        actions: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-        ],
+        actions: [NotificationWidget()],
       ),
       bottomSheet: MenuBottom(),
       body: SafeArea(

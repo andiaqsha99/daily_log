@@ -1,5 +1,6 @@
 import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Presence.dart';
@@ -37,9 +38,7 @@ class _CheckOutPresensiPageState extends State<CheckOutPresensiPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Kehadiran"),
-        actions: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-        ],
+        actions: [NotificationWidget()],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

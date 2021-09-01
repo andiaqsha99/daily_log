@@ -1,7 +1,6 @@
-import 'package:daily_log/CheckInPresensiPage.dart';
-import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
@@ -40,9 +39,7 @@ class LaporanKinerjaAtasanPage extends StatelessWidget {
                 text: "TIM",
               )
             ]),
-            actions: [
-              IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-            ],
+            actions: [NotificationWidget()],
           ),
           body: TabBarView(children: [
             LaporanKinerjaPersonal(idUser: this.idUser),

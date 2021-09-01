@@ -1,5 +1,6 @@
 import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
@@ -8,8 +9,6 @@ import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:numberpicker/numberpicker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PekerjaanHarianPage extends StatefulWidget {
   final int idUser;
@@ -35,9 +34,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Pekerjaan Harian"),
-        actions: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-        ],
+        actions: [NotificationWidget()],
       ),
       body: SingleChildScrollView(
         child: Column(

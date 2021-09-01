@@ -1,4 +1,5 @@
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
@@ -86,9 +87,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Laporan Kinerja"),
-        actions: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-        ],
+        actions: [NotificationWidget()],
       ),
       body: Container(
         padding: EdgeInsets.fromLTRB(8, 8, 8, 56),

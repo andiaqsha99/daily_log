@@ -3,10 +3,12 @@ import 'package:daily_log/CheckOutPresensiPage.dart';
 import 'package:daily_log/LaporanKinerjaAtasanPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
+import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/PekerjaanHarianPage.dart';
 import 'package:daily_log/PersetujuanAtasanPage.dart';
 import 'package:daily_log/PersetujuanPage.dart';
 import 'package:daily_log/ProfilStatus.dart';
+import 'package:daily_log/QrCodePage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,9 +20,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("SAKIRA"),
-        actions: [
-          IconButton(onPressed: () => {}, icon: Icon(Icons.notifications))
-        ],
+        actions: [NotificationWidget()],
       ),
       body: SafeArea(child: MenuPage()),
     );
@@ -122,6 +122,29 @@ class _MenuPageState extends State<MenuPage> {
                     ],
                   ),
                 ),
+                SizedBox(
+                  height: 8,
+                ),
+                Container(
+                  child: Column(
+                    children: [
+                      Card(
+                        color: Color(0xFFB0D8FD),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return QrCodePage();
+                            }));
+                          },
+                          icon: Icon(Icons.qr_code),
+                          iconSize: 56,
+                        ),
+                      ),
+                      Text("QR Code")
+                    ],
+                  ),
+                ),
               ],
             ),
             Column(
@@ -171,6 +194,27 @@ class _MenuPageState extends State<MenuPage> {
                       ),
                       Text("Persetujuan")
                     ],
+                  ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Opacity(
+                  opacity: 0.0,
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Card(
+                          color: Color(0xFFB0D8FD),
+                          child: IconButton(
+                            onPressed: () {},
+                            icon: Icon(Icons.assignment_turned_in),
+                            iconSize: 56,
+                          ),
+                        ),
+                        Text("Not Visible")
+                      ],
+                    ),
                   ),
                 ),
               ],

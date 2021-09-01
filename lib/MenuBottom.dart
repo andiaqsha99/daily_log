@@ -1,5 +1,4 @@
 import 'package:daily_log/HomePage.dart';
-import 'package:daily_log/LoginPage.dart';
 import 'package:daily_log/LoginWrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
