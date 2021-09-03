@@ -186,13 +186,15 @@ class ApiService {
     return DurasiHarianResponse.fromJson(data);
   }
 
-  Future<void> checkInQRCode(String username) async {
-    final response =
-        await client.get((Uri.parse("$baseUrl/arrival/checkin/$username")));
+  Future<void> checkInQRCode(
+      String username, double latitude, double longitude) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/arrival/checkin/$username/$latitude/$longitude")));
   }
 
-  Future<void> checkOutQRCode(String username) async {
-    final response =
-        await client.get((Uri.parse("$baseUrl/arrival/checkout/$username")));
+  Future<void> checkOutQRCode(
+      String username, double latitude, double longitude) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/arrival/checkout/$username/$latitude/$longitude")));
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:daily_log/api/ApiService.dart';
@@ -32,11 +33,13 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   String username = " ";
+  Location location = new Location();
 
   @override
   void initState() {
     super.initState();
     getLoginData();
+    getLocationData();
   }
 
   getLoginData() async {
@@ -142,27 +145,31 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
   }
 
   readScan(QRViewController controller) async {
+    LocationData _locationData;
+    _locationData = await location.getLocation();
+    var latitude = _locationData.latitude;
+    var longitude = _locationData.longitude;
     var a = await controller.scannedDataStream.first;
     setState(() {
       this.result = a;
     });
+
     switch (result!.code) {
       case 'Check In':
-        await ApiService().checkInQRCode(username);
+        await ApiService().checkInQRCode(username, latitude!, longitude!);
+        getLocationData();
         break;
       case 'Check Out':
-        await ApiService().checkOutQRCode(username);
+        await ApiService().checkOutQRCode(username, latitude!, longitude!);
+        getLocationData();
         break;
       default:
     }
   }
 
   getLocationData() async {
-    Location location = new Location();
-
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    LocationData _locationData;
 
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
@@ -179,10 +186,5 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
         return;
       }
     }
-
-    _locationData = await location.getLocation();
-    print(_locationData.latitude);
-    print(_locationData.longitude);
-    print(_locationData.accuracy);
   }
 }
