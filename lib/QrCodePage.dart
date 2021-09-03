@@ -1,70 +1,188 @@
-import 'package:daily_log/MenuBottom.dart';
+import 'dart:io';
+
+import 'package:daily_log/api/ApiService.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:location/location.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class QrCodePage extends StatelessWidget {
   const QrCodePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text("QR Code"),
-          bottom: TabBar(
-            tabs: [
-              Tab(
-                child: Text("CHECK IN"),
-              ),
-              Tab(
-                child: Text("CHECK OUT"),
-              )
-            ],
-          ),
-        ),
-        body: TabBarView(children: [
-          Container(
-            child: Center(
-              child: Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    QrImage(
-                      data: 'http://192.168.43.126:8000/api/arrival/checkin',
-                      size: 200,
-                    ),
-                    Text(
-                      "Check In",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Container(
-            child: Center(
-              child: Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    QrImage(
-                      data: 'http://192.168.43.126:8000/api/arrival/checkout',
-                      size: 200,
-                    ),
-                    Text(
-                      "Check Out",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ]),
-        bottomSheet: MenuBottom(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("QR Code Scanner"),
       ),
+      body: QRCodeScannerView(),
     );
+  }
+}
+
+class QRCodeScannerView extends StatefulWidget {
+  const QRCodeScannerView({Key? key}) : super(key: key);
+
+  @override
+  _QRCodeScannerViewState createState() => _QRCodeScannerViewState();
+}
+
+class _QRCodeScannerViewState extends State<QRCodeScannerView> {
+  Barcode? result;
+  QRViewController? controller;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  String username = " ";
+
+  @override
+  void initState() {
+    super.initState();
+    getLoginData();
+  }
+
+  getLoginData() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      username = sharedPreferences.getString("username")!;
+    });
+  }
+
+  // In order to get hot reload to work we need to pause the camera if the platform
+  // is android, or resume the camera if the platform is iOS.
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (Platform.isAndroid) {
+      controller!.pauseCamera();
+    }
+    controller!.resumeCamera();
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        buildQrView(context),
+        Positioned(
+          child: Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+                color: Colors.white24, borderRadius: BorderRadius.circular(8)),
+            child: Text(
+              result != null ? '${result!.code} success' : "Scan QR Code",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          top: 10,
+        ),
+        Positioned(
+          child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(8)),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                      onPressed: () async {
+                        await controller?.toggleFlash();
+                        setState(() {});
+                      },
+                      icon: FutureBuilder<bool?>(
+                          future: controller?.getFlashStatus(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Icon(snapshot.data!
+                                  ? Icons.flash_on
+                                  : Icons.flash_off);
+                            } else {
+                              return Container();
+                            }
+                          })),
+                  IconButton(
+                      onPressed: () async {
+                        await controller!.flipCamera();
+                      },
+                      icon: Icon(Icons.switch_camera)),
+                ],
+              )),
+          bottom: 10,
+        )
+      ],
+    );
+  }
+
+  Widget buildQrView(BuildContext context) {
+    return QRView(
+      key: qrKey,
+      onQRViewCreated: onQRViewCreated,
+      overlay: QrScannerOverlayShape(
+          cutOutSize: MediaQuery.of(context).size.width * 0.8,
+          borderLength: 20,
+          borderRadius: 10,
+          borderWidth: 10,
+          borderColor: Theme.of(context).accentColor),
+    );
+  }
+
+  onQRViewCreated(QRViewController controller) async {
+    setState(() {
+      this.controller = controller;
+      readScan(controller);
+    });
+  }
+
+  readScan(QRViewController controller) async {
+    var a = await controller.scannedDataStream.first;
+    setState(() {
+      this.result = a;
+    });
+    switch (result!.code) {
+      case 'Check In':
+        await ApiService().checkInQRCode(username);
+        break;
+      case 'Check Out':
+        await ApiService().checkOutQRCode(username);
+        break;
+      default:
+    }
+  }
+
+  getLocationData() async {
+    Location location = new Location();
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+    print(_locationData.latitude);
+    print(_locationData.longitude);
+    print(_locationData.accuracy);
   }
 }

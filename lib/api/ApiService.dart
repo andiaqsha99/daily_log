@@ -13,7 +13,7 @@ import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String baseUrl = "http://localhost:8000/api";
+  final String baseUrl = "http://192.168.43.126:8000/api";
 
   var client = http.Client();
 
@@ -184,5 +184,15 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return DurasiHarianResponse.fromJson(data);
+  }
+
+  Future<void> checkInQRCode(String username) async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/arrival/checkin/$username")));
+  }
+
+  Future<void> checkOutQRCode(String username) async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/arrival/checkout/$username")));
   }
 }
