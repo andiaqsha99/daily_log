@@ -157,11 +157,17 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
     switch (result!.code) {
       case 'Check In':
         await ApiService().checkInQRCode(username, latitude!, longitude!);
-        getLocationData();
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return QrCodeSuccessPage(status: "Check In");
+        }));
         break;
       case 'Check Out':
         await ApiService().checkOutQRCode(username, latitude!, longitude!);
-        getLocationData();
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return QrCodeSuccessPage(status: "Check Out");
+        }));
         break;
       default:
     }
@@ -186,5 +192,20 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
         return;
       }
     }
+  }
+}
+
+class QrCodeSuccessPage extends StatelessWidget {
+  final String status;
+  const QrCodeSuccessPage({Key? key, required this.status}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("QR Code Scanner"),
+      ),
+      body: Container(child: Center(child: Text("$status berhasil"))),
+    );
   }
 }

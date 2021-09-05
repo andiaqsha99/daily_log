@@ -84,7 +84,7 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
         title: Text("Kehadiran"),
         actions: [NotificationWidget()],
       ),
-      bottomSheet: MenuBottom(),
+      bottomNavigationBar: MenuBottom(),
       body: SafeArea(
           child: SingleChildScrollView(
         child: Form(

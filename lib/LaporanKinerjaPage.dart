@@ -90,7 +90,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
         actions: [NotificationWidget()],
       ),
       body: Container(
-        padding: EdgeInsets.fromLTRB(8, 8, 8, 56),
+        padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,6 +165,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
                       List<Pekerjaan> items = snapshot.data!.data;
                       if (items.length > 0) {
                         return ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: items.length,
                             itemBuilder: (context, index) {
@@ -183,7 +184,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
           ),
         ),
       ),
-      bottomSheet: MenuBottom(),
+      bottomNavigationBar: MenuBottom(),
     );
   }
 }
@@ -283,6 +284,7 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
                       List<SubPekerjaan> items = snapshot.data!.data;
                       if (items.length > 0) {
                         return ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
                             itemCount: items.length,
                             shrinkWrap: true,
                             itemBuilder: (context, index) {

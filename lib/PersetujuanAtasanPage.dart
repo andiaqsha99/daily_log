@@ -8,12 +8,18 @@ import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'MenuBottom.dart';
 
 class PersetujuanAtasanPage extends StatelessWidget {
-  const PersetujuanAtasanPage({Key? key}) : super(key: key);
+  final int intialIndex;
+  final SubPekerjaan? subPekerjaan;
+  const PersetujuanAtasanPage(
+      {Key? key, this.intialIndex = 0, this.subPekerjaan})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +41,13 @@ class PersetujuanAtasanPage extends StatelessWidget {
             ]),
             actions: [NotificationWidget()],
           ),
-          body: TabBarView(
-              children: [ListValidasiPage(), MenungguPage(), DitolakPage()]),
+          body: TabBarView(children: [
+            ListValidasiPage(),
+            MenungguPage(),
+            DitolakPage(
+              subPekerjaan: this.subPekerjaan,
+            )
+          ]),
           bottomSheet: MenuBottom(),
         ));
   }
@@ -94,6 +105,7 @@ class _MenungguPageState extends State<MenungguPage> {
                     var data = snapshot.data!.data;
                     List<Pekerjaan> listPekerjaan = data;
                     return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: listPekerjaan.length,
                         itemBuilder: (context, index) {
@@ -333,7 +345,8 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
 }
 
 class DitolakPage extends StatefulWidget {
-  const DitolakPage({Key? key}) : super(key: key);
+  final SubPekerjaan? subPekerjaan;
+  const DitolakPage({Key? key, this.subPekerjaan}) : super(key: key);
 
   @override
   _DitolakPageState createState() => _DitolakPageState();
@@ -341,7 +354,8 @@ class DitolakPage extends StatefulWidget {
 
 class _DitolakPageState extends State<DitolakPage> {
   late Future<PekerjaanResponse> pekerjaanResponse;
-  int idUser = 0;
+  int idUser = 1;
+  final ItemScrollController itemScrollController = ItemScrollController();
 
   @override
   void initState() {
@@ -366,25 +380,35 @@ class _DitolakPageState extends State<DitolakPage> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 8, right: 8, top: 8),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Tupoksi",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            FutureBuilder<PekerjaanResponse>(
-                future: pekerjaanResponse,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    var data = snapshot.data!.data;
-                    List<Pekerjaan> listPekerjaan = data;
-                    return ListView.builder(
-                        shrinkWrap: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Tupoksi",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          FutureBuilder<PekerjaanResponse>(
+              future: pekerjaanResponse,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  var data = snapshot.data!.data;
+                  List<Pekerjaan> listPekerjaan = data;
+                  if (widget.subPekerjaan != null) {
+                    var position = listPekerjaan.indexWhere((element) =>
+                        element.id == widget.subPekerjaan!.idPekerjaan);
+                    SchedulerBinding.instance!
+                        .addPostFrameCallback((timeStamp) {
+                      itemScrollController.jumpTo(
+                          index: position, alignment: 0);
+                    });
+                  }
+                  return Expanded(
+                    child: ScrollablePositionedList.builder(
+                        itemScrollController: itemScrollController,
+                        scrollDirection: Axis.vertical,
                         itemCount: listPekerjaan.length,
                         itemBuilder: (context, index) {
                           return Column(
@@ -398,14 +422,14 @@ class _DitolakPageState extends State<DitolakPage> {
                               )
                             ],
                           );
-                        });
-                  } else if (snapshot.hasError) {
-                    return Text("Error");
-                  }
-                  return CircularProgressIndicator();
-                }),
-          ],
-        ),
+                        }),
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("Error");
+                }
+                return CircularProgressIndicator();
+              }),
+        ],
       ),
     );
   }
@@ -452,6 +476,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                         tanggal: TextEditingController()));
             if (items.length > 0) {
               return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: items.length,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
@@ -475,7 +500,9 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                               style: TextStyle(color: Colors.grey),
                             ),
                             Text(
-                              "Durasi: 0${items[index].durasi}:00",
+                              items[index].durasi < 10
+                                  ? "Durasi: 00:0${items[index].durasi}"
+                                  : "Durasi: 00:${items[index].durasi}",
                               style: TextStyle(color: Colors.grey),
                             ),
                             Text(

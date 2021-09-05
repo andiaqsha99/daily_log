@@ -58,6 +58,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                     List<Pekerjaan> items = listPekerjaan!.data;
                     if (items.length > 0) {
                       return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
                           mapPekerjaan.add([
@@ -117,7 +118,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
           ],
         ),
       ),
-      bottomSheet: MenuBottom(),
+      bottomNavigationBar: MenuBottom(),
     );
   }
 }

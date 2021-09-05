@@ -40,7 +40,7 @@ class PersetujuanPage extends StatelessWidget {
               subPekerjaan: this.subPekerjaan,
             )
           ]),
-          bottomSheet: MenuBottom(),
+          bottomNavigationBar: MenuBottom(),
         ));
   }
 }
@@ -97,6 +97,7 @@ class _MenungguPageState extends State<MenungguPage> {
                     var data = snapshot.data!.data;
                     List<Pekerjaan> listPekerjaan = data;
                     return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: listPekerjaan.length,
                         itemBuilder: (context, index) {
@@ -164,6 +165,7 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                         tanggal: TextEditingController()));
             if (items.length > 0) {
               return ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   listController[index].nama.text = items[index].nama;
@@ -422,9 +424,6 @@ class _DitolakPageState extends State<DitolakPage> {
                 }
                 return CircularProgressIndicator();
               }),
-          SizedBox(
-            height: 56,
-          )
         ],
       ),
     );
@@ -472,6 +471,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                         tanggal: TextEditingController()));
             if (items.length > 0) {
               return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: items.length,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {

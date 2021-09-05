@@ -22,7 +22,7 @@ class DetailValidasePage extends StatelessWidget {
           child: ListValidasiPekerjaanPage(
         idStaff: staff.id,
       )),
-      bottomSheet: MenuBottom(),
+      bottomNavigationBar: MenuBottom(),
     );
   }
 }
@@ -62,6 +62,7 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                     items.addAll(snapshot.data!.data);
                     if (items.length > 0) {
                       return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: items.length,
                           itemBuilder: (context, index) {
@@ -119,9 +120,6 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 52,
-            )
           ],
         ),
       ),
