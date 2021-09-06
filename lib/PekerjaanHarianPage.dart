@@ -153,6 +153,7 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
       title: Text(widget.headerText),
       children: [
         ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: widget.listSubPekerjaan.length,
             itemBuilder: (context, index) {
