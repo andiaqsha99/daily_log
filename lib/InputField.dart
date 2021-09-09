@@ -1,7 +1,9 @@
 import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InputField extends StatefulWidget {
@@ -108,6 +110,11 @@ class _InputFieldState extends State<InputField> {
                   sharedPreferences.setInt("position_id", api.positionId);
                   sharedPreferences.setInt("id_user", api.id);
                   sharedPreferences.setBool("is_checkin", false);
+                  var provider =
+                      Provider.of<NotifProvider>(context, listen: false);
+                  provider.addListStaff(api.positionId);
+                  provider.addListSubPekerjaan(
+                      api.jabatan, api.id, api.positionId);
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => HomePage()));
                 }

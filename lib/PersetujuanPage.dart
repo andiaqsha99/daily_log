@@ -1,12 +1,14 @@
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -647,6 +649,10 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                                     setState(() {
                                       loadData();
                                     });
+                                    var provider = Provider.of<NotifProvider>(
+                                        context,
+                                        listen: false);
+                                    provider.onChange();
                                   },
                                   child: Text("SUBMIT"),
                                   shape: RoundedRectangleBorder(
