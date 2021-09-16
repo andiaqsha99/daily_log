@@ -77,6 +77,7 @@ class NotificationItem extends StatelessWidget {
       onTap: () {
         ApiService().updateNotificationRead(notif.id);
         Provider.of<NotifCounterProvider>(context, listen: false).onChange();
+        Provider.of<NotifProvider>(context, listen: false).onChange();
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (context) {
           return PersetujuanPage(
@@ -86,6 +87,7 @@ class NotificationItem extends StatelessWidget {
         }));
       },
       child: Card(
+        color: notif.isRead == 0 ? Color(0xFFEDFEFF) : Color(0xFFFFFFFF),
         child: Container(
           padding: EdgeInsets.all(8),
           width: double.infinity,
@@ -118,12 +120,14 @@ class NotificationItemSubmit extends StatelessWidget {
       onTap: () {
         ApiService().updateNotificationRead(notif.id);
         Provider.of<NotifCounterProvider>(context, listen: false).onChange();
+        Provider.of<NotifProvider>(context, listen: false).onChange();
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (context) {
           return DetailValidasePage(staff: pengguna);
         }));
       },
       child: Card(
+        color: notif.isRead == 0 ? Color(0xFFEDFEFF) : Color(0xFFFFFFFF),
         child: Container(
           padding: EdgeInsets.all(8),
           width: double.infinity,
