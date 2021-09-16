@@ -2,15 +2,19 @@ import 'dart:convert';
 
 import 'package:daily_log/model/CityResponse.dart';
 import 'package:daily_log/model/DurasiHarianResponse.dart';
+import 'package:daily_log/model/KehadiranResponse.dart';
+import 'package:daily_log/model/NotifResponse.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
+import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/Presence.dart';
 import 'package:daily_log/model/PresenceResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class ApiService {
   final String baseUrl = "http://192.168.43.126:8000/api";
@@ -196,5 +200,88 @@ class ApiService {
       String username, double latitude, double longitude) async {
     final response = await client.get((Uri.parse(
         "$baseUrl/arrival/checkout/$username/$latitude/$longitude")));
+  }
+
+  Future<PersetujuanResponse> getSubmitPersetujuan(int idUser) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/pengguna/$idUser/persetujuan/subpekerjaan/submit")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PersetujuanResponse.fromJson(data);
+  }
+
+  Future<PersetujuanResponse> getRejectPersetujuan(int idUser) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/pengguna/$idUser/persetujuan/subpekerjaan/reject")));
+    var data = jsonDecode(response.body);
+    return PersetujuanResponse.fromJson(data);
+  }
+
+  Future<KehadiranResponse> getKehadiranTim(
+      int idPosition, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/presence/tim/$idPosition/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return KehadiranResponse.fromJson(data);
+  }
+
+  Future<NotifResponse> getListNotification(int idUser) async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/notification/pengguna/$idUser")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return NotifResponse.fromJson(data);
+  }
+
+  Future<void> updateNotificationRead(int idNotif) async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/notification/$idNotif/read")));
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<void> createRejectNotif(int idReceiver, int idSubPekerjaan) async {
+    DateTime now = DateTime.now();
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    String date = dateFormat.format(now);
+
+    final response = await client.post(Uri.parse("$baseUrl/notification/store"),
+        headers: {"content-type": "application/json"},
+        body: jsonEncode({
+          'receiver_id': idReceiver,
+          'subpekerjaan_id': idSubPekerjaan,
+          'is_read': 0,
+          'date': date
+        }));
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<void> createSubmitNotif(
+      int idReceiver, int idSubPekerjaan, int idSender) async {
+    DateTime now = DateTime.now();
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    String date = dateFormat.format(now);
+
+    final response = await client.post(Uri.parse("$baseUrl/notification/store"),
+        headers: {"content-type": "application/json"},
+        body: jsonEncode({
+          'receiver_id': idReceiver,
+          'subpekerjaan_id': idSubPekerjaan,
+          'sender': idSender,
+          'is_read': 0,
+          'date': date
+        }));
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<Pengguna> getPenggunaById(int idPengguna) async {
+    final response =
+        await client.get(Uri.parse("$baseUrl/pengguna/$idPengguna"));
+    var data = jsonDecode(response.body);
+    print(data['data']);
+    return Pengguna.fromJson(data['data']);
   }
 }

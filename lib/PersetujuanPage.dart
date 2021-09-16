@@ -4,18 +4,22 @@ import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'model/PersetujuanPekerjaan.dart';
+
 class PersetujuanPage extends StatelessWidget {
   final int intialIndex;
-  final SubPekerjaan? subPekerjaan;
-  const PersetujuanPage({Key? key, this.intialIndex = 0, this.subPekerjaan})
+  final int? idSubPekerjaan;
+  const PersetujuanPage({Key? key, this.intialIndex = 0, this.idSubPekerjaan})
       : super(key: key);
 
   @override
@@ -39,7 +43,7 @@ class PersetujuanPage extends StatelessWidget {
           body: TabBarView(children: [
             MenungguPage(),
             DitolakPage(
-              subPekerjaan: this.subPekerjaan,
+              idSubPekerjaan: this.idSubPekerjaan,
             )
           ]),
           bottomNavigationBar: MenuBottom(),
@@ -55,7 +59,7 @@ class MenungguPage extends StatefulWidget {
 }
 
 class _MenungguPageState extends State<MenungguPage> {
-  late Future<PekerjaanResponse> pekerjaanResponse;
+  late Future<PersetujuanResponse> pekerjaanResponse;
   int idUser = 1;
 
   @override
@@ -66,7 +70,7 @@ class _MenungguPageState extends State<MenungguPage> {
   }
 
   loadPekerjaanData() async {
-    pekerjaanResponse = ApiService().getPekerjaan(idUser);
+    pekerjaanResponse = ApiService().getSubmitPersetujuan(idUser);
   }
 
   getLoginData() async {
@@ -92,12 +96,12 @@ class _MenungguPageState extends State<MenungguPage> {
             SizedBox(
               height: 8,
             ),
-            FutureBuilder<PekerjaanResponse>(
+            FutureBuilder<PersetujuanResponse>(
                 future: pekerjaanResponse,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     var data = snapshot.data!.data;
-                    List<Pekerjaan> listPekerjaan = data;
+                    List<PersetujuanPekerjaan> listPekerjaan = data;
                     return ListView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
@@ -110,7 +114,8 @@ class _MenungguPageState extends State<MenungguPage> {
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               PekerjaanMenungguCard(
-                                idPekerjaan: listPekerjaan[index].id,
+                                listSubPekerjaan:
+                                    listPekerjaan[index].subPekerjaan,
                               )
                             ],
                           );
@@ -128,8 +133,8 @@ class _MenungguPageState extends State<MenungguPage> {
 }
 
 class PekerjaanMenungguCard extends StatefulWidget {
-  final int idPekerjaan;
-  const PekerjaanMenungguCard({Key? key, required this.idPekerjaan})
+  final List<SubPekerjaan> listSubPekerjaan;
+  const PekerjaanMenungguCard({Key? key, required this.listSubPekerjaan})
       : super(key: key);
 
   @override
@@ -137,221 +142,229 @@ class PekerjaanMenungguCard extends StatefulWidget {
 }
 
 class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
-  late Future<SubPekerjaanResponse> subPekerjaanResponse;
+  List<SubPekerjaan> items = [];
+  List<EditingContoller> listController = [];
 
   @override
   void initState() {
+    items = widget.listSubPekerjaan;
+    listController = List<EditingContoller>.generate(
+        items.length,
+        (index) => EditingContoller(
+            nama: TextEditingController(),
+            keterangan: TextEditingController(),
+            durasi: TextEditingController(),
+            tanggal: TextEditingController()));
     super.initState();
-    loadData();
-  }
-
-  loadData() {
-    subPekerjaanResponse = ApiService().getSubmitPekerjaan(widget.idPekerjaan);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<SubPekerjaanResponse>(
-        future: subPekerjaanResponse,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            var data = snapshot.data;
-            List<SubPekerjaan> items = data!.data;
-            List<EditingContoller> listController =
-                List<EditingContoller>.generate(
-                    items.length,
-                    (index) => EditingContoller(
-                        nama: TextEditingController(),
-                        keterangan: TextEditingController(),
-                        durasi: TextEditingController(),
-                        tanggal: TextEditingController()));
-            if (items.length > 0) {
-              return ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  listController[index].nama.text = items[index].nama;
-                  listController[index].durasi.text =
-                      items[index].durasi.toString();
-                  listController[index].tanggal.text = items[index].tanggal;
-                  return Card(
-                      child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(8),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            items[index].nama,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            items[index].tanggal,
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          Text(
-                            items[index].durasi < 10
-                                ? "Durasi: 00:0${items[index].durasi}"
-                                : "Durasi: 00:${items[index].durasi}",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Row(
-                            children: [
-                              MaterialButton(
-                                onPressed: () => {
-                                  showDialog<String>(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      title: const Text('Edit Pekerjaan'),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            child: TextFormField(
-                                              controller:
-                                                  listController[index].nama,
-                                              decoration: InputDecoration(
-                                                  hintText: "Nama Pekerjaan",
-                                                  hintStyle: TextStyle(
-                                                      color: Colors.grey),
-                                                  border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10))),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 8,
-                                          ),
-                                          Container(
-                                            child: TextFormField(
-                                              controller:
-                                                  listController[index].durasi,
-                                              decoration: InputDecoration(
-                                                  hintText: "Durasi",
-                                                  hintStyle: TextStyle(
-                                                      color: Colors.grey),
-                                                  border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10))),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 8,
-                                          ),
-                                          Container(
-                                            child: TextFormField(
-                                              controller:
-                                                  listController[index].tanggal,
-                                              decoration: InputDecoration(
-                                                  hintText: "Tanggal",
-                                                  hintStyle: TextStyle(
-                                                      color: Colors.grey),
-                                                  border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10))),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () async {
-                                            var subPekerjaan = items[index];
-                                            subPekerjaan.nama =
-                                                listController[index].nama.text;
-                                            subPekerjaan.tanggal =
-                                                listController[index]
-                                                    .tanggal
-                                                    .text;
-                                            subPekerjaan.durasi = int.parse(
-                                                listController[index]
-                                                    .durasi
-                                                    .text);
-                                            var update = await ApiService()
-                                                .updateSubPekerjaan(
-                                                    subPekerjaan);
-                                            setState(() {
-                                              loadData();
-                                            });
-                                            Navigator.pop(context, 'SIMPAN');
-                                          },
-                                          child: const Text('SIMPAN'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, 'BATAL'),
-                                          child: const Text(
-                                            'BATAL',
-                                            style:
-                                                TextStyle(color: Colors.black),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                },
-                                child: Text("EDIT"),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6)),
-                                color: Color(0xFF1A73E9),
-                                textColor: Colors.white,
-                                height: 40,
+    return ListView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        listController[index].nama.text = items[index].nama;
+        listController[index].durasi.text = items[index].durasi.toString();
+        listController[index].tanggal.text = items[index].tanggal;
+        return Card(
+            child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(8),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              items[index].nama,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              items[index].tanggal,
+              style: TextStyle(color: Colors.grey),
+            ),
+            Text(
+              (() {
+                if (items[index].durasi < 10) {
+                  return "Durasi: 00:0${items[index].durasi}";
+                } else if (items[index].durasi > 59) {
+                  int jam = items[index].durasi ~/ 60;
+                  int menit = items[index].durasi % 60;
+                  if (menit < 10) {
+                    return "Durasi: 0$jam:0$menit";
+                  }
+                  return "Durasi: $jam:$menit";
+                } else {
+                  return "Durasi: 00:${items[index].durasi}";
+                }
+              }()),
+              style: TextStyle(color: Colors.grey),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Row(
+              children: [
+                MaterialButton(
+                  onPressed: () => {
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Edit Pekerjaan'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              child: TextFormField(
+                                controller: listController[index].nama,
+                                decoration: InputDecoration(
+                                    hintText: "Nama Pekerjaan",
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
                               ),
-                              SizedBox(
-                                width: 16,
-                              ),
-                              MaterialButton(
-                                onPressed: () async {
-                                  var delete = await ApiService()
-                                      .deleteSubPekerjaan(items[index].id);
-                                  setState(() {
-                                    loadData();
-                                  });
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Container(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  return await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          content: Container(
+                                            height: 200,
+                                            width: 300,
+                                            child: CupertinoTimerPicker(
+                                              onTimerDurationChanged:
+                                                  (duration) => {
+                                                listController[index]
+                                                        .durasi
+                                                        .text =
+                                                    duration.inMinutes
+                                                        .toString()
+                                              },
+                                              mode: CupertinoTimerPickerMode.hm,
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text("OK")),
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text("BATAL"))
+                                          ],
+                                        );
+                                      });
                                 },
-                                child: Text("DELETE"),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6)),
-                                color: Color(0xFFEB5757),
-                                textColor: Colors.white,
-                                height: 40,
-                              )
-                            ],
-                          )
-                        ]),
-                  ));
-                },
-                itemCount: items.length,
-              );
-            } else {
-              return Center(child: Text("No Data"));
-            }
-          } else if (snapshot.hasError) {
-            return Text("Error");
-          }
-
-          return CircularProgressIndicator();
-        });
+                                child: TextFormField(
+                                  enabled: false,
+                                  controller: listController[index].durasi,
+                                  decoration: InputDecoration(
+                                      hintText: "Durasi",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10))),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Container(
+                              child: TextFormField(
+                                enabled: false,
+                                controller: listController[index].tanggal,
+                                decoration: InputDecoration(
+                                    hintText: "Tanggal",
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                              ),
+                            ),
+                          ],
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () async {
+                              var subPekerjaan = items[index];
+                              subPekerjaan.nama =
+                                  listController[index].nama.text;
+                              subPekerjaan.tanggal =
+                                  listController[index].tanggal.text;
+                              subPekerjaan.durasi =
+                                  int.parse(listController[index].durasi.text);
+                              await ApiService()
+                                  .updateSubPekerjaan(subPekerjaan);
+                              setState(() {});
+                              Navigator.pop(context, 'SIMPAN');
+                            },
+                            child: const Text('SIMPAN'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'BATAL'),
+                            child: const Text(
+                              'BATAL',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  },
+                  child: Text("EDIT"),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6)),
+                  color: Color(0xFF1A73E9),
+                  textColor: Colors.white,
+                  height: 40,
+                ),
+                SizedBox(
+                  width: 16,
+                ),
+                MaterialButton(
+                  onPressed: () async {
+                    var delete =
+                        await ApiService().deleteSubPekerjaan(items[index].id);
+                    setState(() {});
+                  },
+                  child: Text("DELETE"),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6)),
+                  color: Color(0xFFEB5757),
+                  textColor: Colors.white,
+                  height: 40,
+                )
+              ],
+            )
+          ]),
+        ));
+      },
+    );
   }
 }
 
 class DitolakPage extends StatefulWidget {
-  final SubPekerjaan? subPekerjaan;
-  const DitolakPage({Key? key, this.subPekerjaan}) : super(key: key);
+  final int? idSubPekerjaan;
+  const DitolakPage({Key? key, this.idSubPekerjaan}) : super(key: key);
 
   @override
   _DitolakPageState createState() => _DitolakPageState();
 }
 
 class _DitolakPageState extends State<DitolakPage> {
-  late Future<PekerjaanResponse> pekerjaanResponse;
+  late Future<PersetujuanResponse> pekerjaanResponse;
   int idUser = 1;
+  int atasanId = 1;
   final ItemScrollController itemScrollController = ItemScrollController();
 
   @override
@@ -362,13 +375,14 @@ class _DitolakPageState extends State<DitolakPage> {
   }
 
   loadPekerjaanData() async {
-    pekerjaanResponse = ApiService().getPekerjaan(idUser);
+    pekerjaanResponse = ApiService().getRejectPersetujuan(idUser);
   }
 
   getLoginData() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       idUser = sharedPreferences.getInt("id_user")!;
+      atasanId = sharedPreferences.getInt("atasan_id")!;
       loadPekerjaanData();
     });
   }
@@ -387,15 +401,15 @@ class _DitolakPageState extends State<DitolakPage> {
           SizedBox(
             height: 8,
           ),
-          FutureBuilder<PekerjaanResponse>(
+          FutureBuilder<PersetujuanResponse>(
               future: pekerjaanResponse,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   var data = snapshot.data!.data;
-                  List<Pekerjaan> listPekerjaan = data;
-                  if (widget.subPekerjaan != null) {
-                    var position = listPekerjaan.indexWhere((element) =>
-                        element.id == widget.subPekerjaan!.idPekerjaan);
+                  List<PersetujuanPekerjaan> listPekerjaan = data;
+                  if (widget.idSubPekerjaan != null) {
+                    var position = listPekerjaan.indexWhere(
+                        (element) => element.id == widget.idSubPekerjaan!);
                     SchedulerBinding.instance!
                         .addPostFrameCallback((timeStamp) {
                       itemScrollController.jumpTo(
@@ -415,7 +429,11 @@ class _DitolakPageState extends State<DitolakPage> {
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               PekerjaanDitolakCard(
-                                idPekerjaan: listPekerjaan[index].id,
+                                listSubPekerjaan:
+                                    listPekerjaan[index].subPekerjaan,
+                                loadData: loadPekerjaanData,
+                                idAtasan: atasanId,
+                                idUser: idUser,
                               )
                             ],
                           );
@@ -433,8 +451,16 @@ class _DitolakPageState extends State<DitolakPage> {
 }
 
 class PekerjaanDitolakCard extends StatefulWidget {
-  final int idPekerjaan;
-  const PekerjaanDitolakCard({Key? key, required this.idPekerjaan})
+  final List<SubPekerjaan> listSubPekerjaan;
+  final Function loadData;
+  final int idAtasan;
+  final int idUser;
+  const PekerjaanDitolakCard(
+      {Key? key,
+      required this.listSubPekerjaan,
+      required this.loadData,
+      required this.idAtasan,
+      required this.idUser})
       : super(key: key);
 
   @override
@@ -442,240 +468,241 @@ class PekerjaanDitolakCard extends StatefulWidget {
 }
 
 class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
-  late Future<SubPekerjaanResponse> subPekerjaanRejectResponse;
+  List<SubPekerjaan> items = [];
+  List<EditingContoller> listController = [];
 
   @override
   void initState() {
+    items = widget.listSubPekerjaan;
+    listController = List<EditingContoller>.generate(
+        items.length,
+        (index) => EditingContoller(
+            nama: TextEditingController(),
+            keterangan: TextEditingController(),
+            durasi: TextEditingController(),
+            tanggal: TextEditingController()));
     super.initState();
-    loadData();
-  }
-
-  loadData() {
-    subPekerjaanRejectResponse =
-        ApiService().getRejectPekerjaan(widget.idPekerjaan);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<SubPekerjaanResponse>(
-        future: subPekerjaanRejectResponse,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            var data = snapshot.data;
-            List<SubPekerjaan> items = data!.data;
-            List<EditingContoller> listController =
-                List<EditingContoller>.generate(
-                    items.length,
-                    (index) => EditingContoller(
-                        nama: TextEditingController(),
-                        keterangan: TextEditingController(),
-                        durasi: TextEditingController(),
-                        tanggal: TextEditingController()));
-            if (items.length > 0) {
-              return ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: items.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    listController[index].nama.text = items[index].nama;
-                    listController[index].durasi.text =
-                        items[index].durasi.toString();
-                    listController[index].tanggal.text = items[index].tanggal;
-                    return Card(
-                        child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(8),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              items[index].nama,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              items[index].tanggal,
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            Text(
-                              items[index].durasi < 10
-                                  ? "Durasi: 00:0${items[index].durasi}"
-                                  : "Durasi: 00:${items[index].durasi}",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            Text(
-                              "Saran: ${items[index].saran}",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Row(
-                              children: [
-                                MaterialButton(
-                                  onPressed: () => {
-                                    showDialog<String>(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          AlertDialog(
-                                        title: const Text('Edit Pekerjaan'),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              child: TextFormField(
-                                                controller:
-                                                    listController[index].nama,
-                                                decoration: InputDecoration(
-                                                    hintText: "Nama Pekerjaan",
-                                                    hintStyle: TextStyle(
-                                                        color: Colors.grey),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10))),
+    return ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: items.length,
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          listController[index].nama.text = items[index].nama;
+          listController[index].durasi.text = items[index].durasi.toString();
+          listController[index].tanggal.text = items[index].tanggal;
+          return Card(
+              child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(8),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                items[index].nama,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                items[index].tanggal,
+                style: TextStyle(color: Colors.grey),
+              ),
+              Text(
+                (() {
+                  if (items[index].durasi < 10) {
+                    return "Durasi: 00:0${items[index].durasi}";
+                  } else if (items[index].durasi > 59) {
+                    int jam = items[index].durasi ~/ 60;
+                    int menit = items[index].durasi % 60;
+                    if (menit < 10) {
+                      return "Durasi: 0$jam:0$menit";
+                    }
+                    return "Durasi: $jam:$menit";
+                  } else {
+                    return "Durasi: 00:${items[index].durasi}";
+                  }
+                }()),
+                style: TextStyle(color: Colors.grey),
+              ),
+              Text(
+                "Saran: ${items[index].saran}",
+                style: TextStyle(color: Colors.grey),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                children: [
+                  MaterialButton(
+                    onPressed: () => {
+                      showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                          title: const Text('Edit Pekerjaan'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                child: TextFormField(
+                                  controller: listController[index].nama,
+                                  decoration: InputDecoration(
+                                      hintText: "Nama Pekerjaan",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10))),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Container(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    return await showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            content: Container(
+                                              height: 200,
+                                              width: 300,
+                                              child: CupertinoTimerPicker(
+                                                onTimerDurationChanged:
+                                                    (duration) => {
+                                                  listController[index]
+                                                          .durasi
+                                                          .text =
+                                                      duration.inMinutes
+                                                          .toString()
+                                                },
+                                                mode:
+                                                    CupertinoTimerPickerMode.hm,
                                               ),
                                             ),
-                                            SizedBox(
-                                              height: 8,
-                                            ),
-                                            Container(
-                                              child: TextFormField(
-                                                controller:
-                                                    listController[index]
-                                                        .durasi,
-                                                decoration: InputDecoration(
-                                                    hintText: "Durasi",
-                                                    hintStyle: TextStyle(
-                                                        color: Colors.grey),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10))),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 8,
-                                            ),
-                                            Container(
-                                              child: TextFormField(
-                                                controller:
-                                                    listController[index]
-                                                        .tanggal,
-                                                decoration: InputDecoration(
-                                                    hintText: "Tanggal",
-                                                    hintStyle: TextStyle(
-                                                        color: Colors.grey),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10))),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () async {
-                                              var subPekerjaan = items[index];
-                                              subPekerjaan.nama =
-                                                  listController[index]
-                                                      .nama
-                                                      .text;
-                                              subPekerjaan.tanggal =
-                                                  listController[index]
-                                                      .tanggal
-                                                      .text;
-                                              subPekerjaan.durasi = int.parse(
-                                                  listController[index]
-                                                      .durasi
-                                                      .text);
-                                              var update = await ApiService()
-                                                  .updateSubPekerjaan(
-                                                      subPekerjaan);
-                                              setState(() {
-                                                loadData();
-                                              });
-                                              Navigator.pop(context, 'SIMPAN');
-                                            },
-                                            child: const Text('SIMPAN'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, 'BATAL'),
-                                            child: const Text(
-                                              'BATAL',
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text("OK")),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text("BATAL"))
+                                            ],
+                                          );
+                                        });
                                   },
-                                  child: Text("EDIT"),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6)),
-                                  color: Color(0xFF1A73E9),
-                                  textColor: Colors.white,
-                                  height: 40,
+                                  child: TextFormField(
+                                    enabled: false,
+                                    controller: listController[index].durasi,
+                                    decoration: InputDecoration(
+                                        hintText: "Durasi",
+                                        hintStyle:
+                                            TextStyle(color: Colors.grey),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10))),
+                                  ),
                                 ),
-                                SizedBox(
-                                  width: 16,
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Container(
+                                child: TextFormField(
+                                  enabled: false,
+                                  controller: listController[index].tanggal,
+                                  decoration: InputDecoration(
+                                      hintText: "Tanggal",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10))),
                                 ),
-                                MaterialButton(
-                                  onPressed: () async {
-                                    var delete = await ApiService()
-                                        .deleteSubPekerjaan(items[index].id);
-                                    setState(() {
-                                      loadData();
-                                    });
-                                  },
-                                  child: Text("DELETE"),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6)),
-                                  color: Color(0xFFEB5757),
-                                  textColor: Colors.white,
-                                  height: 40,
-                                ),
-                                SizedBox(
-                                  width: 16,
-                                ),
-                                MaterialButton(
-                                  onPressed: () async {
-                                    var subPekerjaan = items[index];
-                                    subPekerjaan.status = "submit";
-                                    var update = await ApiService()
-                                        .updateSubPekerjaan(subPekerjaan);
-                                    setState(() {
-                                      loadData();
-                                    });
-                                    var provider = Provider.of<NotifProvider>(
-                                        context,
-                                        listen: false);
-                                    provider.onChange();
-                                  },
-                                  child: Text("SUBMIT"),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6)),
-                                  color: Color(0xFF00FF57),
-                                  textColor: Colors.white,
-                                  height: 40,
-                                ),
-                              ],
-                            )
-                          ]),
-                    ));
-                  });
-            } else {
-              return Center(
-                child: Text("No Data"),
-              );
-            }
-          } else if (snapshot.hasError) {
-            return Text("Error");
-          }
-
-          return CircularProgressIndicator();
+                              ),
+                            ],
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () async {
+                                var subPekerjaan = items[index];
+                                subPekerjaan.nama =
+                                    listController[index].nama.text;
+                                subPekerjaan.tanggal =
+                                    listController[index].tanggal.text;
+                                subPekerjaan.durasi = int.parse(
+                                    listController[index].durasi.text);
+                                await ApiService()
+                                    .updateSubPekerjaan(subPekerjaan);
+                                setState(() {});
+                                Navigator.pop(context, 'SIMPAN');
+                              },
+                              child: const Text('SIMPAN'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'BATAL'),
+                              child: const Text(
+                                'BATAL',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    },
+                    child: Text("EDIT"),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                    color: Color(0xFF1A73E9),
+                    textColor: Colors.white,
+                    height: 40,
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  MaterialButton(
+                    onPressed: () async {
+                      await ApiService().deleteSubPekerjaan(items[index].id);
+                      setState(() {});
+                    },
+                    child: Text("DELETE"),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                    color: Color(0xFFEB5757),
+                    textColor: Colors.white,
+                    height: 40,
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  MaterialButton(
+                    onPressed: () async {
+                      var subPekerjaan = items[index];
+                      subPekerjaan.status = "submit";
+                      ApiService().createSubmitNotif(
+                          widget.idAtasan, subPekerjaan.id, widget.idUser);
+                      await ApiService().updateSubPekerjaan(subPekerjaan);
+                      setState(() {
+                        widget.loadData();
+                      });
+                      var provider =
+                          Provider.of<NotifProvider>(context, listen: false);
+                      provider.onChange();
+                    },
+                    child: Text("SUBMIT"),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                    color: Color(0xFF00FF57),
+                    textColor: Colors.white,
+                    height: 40,
+                  ),
+                ],
+              )
+            ]),
+          ));
         });
   }
 }

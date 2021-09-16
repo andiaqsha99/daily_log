@@ -7,22 +7,20 @@ import 'package:provider/provider.dart';
 class NotificationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<NotifProvider>(builder: (_, notifProvider, ch) {
-      return Badge(
-        position: BadgePosition.topEnd(end: 1, top: 2),
-        showBadge: true,
-        badgeContent: Text(notifProvider.counter.toString()),
-        child: IconButton(
-            onPressed: () => {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) {
-                    return NotificationPage(
-                        listSubPekerjaan: notifProvider.listSubPekerjaan,
-                        listPengguna: notifProvider.listPengguna);
-                  }))
-                },
-            icon: Icon(Icons.notifications)),
-      );
-    });
+    var notifProvider = Provider.of<NotifProvider>(context);
+    var providerCounter = Provider.of<NotifCounterProvider>(context);
+    return Badge(
+      position: BadgePosition.topEnd(end: 1, top: 2),
+      showBadge: true,
+      badgeContent: Text(providerCounter.counter.toString()),
+      child: IconButton(
+          onPressed: () => {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return NotificationPage(listNotif: notifProvider.listNotif);
+                }))
+              },
+          icon: Icon(Icons.notifications)),
+    );
   }
 }

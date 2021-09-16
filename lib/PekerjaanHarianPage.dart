@@ -9,6 +9,7 @@ import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PekerjaanHarianPage extends StatefulWidget {
   final int idUser;
@@ -22,11 +23,19 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
   late Future<PekerjaanResponse> pekerjaanResponse;
   List<SubPekerjaan> listSubPekerjaan = [SubPekerjaan()];
   List<List<SubPekerjaan>> mapPekerjaan = [];
+  int idAtasan = 0;
 
   @override
   void initState() {
     super.initState();
     pekerjaanResponse = ApiService().getPekerjaan(widget.idUser);
+  }
+
+  getLoginData() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      idAtasan = sharedPreferences.getInt("atasan_id")!;
+    });
   }
 
   @override
@@ -93,6 +102,8 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                     element.forEach((element) {
                       print(element.nama);
                       ApiService().submitSubPekerjaan(element);
+                      ApiService().createSubmitNotif(
+                          idAtasan, element.id, widget.idUser);
                       Navigator.of(context)
                           .push(MaterialPageRoute(builder: (context) {
                         return HomePage();

@@ -101,7 +101,8 @@ class _InputFieldState extends State<InputField> {
                     username: _usernameController.text.trim(),
                     password: _passwordController.text.trim(),
                     jabatan: 'staff',
-                    positionId: 1);
+                    positionId: 1,
+                    atasanId: 1);
                 Pengguna api = await ApiService().login(pengguna);
                 if (_usernameController.text.trim() == api.username) {
                   sharedPreferences.setString("username", api.username);
@@ -110,11 +111,15 @@ class _InputFieldState extends State<InputField> {
                   sharedPreferences.setInt("position_id", api.positionId);
                   sharedPreferences.setInt("id_user", api.id);
                   sharedPreferences.setBool("is_checkin", false);
+                  if (api.atasanId != null) {
+                    sharedPreferences.setInt("atasan_id", api.atasanId!);
+                  }
                   var provider =
                       Provider.of<NotifProvider>(context, listen: false);
-                  provider.addListStaff(api.positionId);
-                  provider.addListSubPekerjaan(
-                      api.jabatan, api.id, api.positionId);
+                  provider.addListNotif(api.id);
+                  var providerCounter =
+                      Provider.of<NotifCounterProvider>(context, listen: false);
+                  providerCounter.addListNotif(api.id);
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => HomePage()));
                 }

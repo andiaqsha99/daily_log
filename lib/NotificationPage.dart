@@ -1,15 +1,17 @@
 import 'package:daily_log/DetailValidasiPage.dart';
 import 'package:daily_log/PersetujuanPage.dart';
+import 'package:daily_log/api/ApiService.dart';
+import 'package:daily_log/model/Notif.dart';
+import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
-import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:flutter/material.dart';
+import 'package:grouped_list/grouped_list.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class NotificationPage extends StatefulWidget {
-  final List<SubPekerjaan> listSubPekerjaan;
-  final List<Pengguna> listPengguna;
-  const NotificationPage(
-      {Key? key, required this.listSubPekerjaan, required this.listPengguna})
-      : super(key: key);
+  final List<Notif> listNotif;
+  const NotificationPage({Key? key, required this.listNotif}) : super(key: key);
 
   @override
   _NotificationPageState createState() => _NotificationPageState();
@@ -26,23 +28,38 @@ class _NotificationPageState extends State<NotificationPage> {
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Column(
           children: [
-            ListView.builder(
-                shrinkWrap: true,
-                itemCount: widget.listSubPekerjaan.length,
-                itemBuilder: (context, index) {
-                  if (widget.listSubPekerjaan[index].status == 'submit') {
-                    var pengguna = widget.listPengguna.where((element) =>
-                        element.id == widget.listSubPekerjaan[index].idUser);
-                    return NotificationItemSubmit(
-                      subPekerjaan: widget.listSubPekerjaan[index],
-                      pengguna: pengguna.first,
-                    );
-                  } else {
-                    return NotificationItem(
-                      subPekerjaan: widget.listSubPekerjaan[index],
-                    );
-                  }
-                })
+            GroupedListView<Notif, String>(
+              shrinkWrap: true,
+              elements: widget.listNotif,
+              groupBy: (element) {
+                return element.date;
+              },
+              groupSeparatorBuilder: (groupBy) {
+                String dateFormat =
+                    DateFormat("dd MMMM yyyy").format(DateTime.parse(groupBy));
+                return Text(dateFormat);
+              },
+              itemBuilder: (context, notif) {
+                if (notif.status == 'submit') {
+                  return FutureBuilder<Pengguna>(
+                      future: ApiService().getPenggunaById(notif.sender!),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return NotificationItemSubmit(
+                            notif: notif,
+                            pengguna: snapshot.data!,
+                          );
+                        } else {
+                          return SizedBox();
+                        }
+                      });
+                } else {
+                  return NotificationItem(
+                    notif: notif,
+                  );
+                }
+              },
+            )
           ],
         ),
       ),
@@ -51,19 +68,20 @@ class _NotificationPageState extends State<NotificationPage> {
 }
 
 class NotificationItem extends StatelessWidget {
-  final SubPekerjaan subPekerjaan;
-  const NotificationItem({Key? key, required this.subPekerjaan})
-      : super(key: key);
+  final Notif notif;
+  const NotificationItem({Key? key, required this.notif}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        ApiService().updateNotificationRead(notif.id);
+        Provider.of<NotifCounterProvider>(context, listen: false).onChange();
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (context) {
           return PersetujuanPage(
             intialIndex: 1,
-            subPekerjaan: subPekerjaan,
+            idSubPekerjaan: notif.idPekerjaan,
           );
         }));
       },
@@ -76,7 +94,7 @@ class NotificationItem extends StatelessWidget {
                   text: "Pekerjaan ",
                   style: TextStyle(color: Colors.black),
                   children: [
-                TextSpan(text: "${subPekerjaan.nama} telah di "),
+                TextSpan(text: "${notif.nama} telah di "),
                 TextSpan(
                     text: "tolak",
                     style: TextStyle(fontWeight: FontWeight.bold)),
@@ -89,15 +107,17 @@ class NotificationItem extends StatelessWidget {
 
 class NotificationItemSubmit extends StatelessWidget {
   final Pengguna pengguna;
-  final SubPekerjaan subPekerjaan;
+  final Notif notif;
   const NotificationItemSubmit(
-      {Key? key, required this.subPekerjaan, required this.pengguna})
+      {Key? key, required this.notif, required this.pengguna})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        ApiService().updateNotificationRead(notif.id);
+        Provider.of<NotifCounterProvider>(context, listen: false).onChange();
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (context) {
           return DetailValidasePage(staff: pengguna);
@@ -112,7 +132,7 @@ class NotificationItemSubmit extends StatelessWidget {
                   text: "Pekerjaan ",
                   style: TextStyle(color: Colors.black),
                   children: [
-                TextSpan(text: "${subPekerjaan.nama} telah di "),
+                TextSpan(text: "${notif.nama} telah di "),
                 TextSpan(
                     text: "submit",
                     style: TextStyle(fontWeight: FontWeight.bold)),

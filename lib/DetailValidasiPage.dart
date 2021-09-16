@@ -109,8 +109,10 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                     onPressed: () async {
                       items.forEach((element) {
                         var update = ApiService().updateSubPekerjaan(element);
-                        Provider.of<NotifProvider>(context, listen: false)
-                            .onChange();
+                        if (element.status == 'reject') {
+                          ApiService()
+                              .createRejectNotif(element.idUser, element.id);
+                        }
                       });
                       Navigator.of(context).pop();
                     },

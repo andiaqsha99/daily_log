@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
@@ -157,17 +158,19 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
     switch (result!.code) {
       case 'Check In':
         await ApiService().checkInQRCode(username, latitude!, longitude!);
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return QrCodeSuccessPage(status: "Check In");
-        }));
+        showDialog(
+            context: context,
+            builder: (context) {
+              return QrCodeSuccessPage(status: 'Check In');
+            });
         break;
       case 'Check Out':
         await ApiService().checkOutQRCode(username, latitude!, longitude!);
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return QrCodeSuccessPage(status: "Check Out");
-        }));
+        showDialog(
+            context: context,
+            builder: (context) {
+              return QrCodeSuccessPage(status: 'Check Out');
+            });
         break;
       default:
     }
@@ -201,11 +204,15 @@ class QrCodeSuccessPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("QR Code Scanner"),
-      ),
-      body: Container(child: Center(child: Text("$status berhasil"))),
+    return AlertDialog(
+      title: Text("Scan Berhasil"),
+      content: Text("$status berhasil"),
+      actions: [
+        TextButton(
+            onPressed: () =>
+                {Navigator.of(context).pop(), Navigator.of(context).pop()},
+            child: Text("OK"))
+      ],
     );
   }
 }

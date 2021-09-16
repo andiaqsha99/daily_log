@@ -1,6 +1,6 @@
 import 'package:daily_log/CheckInPresensiPage.dart';
 import 'package:daily_log/CheckOutPresensiPage.dart';
-import 'package:daily_log/LaporanKinerjaAtasanPage.dart';
+import 'package:daily_log/DashboardPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
@@ -105,14 +105,9 @@ class _MenuPageState extends State<MenuPage> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => jabatan == "staff"
-                                        ? LaporanKinerjaPage(
-                                            idUser: this.idUSer,
-                                          )
-                                        : LaporanKinerjaAtasanPage(
-                                            idUser: this.idUSer,
-                                            idPosition: this.idPosition,
-                                          )));
+                                    builder: (context) => LaporanKinerjaPage(
+                                          idUser: this.idUSer,
+                                        )));
                           },
                           icon: Icon(Icons.assignment_ind),
                           iconSize: 56,
@@ -200,19 +195,27 @@ class _MenuPageState extends State<MenuPage> {
                   height: 8,
                 ),
                 Opacity(
-                  opacity: 0.0,
+                  opacity: jabatan != "atasan" ? 0.0 : 1.0,
                   child: Container(
                     child: Column(
                       children: [
                         Card(
                           color: Color(0xFFB0D8FD),
                           child: IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.assignment_turned_in),
+                            onPressed: () {
+                              if (jabatan == "atasan") {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => DashboardPage(
+                                          idUser: this.idUSer,
+                                          idPosition: this.idPosition,
+                                        )));
+                              }
+                            },
+                            icon: Icon(Icons.dashboard),
                             iconSize: 56,
                           ),
                         ),
-                        Text("Not Visible")
+                        Text("Dashboard")
                       ],
                     ),
                   ),

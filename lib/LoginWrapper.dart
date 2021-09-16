@@ -32,8 +32,11 @@ class _LoginWrapperState extends State<LoginWrapper> {
       idUser = sharedPreferences.getInt("id_user") ?? 0;
       idPosition = sharedPreferences.getInt("position_id") ?? 0;
       var provider = Provider.of<NotifProvider>(context, listen: false);
-      provider.addListStaff(idPosition);
-      provider.addListSubPekerjaan(jabatan, idUser, idPosition);
+      // provider.addListStaff(idPosition);
+      provider.addListNotif(idUser);
+      var providerCounter =
+          Provider.of<NotifCounterProvider>(context, listen: false);
+      providerCounter.addListNotif(idUser);
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (context) {
         return isLogin ? HomePage() : LoginPage();
