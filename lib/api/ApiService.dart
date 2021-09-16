@@ -252,7 +252,8 @@ class ApiService {
           'receiver_id': idReceiver,
           'subpekerjaan_id': idSubPekerjaan,
           'is_read': 0,
-          'date': date
+          'date': date,
+          'status': "reject"
         }));
     var data = jsonDecode(response.body);
     print(data);
@@ -271,7 +272,8 @@ class ApiService {
           'subpekerjaan_id': idSubPekerjaan,
           'sender': idSender,
           'is_read': 0,
-          'date': date
+          'date': date,
+          'status': "submit"
         }));
     var data = jsonDecode(response.body);
     print(data);
