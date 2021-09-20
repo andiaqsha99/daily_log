@@ -74,11 +74,11 @@ class NotificationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         ApiService().updateNotificationRead(notif.id);
         Provider.of<NotifCounterProvider>(context, listen: false).onChange();
         Provider.of<NotifProvider>(context, listen: false).onChange();
-        Navigator.of(context)
+        await Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (context) {
           return PersetujuanPage(
             intialIndex: 1,

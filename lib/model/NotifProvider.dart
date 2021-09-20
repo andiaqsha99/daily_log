@@ -35,10 +35,11 @@ class NotifCounterProvider extends ChangeNotifier {
   }
 
   addListNotif(int idUser) {
-    final notifResponse = ApiService().getListNotification(idUser);
-    notifResponse.then((value) =>
-        _counter = value.data.where((element) => element.isRead == 0).length);
-    notifyListeners();
+    final notifResponse = ApiService().getUnreadNotification(idUser);
+    notifResponse.then((value) {
+      _counter = value;
+      notifyListeners();
+    });
   }
 
   onChange() async {

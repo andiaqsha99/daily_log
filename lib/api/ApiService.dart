@@ -17,7 +17,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  final String baseUrl = "http://192.168.43.126:8000/api";
+  final String baseUrl = "http://192.168.42.13:8000/api";
 
   var client = http.Client();
 
@@ -285,5 +285,13 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data['data']);
     return Pengguna.fromJson(data['data']);
+  }
+
+  Future<int> getUnreadNotification(int idUser) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/notification/pengguna/$idUser/count")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return data['data'];
   }
 }

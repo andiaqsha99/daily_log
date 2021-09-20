@@ -8,11 +8,13 @@ class NotificationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var notifProvider = Provider.of<NotifProvider>(context);
-    var providerCounter = Provider.of<NotifCounterProvider>(context);
     return Badge(
       position: BadgePosition.topEnd(end: 1, top: 2),
       showBadge: true,
-      badgeContent: Text(providerCounter.counter.toString()),
+      badgeContent:
+          Consumer<NotifCounterProvider>(builder: (context, provider, child) {
+        return Text(provider.counter.toString());
+      }),
       child: IconButton(
           onPressed: () => {
                 Navigator.of(context)
