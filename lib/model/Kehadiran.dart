@@ -1,7 +1,7 @@
 class Kehadiran {
   int hadir;
   int tidakHadir;
-  String tanggal;
+  DateTime tanggal;
 
   Kehadiran(
       {required this.hadir, required this.tidakHadir, required this.tanggal});
@@ -10,6 +10,6 @@ class Kehadiran {
     return Kehadiran(
         hadir: map['hadir'],
         tidakHadir: map['tidak_hadir'],
-        tanggal: map['date']);
+        tanggal: DateTime.parse(map['date']));
   }
 }

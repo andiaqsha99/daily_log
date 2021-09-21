@@ -20,6 +20,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_charts/charts.dart' as chart;
 
 class DashboardPage extends StatelessWidget {
   final int idUser;
@@ -91,6 +92,32 @@ class SimpleTimeSeriesChart extends StatelessWidget {
         domainFn: (DurasiHarian durasiHarian, _) => durasiHarian.tanggal,
         measureFn: (DurasiHarian durasiHarian, _) => durasiHarian.durasi,
         data: data,
+      )
+    ];
+  }
+
+  static List<charts.Series<OrdinalSales, DateTime>> _createKehadiranData(
+      List<Kehadiran> listData) {
+    List<OrdinalSales> desktopSalesData = [];
+    List<OrdinalSales> tableSalesData = [];
+
+    listData.forEach((element) {
+      desktopSalesData.add(new OrdinalSales(element.tanggal, element.hadir));
+      tableSalesData.add(new OrdinalSales(element.tanggal, element.tidakHadir));
+    });
+
+    return [
+      new charts.Series<OrdinalSales, DateTime>(
+        id: 'Desktop',
+        domainFn: (OrdinalSales sales, _) => sales.year,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: desktopSalesData,
+      ),
+      new charts.Series<OrdinalSales, DateTime>(
+        id: 'Tablet',
+        domainFn: (OrdinalSales sales, _) => sales.year,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: tableSalesData,
       )
     ];
   }
@@ -572,7 +599,8 @@ class DashboardKehadiran extends StatefulWidget {
 }
 
 class _DashboardKehadiranState extends State<DashboardKehadiran> {
-  String dropdownValue = '1 Hari';
+  String dropdownValue = '1 Bulan';
+  String selectedFilter = '1 Bulan';
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
 
@@ -591,28 +619,9 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
     var lastDayDateTime = (now.month < 12)
         ? new DateTime(now.year, now.month + 1, 0)
         : new DateTime(now.year + 1, 1, 0);
-    loadDataTotalPekerjaan(
-        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
+
     loadKehadiranTim(
         dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
-  }
-
-  loadDataTotalPekerjaan(String firstDate, String endDate) async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    int idPosition = sharedPreferences.getInt("position_id")!;
-
-    int count = 0;
-    PenggunaResponse penggunaResponse =
-        await ApiService().getPenggunaStaff(idPosition);
-    List<Pengguna> listStaff = penggunaResponse.data;
-    listStaff.forEach((element) async {
-      int counter = await ApiService()
-          .getValidPekerjaanCount(element.id, firstDate, endDate);
-      count += counter;
-      setState(() {
-        totalPekerjaan = count;
-      });
-    });
   }
 
   loadKehadiranTim(String firstDate, String endDate) async {
@@ -634,28 +643,13 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
             Container(
                 height: 150,
                 width: double.infinity,
-                child: GroupedBarChart(
-                    GroupedBarChart._createSampleData(listKehadiran),
-                    animate: false)),
+                child: selectedFilter == '1 Hari'
+                    ? GroupedBarChart(
+                        GroupedBarChart._createSampleData(listKehadiran),
+                        animate: false)
+                    : LineChart(listKehadiran: listKehadiran)),
             SizedBox(
               height: 8,
-            ),
-            Container(
-              padding: EdgeInsets.all(8),
-              color: Colors.blue,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    totalPekerjaan.toString(),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Total Pekerjaan",
-                    style: TextStyle(color: Colors.white),
-                  )
-                ],
-              ),
             ),
             SizedBox(
               height: 8,
@@ -784,8 +778,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                             print(dateFormat.format(now));
                             String date = dateFormat.format(now);
                             setState(() {
+                              selectedFilter = dropdownValue;
                               loadKehadiranTim(date, date);
-                              loadDataTotalPekerjaan(date, date);
                             });
                             break;
                           case '1 Minggu':
@@ -799,8 +793,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                                 dateFormat.format(firstDayofWeek);
                             String endDate = dateFormat.format(lastDateofWeek);
                             setState(() {
+                              selectedFilter = dropdownValue;
                               loadKehadiranTim(firstDate, endDate);
-                              loadDataTotalPekerjaan(firstDate, endDate);
                             });
                             break;
                           case '1 Bulan':
@@ -812,10 +806,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                             print(dateFormat.format(firstDate));
                             print(dateFormat.format(lastDayDateTime));
                             setState(() {
+                              selectedFilter = dropdownValue;
                               loadKehadiranTim(dateFormat.format(firstDate),
-                                  dateFormat.format(lastDayDateTime));
-                              loadDataTotalPekerjaan(
-                                  dateFormat.format(firstDate),
                                   dateFormat.format(lastDayDateTime));
                             });
                             break;
@@ -827,8 +819,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                             String endDate =
                                 dateFormat.format(dateTimeRange!.end);
                             setState(() {
+                              selectedFilter = dropdownValue;
                               loadKehadiranTim(firstDate, endDate);
-                              loadDataTotalPekerjaan(firstDate, endDate);
                             });
                             break;
                         }
@@ -924,13 +916,13 @@ class GroupedBarChart extends StatelessWidget {
     return [
       new charts.Series<OrdinalSales, String>(
         id: 'Desktop',
-        domainFn: (OrdinalSales sales, _) => sales.year,
+        domainFn: (OrdinalSales sales, _) => sales.year.toString(),
         measureFn: (OrdinalSales sales, _) => sales.sales,
         data: desktopSalesData,
       ),
       new charts.Series<OrdinalSales, String>(
         id: 'Tablet',
-        domainFn: (OrdinalSales sales, _) => sales.year,
+        domainFn: (OrdinalSales sales, _) => sales.year.toString(),
         measureFn: (OrdinalSales sales, _) => sales.sales,
         data: tableSalesData,
       )
@@ -940,7 +932,7 @@ class GroupedBarChart extends StatelessWidget {
 
 /// Sample ordinal data type.
 class OrdinalSales {
-  final String year;
+  final DateTime year;
   final int sales;
 
   OrdinalSales(this.year, this.sales);
@@ -1277,5 +1269,37 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
     } else {
       return DateFormat("dd/MM/yyyy").format(dateTimeRange!.end);
     }
+  }
+}
+
+class LineChart extends StatelessWidget {
+  final List<Kehadiran> listKehadiran;
+  const LineChart({Key? key, required this.listKehadiran}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<OrdinalSales> hadirData = [];
+    List<OrdinalSales> tidakHadirData = [];
+
+    listKehadiran.forEach((element) {
+      hadirData.add(new OrdinalSales(element.tanggal, element.hadir));
+      tidakHadirData.add(new OrdinalSales(element.tanggal, element.tidakHadir));
+    });
+    return chart.SfCartesianChart(
+        legend: chart.Legend(isVisible: true),
+        primaryXAxis: chart.DateTimeAxis(),
+        series: <chart.ChartSeries>[
+          // Renders line chart
+          chart.LineSeries<OrdinalSales, DateTime>(
+              name: 'Hadir',
+              dataSource: hadirData,
+              xValueMapper: (OrdinalSales sales, _) => sales.year,
+              yValueMapper: (OrdinalSales sales, _) => sales.sales),
+          chart.LineSeries<OrdinalSales, DateTime>(
+              name: 'Tidak hadir',
+              dataSource: tidakHadirData,
+              xValueMapper: (OrdinalSales sales, _) => sales.year,
+              yValueMapper: (OrdinalSales sales, _) => sales.sales)
+        ]);
   }
 }
