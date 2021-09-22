@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:daily_log/DashboardPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
@@ -9,7 +10,6 @@ import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
@@ -136,9 +136,9 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
               Container(
                   height: 200,
                   width: double.infinity,
-                  child: SimpleTimeSeriesChart(
-                      SimpleTimeSeriesChart._createSampleData(
-                          listDurasiHarian))),
+                  child: LineChartBebanKerja(
+                    listData: listDurasiHarian,
+                  )),
               SizedBox(
                 height: 8,
               ),
@@ -193,38 +193,6 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
       ),
       bottomNavigationBar: MenuBottom(),
     );
-  }
-}
-
-class SimpleTimeSeriesChart extends StatelessWidget {
-  final List<charts.Series<dynamic, DateTime>> seriesList;
-  final bool animate = true;
-
-  SimpleTimeSeriesChart(this.seriesList);
-
-  @override
-  Widget build(BuildContext context) {
-    return new charts.TimeSeriesChart(
-      seriesList,
-      animate: animate,
-      // Optionally pass in a [DateTimeFactory] used by the chart. The factory
-      // should create the same type of [DateTime] as the data provided. If none
-      // specified, the default creates local date time.
-      dateTimeFactory: const charts.LocalDateTimeFactory(),
-    );
-  }
-
-  static List<charts.Series<DurasiHarian, DateTime>> _createSampleData(
-      List<DurasiHarian> data) {
-    return [
-      new charts.Series<DurasiHarian, DateTime>(
-        id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (DurasiHarian durasiHarian, _) => durasiHarian.tanggal,
-        measureFn: (DurasiHarian durasiHarian, _) => durasiHarian.durasi,
-        data: data,
-      )
-    ];
   }
 }
 

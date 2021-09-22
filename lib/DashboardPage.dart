@@ -7,18 +7,13 @@ import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Kehadiran.dart';
-import 'package:daily_log/model/Pekerjaan.dart';
-import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionResponse.dart';
-import 'package:daily_log/model/SubPekerjaan.dart';
-import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart' as chart;
 
@@ -62,64 +57,6 @@ class DashboardPage extends StatelessWidget {
           ]),
           bottomSheet: MenuBottom(),
         ));
-  }
-}
-
-class SimpleTimeSeriesChart extends StatelessWidget {
-  final List<charts.Series<dynamic, DateTime>> seriesList;
-  final bool animate = false;
-
-  SimpleTimeSeriesChart(this.seriesList);
-
-  @override
-  Widget build(BuildContext context) {
-    return new charts.TimeSeriesChart(
-      seriesList,
-      animate: animate,
-      // Optionally pass in a [DateTimeFactory] used by the chart. The factory
-      // should create the same type of [DateTime] as the data provided. If none
-      // specified, the default creates local date time.
-      dateTimeFactory: const charts.LocalDateTimeFactory(),
-    );
-  }
-
-  static List<charts.Series<DurasiHarian, DateTime>> _createSampleData(
-      List<DurasiHarian> data) {
-    return [
-      new charts.Series<DurasiHarian, DateTime>(
-        id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (DurasiHarian durasiHarian, _) => durasiHarian.tanggal,
-        measureFn: (DurasiHarian durasiHarian, _) => durasiHarian.durasi,
-        data: data,
-      )
-    ];
-  }
-
-  static List<charts.Series<OrdinalSales, DateTime>> _createKehadiranData(
-      List<Kehadiran> listData) {
-    List<OrdinalSales> desktopSalesData = [];
-    List<OrdinalSales> tableSalesData = [];
-
-    listData.forEach((element) {
-      desktopSalesData.add(new OrdinalSales(element.tanggal, element.hadir));
-      tableSalesData.add(new OrdinalSales(element.tanggal, element.tidakHadir));
-    });
-
-    return [
-      new charts.Series<OrdinalSales, DateTime>(
-        id: 'Desktop',
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        data: desktopSalesData,
-      ),
-      new charts.Series<OrdinalSales, DateTime>(
-        id: 'Tablet',
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        data: tableSalesData,
-      )
-    ];
   }
 }
 
@@ -195,8 +132,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
             Container(
                 height: 150,
                 width: double.infinity,
-                child: SimpleTimeSeriesChart(
-                    SimpleTimeSeriesChart._createSampleData(listDurasiHarian))),
+                child: LineChartTotalPekerjaan(listData: listDurasiHarian)),
             SizedBox(
               height: 8,
             ),
@@ -647,7 +583,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                     ? GroupedBarChart(
                         GroupedBarChart._createSampleData(listKehadiran),
                         animate: false)
-                    : LineChart(listKehadiran: listKehadiran)),
+                    : LineChartKehadiran(listKehadiran: listKehadiran)),
             SizedBox(
               height: 8,
             ),
@@ -1014,8 +950,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
             Container(
                 height: 150,
                 width: double.infinity,
-                child: SimpleTimeSeriesChart(
-                    SimpleTimeSeriesChart._createSampleData(listDurasiHarian))),
+                child: LineChartBebanKerja(listData: listDurasiHarian)),
             SizedBox(
               height: 8,
             ),
@@ -1272,9 +1207,10 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   }
 }
 
-class LineChart extends StatelessWidget {
+class LineChartKehadiran extends StatelessWidget {
   final List<Kehadiran> listKehadiran;
-  const LineChart({Key? key, required this.listKehadiran}) : super(key: key);
+  const LineChartKehadiran({Key? key, required this.listKehadiran})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1300,6 +1236,81 @@ class LineChart extends StatelessWidget {
               dataSource: tidakHadirData,
               xValueMapper: (OrdinalSales sales, _) => sales.year,
               yValueMapper: (OrdinalSales sales, _) => sales.sales)
+        ]);
+  }
+}
+
+class LineChartBebanKerja extends StatefulWidget {
+  final List<DurasiHarian> listData;
+  const LineChartBebanKerja({Key? key, required this.listData})
+      : super(key: key);
+
+  @override
+  _LineChartBebanKerjaState createState() => _LineChartBebanKerjaState();
+}
+
+class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
+  late chart.TooltipBehavior _tooltipBehavior;
+  @override
+  void initState() {
+    _tooltipBehavior = chart.TooltipBehavior(enable: true, format: 'point.y%');
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return chart.SfCartesianChart(
+        tooltipBehavior: _tooltipBehavior,
+        primaryXAxis: chart.DateTimeAxis(
+            edgeLabelPlacement: chart.EdgeLabelPlacement.shift),
+        series: <chart.ChartSeries>[
+          // Renders line chart
+          chart.LineSeries<DurasiHarian, DateTime>(
+              name: 'Beban Kerja',
+              enableTooltip: true,
+              dataSource: widget.listData,
+              xValueMapper: (DurasiHarian durasiHarian, _) =>
+                  durasiHarian.tanggal,
+              yValueMapper: (DurasiHarian durasiHarian, _) =>
+                  durasiHarian.durasi)
+        ]);
+  }
+}
+
+class LineChartTotalPekerjaan extends StatefulWidget {
+  final List<DurasiHarian> listData;
+  const LineChartTotalPekerjaan({Key? key, required this.listData})
+      : super(key: key);
+
+  @override
+  _LineChartTotalPekerjaanState createState() =>
+      _LineChartTotalPekerjaanState();
+}
+
+class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
+  late chart.TooltipBehavior _tooltipBehavior;
+  @override
+  void initState() {
+    _tooltipBehavior = chart.TooltipBehavior(enable: true);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return chart.SfCartesianChart(
+        tooltipBehavior: _tooltipBehavior,
+        primaryXAxis: chart.DateTimeAxis(
+            edgeLabelPlacement: chart.EdgeLabelPlacement.shift),
+        series: <chart.ChartSeries>[
+          // Renders line chart
+          chart.LineSeries<DurasiHarian, DateTime>(
+              name: 'Total durasi pekerjaan',
+              enableTooltip: true,
+              dataSource: widget.listData,
+              xValueMapper: (DurasiHarian durasiHarian, _) =>
+                  durasiHarian.tanggal,
+              yValueMapper: (DurasiHarian durasiHarian, _) =>
+                  durasiHarian.durasi)
         ]);
   }
 }
