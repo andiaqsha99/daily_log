@@ -165,7 +165,7 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
             });
         break;
       case 'Check Out':
-        await ApiService().checkOutQRCode(username, latitude!, longitude!);
+        await ApiService().checkOutQRCode(username);
         showDialog(
             context: context,
             builder: (context) {
