@@ -1222,6 +1222,7 @@ class LineChartKehadiran extends StatelessWidget {
       tidakHadirData.add(new OrdinalSales(element.tanggal, element.tidakHadir));
     });
     return chart.SfCartesianChart(
+        tooltipBehavior: chart.TooltipBehavior(enable: true),
         legend: chart.Legend(isVisible: true),
         primaryXAxis: chart.DateTimeAxis(),
         series: <chart.ChartSeries>[
