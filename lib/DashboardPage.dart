@@ -12,7 +12,6 @@ import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart' as chart;
@@ -580,9 +579,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                 height: 150,
                 width: double.infinity,
                 child: selectedFilter == '1 Hari'
-                    ? GroupedBarChart(
-                        GroupedBarChart._createSampleData(listKehadiran),
-                        animate: false)
+                    ? ColumnChartKehadiran(listKehadiran: listKehadiran)
                     : LineChartKehadiran(listKehadiran: listKehadiran)),
             SizedBox(
               height: 8,
@@ -823,48 +820,48 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
   }
 }
 
-class GroupedBarChart extends StatelessWidget {
-  final List<charts.Series<OrdinalSales, String>> seriesList;
-  final bool animate;
+// class GroupedBarChart extends StatelessWidget {
+//   final List<charts.Series<OrdinalSales, String>> seriesList;
+//   final bool animate;
 
-  GroupedBarChart(this.seriesList, {required this.animate});
+//   GroupedBarChart(this.seriesList, {required this.animate});
 
-  @override
-  Widget build(BuildContext context) {
-    return new charts.BarChart(
-      seriesList,
-      animate: animate,
-      barGroupingType: charts.BarGroupingType.grouped,
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return new charts.BarChart(
+//       seriesList,
+//       animate: animate,
+//       barGroupingType: charts.BarGroupingType.grouped,
+//     );
+//   }
 
-  /// Create series list with multiple series
-  static List<charts.Series<OrdinalSales, String>> _createSampleData(
-      List<Kehadiran> listData) {
-    List<OrdinalSales> desktopSalesData = [];
-    List<OrdinalSales> tableSalesData = [];
+//   /// Create series list with multiple series
+//   static List<charts.Series<OrdinalSales, String>> _createSampleData(
+//       List<Kehadiran> listData) {
+//     List<OrdinalSales> desktopSalesData = [];
+//     List<OrdinalSales> tableSalesData = [];
 
-    listData.forEach((element) {
-      desktopSalesData.add(new OrdinalSales(element.tanggal, element.hadir));
-      tableSalesData.add(new OrdinalSales(element.tanggal, element.tidakHadir));
-    });
+//     listData.forEach((element) {
+//       desktopSalesData.add(new OrdinalSales(element.tanggal, element.hadir));
+//       tableSalesData.add(new OrdinalSales(element.tanggal, element.tidakHadir));
+//     });
 
-    return [
-      new charts.Series<OrdinalSales, String>(
-        id: 'Desktop',
-        domainFn: (OrdinalSales sales, _) => sales.year.toString(),
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        data: desktopSalesData,
-      ),
-      new charts.Series<OrdinalSales, String>(
-        id: 'Tablet',
-        domainFn: (OrdinalSales sales, _) => sales.year.toString(),
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        data: tableSalesData,
-      )
-    ];
-  }
-}
+//     return [
+//       new charts.Series<OrdinalSales, String>(
+//         id: 'Desktop',
+//         domainFn: (OrdinalSales sales, _) => sales.year.toString(),
+//         measureFn: (OrdinalSales sales, _) => sales.sales,
+//         data: desktopSalesData,
+//       ),
+//       new charts.Series<OrdinalSales, String>(
+//         id: 'Tablet',
+//         domainFn: (OrdinalSales sales, _) => sales.year.toString(),
+//         measureFn: (OrdinalSales sales, _) => sales.sales,
+//         data: tableSalesData,
+//       )
+//     ];
+//   }
+// }
 
 /// Sample ordinal data type.
 class OrdinalSales {
@@ -1312,6 +1309,33 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
                   durasiHarian.tanggal,
               yValueMapper: (DurasiHarian durasiHarian, _) =>
                   durasiHarian.durasi)
+        ]);
+  }
+}
+
+class ColumnChartKehadiran extends StatelessWidget {
+  final List<Kehadiran> listKehadiran;
+  const ColumnChartKehadiran({Key? key, required this.listKehadiran})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return chart.SfCartesianChart(
+        tooltipBehavior: chart.TooltipBehavior(enable: true, format: 'point.y'),
+        legend: chart.Legend(isVisible: true),
+        primaryXAxis: chart.DateTimeAxis(),
+        series: <chart.ChartSeries>[
+          // Renders line chart
+          chart.ColumnSeries<Kehadiran, DateTime>(
+              name: 'Hadir',
+              dataSource: listKehadiran,
+              xValueMapper: (Kehadiran kehadiran, _) => kehadiran.tanggal,
+              yValueMapper: (Kehadiran kehadiran, _) => kehadiran.hadir),
+          chart.ColumnSeries<Kehadiran, DateTime>(
+              name: 'Tidak hadir',
+              dataSource: listKehadiran,
+              xValueMapper: (Kehadiran kehadiran, _) => kehadiran.tanggal,
+              yValueMapper: (Kehadiran kehadiran, _) => kehadiran.tidakHadir)
         ]);
   }
 }
