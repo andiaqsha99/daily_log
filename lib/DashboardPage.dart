@@ -345,6 +345,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
             ),
             ListTeam(
               tab: "tim",
+              idPosition: widget.idPosition,
             )
           ],
         ),
@@ -392,7 +393,9 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
 
 class ListTeam extends StatefulWidget {
   final String tab;
-  const ListTeam({Key? key, required this.tab}) : super(key: key);
+  final int idPosition;
+  const ListTeam({Key? key, required this.tab, required this.idPosition})
+      : super(key: key);
 
   @override
   _ListTeamState createState() => _ListTeamState();
@@ -419,8 +422,9 @@ class _ListTeamState extends State<ListTeam> {
           );
         } else if (snapshot.hasData) {
           List<Position> items = snapshot.data!.data;
-          var listStaf =
-              items.where((element) => element.parentId == 1).toList();
+          var listStaf = items
+              .where((element) => element.parentId == widget.idPosition)
+              .toList();
           var filteredList =
               items.where((element) => element.level > 1).toList();
           return ListView.builder(
@@ -775,6 +779,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
             ),
             ListTeam(
               tab: "kehadiran",
+              idPosition: widget.idPosition,
             )
           ],
         ),
@@ -1159,7 +1164,10 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                 ),
               ),
             ),
-            ListTeam(tab: "beban kerja")
+            ListTeam(
+              tab: "beban kerja",
+              idPosition: widget.idPosition,
+            )
           ],
         ),
       ),
