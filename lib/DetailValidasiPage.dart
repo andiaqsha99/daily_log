@@ -1,14 +1,11 @@
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
-import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PersetujuanPekerjaan.dart';
 import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
-import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class DetailValidasePage extends StatelessWidget {
   final Pengguna staff;

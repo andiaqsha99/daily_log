@@ -1,7 +1,5 @@
-import 'dart:developer';
 import 'dart:io';
 
-import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';

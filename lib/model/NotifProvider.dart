@@ -1,6 +1,5 @@
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Notif.dart';
-import 'package:daily_log/model/Pengguna.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
