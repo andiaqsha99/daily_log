@@ -3,6 +3,8 @@ import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/PersetujuanPekerjaan.dart';
+import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:flutter/material.dart';
@@ -40,14 +42,13 @@ class ListValidasiPekerjaanPage extends StatefulWidget {
 }
 
 class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
-  late Future<SubPekerjaanResponse> listPekerjaanSubmit;
-  List<SubPekerjaan> items = [];
+  late Future<PersetujuanResponse> listPekerjaanSubmit;
+  List<PersetujuanPekerjaan> items = [];
 
   @override
   void initState() {
     super.initState();
-    listPekerjaanSubmit =
-        ApiService().getSubmitPekerjaanByIdPengguna(widget.idStaff);
+    listPekerjaanSubmit = ApiService().getSubmitPersetujuan(widget.idStaff);
   }
 
   @override
@@ -57,7 +58,7 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
         padding: EdgeInsets.all(8),
         child: Column(
           children: [
-            FutureBuilder<SubPekerjaanResponse>(
+            FutureBuilder<PersetujuanResponse>(
                 future: listPekerjaanSubmit,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
@@ -68,8 +69,23 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                           shrinkWrap: true,
                           itemCount: items.length,
                           itemBuilder: (context, index) {
-                            return ValidasiCard(
-                              subPekerjaan: items[index],
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(items[index].nama,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                ListView.builder(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: items[index].subPekerjaan.length,
+                                    itemBuilder: (context, indeks) {
+                                      return ValidasiCard(
+                                        subPekerjaan:
+                                            items[index].subPekerjaan[indeks],
+                                      );
+                                    }),
+                              ],
                             );
                           });
                     } else {
@@ -108,11 +124,13 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                   MaterialButton(
                     onPressed: () async {
                       items.forEach((element) {
-                        var update = ApiService().updateSubPekerjaan(element);
-                        if (element.status == 'reject') {
-                          ApiService()
-                              .createRejectNotif(element.idUser, element.id);
-                        }
+                        element.subPekerjaan.forEach((subpekerjaan) {
+                          ApiService().updateSubPekerjaan(subpekerjaan);
+                          if (subpekerjaan.status == 'reject') {
+                            ApiService()
+                                .createRejectNotif(element.idUser, element.id);
+                          }
+                        });
                       });
                       Navigator.of(context).pop();
                     },
