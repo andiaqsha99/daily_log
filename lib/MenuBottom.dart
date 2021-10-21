@@ -19,8 +19,6 @@ class MenuBottom extends StatelessWidget {
                     Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (context) => HomePage()),
                         (route) => false)
-                    // Navigator.push(context,
-                    //     MaterialPageRoute(builder: (context) => HomePage()))
                   },
               icon: Icon(Icons.home)),
           IconButton(
@@ -30,8 +28,6 @@ class MenuBottom extends StatelessWidget {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => LoginWrapper()),
                     (route) => false);
-                // Navigator.pushReplacement(context,
-                //     MaterialPageRoute(builder: (context) => LoginWrapper()));
               },
               icon: Icon(Icons.logout))
         ],
