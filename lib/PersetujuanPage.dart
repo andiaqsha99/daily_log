@@ -330,8 +330,9 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                 ),
                 MaterialButton(
                   onPressed: () async {
-                    await ApiService().deleteSubPekerjaan(items[index].id);
-                    setState(() {});
+                    setState(() {
+                      ApiService().deleteSubPekerjaan(items[index].id);
+                    });
                   },
                   child: Text("DELETE"),
                   shape: RoundedRectangleBorder(
@@ -661,8 +662,10 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                   ),
                   MaterialButton(
                     onPressed: () async {
-                      await ApiService().deleteSubPekerjaan(items[index].id);
-                      setState(() {});
+                      setState(() {
+                        ApiService().deleteSubPekerjaan(items[index].id);
+                        widget.loadData();
+                      });
                     },
                     child: Text("DELETE"),
                     shape: RoundedRectangleBorder(
