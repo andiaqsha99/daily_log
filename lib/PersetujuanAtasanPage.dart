@@ -165,7 +165,7 @@ class _ListValidasiPageState extends State<ListValidasiPage> {
                 child: Text("Error"),
               );
             }
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           },
         ),
       ),
