@@ -58,6 +58,10 @@ class ListValidasiPage extends StatefulWidget {
 class _ListValidasiPageState extends State<ListValidasiPage> {
   late Future<PenggunaResponse> listStaff;
   int idPosition = 0;
+  String query = '';
+  late List<Pengguna> items;
+  List<Pengguna> listPengguna = [];
+  TextEditingController _textEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -80,43 +84,81 @@ class _ListValidasiPageState extends State<ListValidasiPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(children: [
-      Container(
+    return SingleChildScrollView(
+      child: Container(
         padding: EdgeInsets.all(8),
         child: FutureBuilder<PenggunaResponse>(
           future: listStaff,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              List<Pengguna> items = snapshot.data!.data;
-              return ListView.builder(
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (context) {
-                        return DetailValidasePage(
-                          staff: items[index],
-                        );
-                      }));
+              items = snapshot.data!.data;
+
+              return Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black26),
+                    ),
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          listPengguna = items
+                              .where(
+                                  (element) => element.username.contains(value))
+                              .toList();
+                        });
+                      },
+                      controller: _textEditingController,
+                      decoration: InputDecoration(
+                          icon: Icon(Icons.search),
+                          hintText: 'Cari',
+                          border: InputBorder.none),
+                    ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (context) {
+                            return DetailValidasePage(
+                              staff: _textEditingController.text.isNotEmpty
+                                  ? listPengguna[index]
+                                  : items[index],
+                            );
+                          }));
+                        },
+                        child: Card(
+                            child: Container(
+                                padding: EdgeInsets.all(8),
+                                width: double.infinity,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _textEditingController.text.isNotEmpty
+                                          ? listPengguna[index].username
+                                          : items[index].username,
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    Text(_textEditingController.text.isNotEmpty
+                                        ? listPengguna[index].jabatan
+                                        : items[index].jabatan)
+                                  ],
+                                ))),
+                      );
                     },
-                    child: Card(
-                        child: Container(
-                            padding: EdgeInsets.all(8),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  items[index].username,
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                Text(items[index].jabatan)
-                              ],
-                            ))),
-                  );
-                },
-                itemCount: items.length,
+                    itemCount: _textEditingController.text.isNotEmpty
+                        ? listPengguna.length
+                        : items.length,
+                  ),
+                ],
               );
             } else if (snapshot.hasError) {
               return Center(
@@ -127,6 +169,6 @@ class _ListValidasiPageState extends State<ListValidasiPage> {
           },
         ),
       ),
-    ]);
+    );
   }
 }
