@@ -1283,12 +1283,22 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
             } else {
               int jam = value ~/ 60;
               int menit = value % 60;
-              if (menit < 10 && menit > 0) {
-                text = '0$jam:0$menit';
-              } else if (menit >= 10) {
-                text = '0$jam:$menit';
+              if (jam < 10) {
+                if (menit < 10 && menit > 0) {
+                  text = '0$jam:0$menit';
+                } else if (menit >= 10) {
+                  text = '0$jam:$menit';
+                } else {
+                  text = '0$jam:00';
+                }
               } else {
-                text = '0$jam:00';
+                if (menit < 10 && menit > 0) {
+                  text = '$jam:0$menit';
+                } else if (menit >= 10) {
+                  text = '$jam:$menit';
+                } else {
+                  text = '$jam:00';
+                }
               }
             }
           }
@@ -1309,12 +1319,22 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
           } else {
             int jam = value ~/ 60;
             int menit = value % 60;
-            if (menit < 10 && menit > 0) {
-              args.text = '0$jam:0$menit';
-            } else if (menit >= 10) {
-              args.text = '0$jam:$menit';
+            if (jam < 10) {
+              if (menit < 10 && menit > 0) {
+                args.text = '0$jam:0$menit';
+              } else if (menit >= 10) {
+                args.text = '0$jam:$menit';
+              } else {
+                args.text = '0$jam:00';
+              }
             } else {
-              args.text = '0$jam:00';
+              if (menit < 10 && menit > 0) {
+                args.text = '$jam:0$menit';
+              } else if (menit >= 10) {
+                args.text = '$jam:$menit';
+              } else {
+                args.text = '$jam:00';
+              }
             }
           }
         },
