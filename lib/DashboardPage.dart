@@ -932,6 +932,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
     var durasiResponse = await ApiService()
         .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
     setState(() {
+      listDurasiHarian.clear();
       List<DurasiHarian> listDurasiTemp = durasiResponse.data;
       listDurasiTemp.forEach((element) {
         element.durasi = element.durasi * 100 ~/ 480;
@@ -1259,7 +1260,8 @@ class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
   late chart.TooltipBehavior _tooltipBehavior;
   @override
   void initState() {
-    _tooltipBehavior = chart.TooltipBehavior(enable: true, format: 'point.y%');
+    _tooltipBehavior =
+        chart.TooltipBehavior(enable: true, format: 'point.x : point.y%');
     super.initState();
   }
 
