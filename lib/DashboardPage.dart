@@ -1304,6 +1304,54 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
   @override
   Widget build(BuildContext context) {
     return chart.SfCartesianChart(
+        axisLabelFormatter: (chart.AxisLabelRenderDetails args) {
+          String text = args.text;
+          if (args.axisName == 'primaryYAxis') {
+            int value = args.value.toInt();
+            if (value < 60) {
+              if (value >= 10) {
+                text = '00:${args.text}';
+              } else {
+                text = '00:0${args.text}';
+              }
+            } else {
+              int jam = value ~/ 60;
+              int menit = value % 60;
+              if (menit < 10 && menit > 0) {
+                text = '0$jam:0$menit';
+              } else if (menit >= 10) {
+                text = '0$jam:$menit';
+              } else {
+                text = '0$jam:00';
+              }
+            }
+          }
+
+          return chart.ChartAxisLabel(text, args.textStyle);
+        },
+        onTooltipRender: (args) {
+          List<dynamic>? chartdata = args.dataPoints;
+          args.header = DateFormat('d MMM yyyy')
+              .format(chartdata![args.pointIndex!.toInt()].x);
+          int value = chartdata[args.pointIndex!.toInt()].y;
+          if (value < 60) {
+            if (value >= 10) {
+              args.text = '00:$value';
+            } else {
+              args.text = '00:0$value';
+            }
+          } else {
+            int jam = value ~/ 60;
+            int menit = value % 60;
+            if (menit < 10 && menit > 0) {
+              args.text = '0$jam:0$menit';
+            } else if (menit >= 10) {
+              args.text = '0$jam:$menit';
+            } else {
+              args.text = '0$jam:00';
+            }
+          }
+        },
         tooltipBehavior: _tooltipBehavior,
         primaryXAxis: chart.DateTimeAxis(
             edgeLabelPlacement: chart.EdgeLabelPlacement.shift),
