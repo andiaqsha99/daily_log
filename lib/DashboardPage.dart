@@ -128,10 +128,14 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                height: 150,
-                width: double.infinity,
-                child: LineChartTotalPekerjaan(listData: listDurasiHarian)),
+            totalPekerjaan == 0
+                ? Center(
+                    child: Text("Tidak ada data"),
+                  )
+                : Container(
+                    height: 150,
+                    width: double.infinity,
+                    child: LineChartTotalPekerjaan(listData: listDurasiHarian)),
             SizedBox(
               height: 8,
             ),
@@ -825,50 +829,6 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
   }
 }
 
-// class GroupedBarChart extends StatelessWidget {
-//   final List<charts.Series<OrdinalSales, String>> seriesList;
-//   final bool animate;
-
-//   GroupedBarChart(this.seriesList, {required this.animate});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return new charts.BarChart(
-//       seriesList,
-//       animate: animate,
-//       barGroupingType: charts.BarGroupingType.grouped,
-//     );
-//   }
-
-//   /// Create series list with multiple series
-//   static List<charts.Series<OrdinalSales, String>> _createSampleData(
-//       List<Kehadiran> listData) {
-//     List<OrdinalSales> desktopSalesData = [];
-//     List<OrdinalSales> tableSalesData = [];
-
-//     listData.forEach((element) {
-//       desktopSalesData.add(new OrdinalSales(element.tanggal, element.hadir));
-//       tableSalesData.add(new OrdinalSales(element.tanggal, element.tidakHadir));
-//     });
-
-//     return [
-//       new charts.Series<OrdinalSales, String>(
-//         id: 'Desktop',
-//         domainFn: (OrdinalSales sales, _) => sales.year.toString(),
-//         measureFn: (OrdinalSales sales, _) => sales.sales,
-//         data: desktopSalesData,
-//       ),
-//       new charts.Series<OrdinalSales, String>(
-//         id: 'Tablet',
-//         domainFn: (OrdinalSales sales, _) => sales.year.toString(),
-//         measureFn: (OrdinalSales sales, _) => sales.sales,
-//         data: tableSalesData,
-//       )
-//     ];
-//   }
-// }
-
-/// Sample ordinal data type.
 class OrdinalSales {
   final DateTime year;
   final int sales;
@@ -950,10 +910,14 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                height: 150,
-                width: double.infinity,
-                child: LineChartBebanKerja(listData: listDurasiHarian)),
+            totalPekerjaan == 0
+                ? Center(
+                    child: Text("Tidak ada data"),
+                  )
+                : Container(
+                    height: 150,
+                    width: double.infinity,
+                    child: LineChartBebanKerja(listData: listDurasiHarian)),
             SizedBox(
               height: 8,
             ),
