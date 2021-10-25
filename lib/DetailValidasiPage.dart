@@ -182,9 +182,20 @@ class _ValidasiCardState extends State<ValidasiCard> {
               widget.subPekerjaan.nama,
               style: TextStyle(fontSize: 16),
             ),
-            Text(widget.subPekerjaan.durasi < 10
-                ? "Durasi: 00:0${widget.subPekerjaan.durasi}"
-                : "Durasi: 00:${widget.subPekerjaan.durasi}"),
+            Text((() {
+              if (widget.subPekerjaan.durasi < 10) {
+                return "Durasi: 00:0${widget.subPekerjaan.durasi}";
+              } else if (widget.subPekerjaan.durasi > 59) {
+                int jam = widget.subPekerjaan.durasi ~/ 60;
+                int menit = widget.subPekerjaan.durasi % 60;
+                if (menit < 10) {
+                  return "Durasi: 0$jam:0$menit";
+                }
+                return "Durasi: $jam:$menit";
+              } else {
+                return "Durasi: 00:${widget.subPekerjaan.durasi}";
+              }
+            }())),
             Row(
               children: [
                 Text("Validasi"),

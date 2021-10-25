@@ -272,9 +272,20 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(items[index].nama),
-                                    Text(items[index].durasi < 10
-                                        ? "Durasi: 00:0${items[index].durasi}"
-                                        : "Durasi: 00:${items[index].durasi}"),
+                                    Text((() {
+                                      if (items[index].durasi < 10) {
+                                        return "Durasi: 00:0${items[index].durasi}";
+                                      } else if (items[index].durasi > 59) {
+                                        int jam = items[index].durasi ~/ 60;
+                                        int menit = items[index].durasi % 60;
+                                        if (menit < 10) {
+                                          return "Durasi: 0$jam:0$menit";
+                                        }
+                                        return "Durasi: $jam:$menit";
+                                      } else {
+                                        return "Durasi: 00:${items[index].durasi}";
+                                      }
+                                    }())),
                                     const Divider(
                                       height: 20,
                                       thickness: 2,
