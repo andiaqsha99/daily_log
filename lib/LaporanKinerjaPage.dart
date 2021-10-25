@@ -126,60 +126,69 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
                           textAlign: TextAlign.right,
                         ),
                       ))),
-              Container(
-                  height: 200,
-                  width: double.infinity,
-                  child: LineChartTotalPekerjaan(
-                    listData: listDurasiHarian,
-                  )),
               SizedBox(
                 height: 8,
               ),
-              Container(
-                padding: EdgeInsets.all(8),
-                color: Colors.blue,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "$totalPekerjaan",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      "Total Pekerjaan",
-                      style: TextStyle(color: Colors.white),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              Text("Daftar Pekerjaan"),
-              FutureBuilder<PekerjaanResponse>(
-                  future: pekerjaanResponse,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text("Error");
-                    } else if (snapshot.hasData) {
-                      List<Pekerjaan> items = snapshot.data!.data;
-                      if (items.length > 0) {
-                        return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: items.length,
-                            itemBuilder: (context, index) {
-                              return ListPekerjaanValid(
-                                pekerjaan: items[index],
-                              );
-                            });
-                      } else {
-                        return Center(child: Text("No Data"));
-                      }
-                    }
+              totalPekerjaan == 0
+                  ? Center(child: Text("Tidak ada data"))
+                  : Column(
+                      children: [
+                        Container(
+                            height: 200,
+                            width: double.infinity,
+                            child: LineChartTotalPekerjaan(
+                              listData: listDurasiHarian,
+                            )),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          color: Colors.blue,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "$totalPekerjaan",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Text(
+                                "Total Pekerjaan",
+                                style: TextStyle(color: Colors.white),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Text("Daftar Pekerjaan"),
+                        FutureBuilder<PekerjaanResponse>(
+                            future: pekerjaanResponse,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Text("Error");
+                              } else if (snapshot.hasData) {
+                                List<Pekerjaan> items = snapshot.data!.data;
+                                if (items.length > 0) {
+                                  return ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: items.length,
+                                      itemBuilder: (context, index) {
+                                        return ListPekerjaanValid(
+                                          pekerjaan: items[index],
+                                        );
+                                      });
+                                } else {
+                                  return Center(child: Text("No Data"));
+                                }
+                              }
 
-                    return CircularProgressIndicator();
-                  })
+                              return CircularProgressIndicator();
+                            }),
+                      ],
+                    )
             ],
           ),
         ),
