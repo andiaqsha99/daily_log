@@ -69,7 +69,7 @@ class LaporanKinerjaTim extends StatefulWidget {
 }
 
 class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
-  String dropdownValue = '1 Hari';
+  String dropdownValue = '1 Bulan';
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
 
@@ -113,11 +113,19 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   }
 
   loadDurasiHarianTim(String firstDate, String endDate) async {
-    var durasiResponse = await ApiService()
-        .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
-    setState(() {
-      listDurasiHarian = durasiResponse.data;
-    });
+    if (dropdownValue == '1 Hari') {
+      var durasiResponse = await ApiService()
+          .getDurasiHarianTim1Hari(widget.idPosition, firstDate, endDate);
+      setState(() {
+        listDurasiHarian = durasiResponse.data;
+      });
+    } else {
+      var durasiResponse = await ApiService()
+          .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
+      setState(() {
+        listDurasiHarian = durasiResponse.data;
+      });
+    }
   }
 
   @override
@@ -282,9 +290,11 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                           case '1 Hari':
                             print(dateFormat.format(now));
                             String date = dateFormat.format(now);
+                            String nextDate =
+                                dateFormat.format(now.add(Duration(days: 1)));
                             setState(() {
-                              loadDurasiHarianTim(date, date);
-                              loadDataTotalPekerjaan(date, date);
+                              loadDurasiHarianTim(date, nextDate);
+                              loadDataTotalPekerjaan(date, nextDate);
                             });
                             break;
                           case '1 Minggu':
@@ -845,7 +855,7 @@ class BebanKerjaTim extends StatefulWidget {
 }
 
 class _BebanKerjaTimState extends State<BebanKerjaTim> {
-  String dropdownValue = '1 Hari';
+  String dropdownValue = '1 Bulan';
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
 
@@ -889,17 +899,31 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   }
 
   loadDurasiHarianTim(String firstDate, String endDate) async {
-    var durasiResponse = await ApiService()
-        .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
-    setState(() {
-      listDurasiHarian.clear();
-      List<DurasiHarian> listDurasiTemp = durasiResponse.data;
-      listDurasiTemp.forEach((element) {
-        element.durasi = element.durasi * 100 ~/ 480;
-        log(element.durasi.toString());
-        listDurasiHarian.add(element);
+    if (dropdownValue == '1 Hari') {
+      var durasiResponse = await ApiService()
+          .getDurasiHarianTim1Hari(widget.idPosition, firstDate, endDate);
+      setState(() {
+        listDurasiHarian.clear();
+        List<DurasiHarian> listDurasiTemp = durasiResponse.data;
+        listDurasiTemp.forEach((element) {
+          element.durasi = element.durasi * 100 ~/ 480;
+          log(element.durasi.toString());
+          listDurasiHarian.add(element);
+        });
       });
-    });
+    } else {
+      var durasiResponse = await ApiService()
+          .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
+      setState(() {
+        listDurasiHarian.clear();
+        List<DurasiHarian> listDurasiTemp = durasiResponse.data;
+        listDurasiTemp.forEach((element) {
+          element.durasi = element.durasi * 100 ~/ 480;
+          log(element.durasi.toString());
+          listDurasiHarian.add(element);
+        });
+      });
+    }
   }
 
   @override
@@ -1064,9 +1088,11 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                           case '1 Hari':
                             print(dateFormat.format(now));
                             String date = dateFormat.format(now);
+                            String nextDate =
+                                dateFormat.format(now.add(Duration(days: 1)));
                             setState(() {
-                              loadDurasiHarianTim(date, date);
-                              loadDataTotalPekerjaan(date, date);
+                              loadDurasiHarianTim(date, nextDate);
+                              loadDataTotalPekerjaan(date, nextDate);
                             });
                             break;
                           case '1 Minggu':
