@@ -72,6 +72,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   String dropdownValue = '1 Bulan';
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
+  bool isOneDay = false;
 
   List<DurasiHarian> listDurasiHarian = [];
 
@@ -113,13 +114,16 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   }
 
   loadDurasiHarianTim(String firstDate, String endDate) async {
-    if (dropdownValue == '1 Hari') {
+    listDurasiHarian.clear();
+    if (firstDate == endDate) {
+      isOneDay = true;
       var durasiResponse = await ApiService()
           .getDurasiHarianTim1Hari(widget.idPosition, firstDate, endDate);
       setState(() {
         listDurasiHarian = durasiResponse.data;
       });
     } else {
+      isOneDay = false;
       var durasiResponse = await ApiService()
           .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
       setState(() {
@@ -143,7 +147,10 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                 : Container(
                     height: 150,
                     width: double.infinity,
-                    child: LineChartTotalPekerjaan(listData: listDurasiHarian)),
+                    child: LineChartTotalPekerjaan(
+                      listData: listDurasiHarian,
+                      isOneDay: isOneDay,
+                    )),
             SizedBox(
               height: 8,
             ),
@@ -290,23 +297,17 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                           case '1 Hari':
                             print(dateFormat.format(now));
                             String date = dateFormat.format(now);
-                            String nextDate =
-                                dateFormat.format(now.add(Duration(days: 1)));
                             setState(() {
-                              loadDurasiHarianTim(date, nextDate);
-                              loadDataTotalPekerjaan(date, nextDate);
+                              loadDurasiHarianTim(date, date);
+                              loadDataTotalPekerjaan(date, date);
                             });
                             break;
                           case '1 Minggu':
-                            DateTime firstDayofWeek =
-                                now.subtract(Duration(days: now.weekday - 1));
-                            DateTime lastDateofWeek =
-                                firstDayofWeek.add(Duration(days: 6));
-                            print(dateFormat.format(firstDayofWeek));
-                            print(dateFormat.format(lastDateofWeek));
-                            String firstDate =
-                                dateFormat.format(firstDayofWeek);
-                            String endDate = dateFormat.format(lastDateofWeek);
+                            String endDate = dateFormat.format(now);
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 6)));
+                            print(firstDate);
+                            print(endDate);
                             setState(() {
                               loadDurasiHarianTim(firstDate, endDate);
                               loadDataTotalPekerjaan(firstDate, endDate);
@@ -556,6 +557,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
   String selectedFilter = '1 Bulan';
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
+  bool isOneDay = false;
 
   List<Kehadiran> listKehadiran = [];
 
@@ -578,6 +580,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
   }
 
   loadKehadiranTim(String firstDate, String endDate) async {
+    firstDate == endDate ? isOneDay = true : isOneDay = false;
     var durasiResponse = await ApiService()
         .getKehadiranTim(widget.idPosition, firstDate, endDate);
     setState(() {
@@ -593,12 +596,14 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                height: 150,
-                width: double.infinity,
-                child: selectedFilter == '1 Hari'
-                    ? ColumnChartKehadiran(listKehadiran: listKehadiran)
-                    : LineChartKehadiran(listKehadiran: listKehadiran)),
+            listKehadiran.length == 0
+                ? Center(child: Text("Tidak ada data"))
+                : Container(
+                    height: 150,
+                    width: double.infinity,
+                    child: isOneDay
+                        ? ColumnChartKehadiran(listKehadiran: listKehadiran)
+                        : LineChartKehadiran(listKehadiran: listKehadiran)),
             SizedBox(
               height: 8,
             ),
@@ -858,6 +863,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   String dropdownValue = '1 Bulan';
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
+  bool isOneDay = false;
 
   List<DurasiHarian> listDurasiHarian = [];
 
@@ -899,7 +905,8 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   }
 
   loadDurasiHarianTim(String firstDate, String endDate) async {
-    if (dropdownValue == '1 Hari') {
+    if (firstDate == endDate) {
+      isOneDay = true;
       var durasiResponse = await ApiService()
           .getDurasiHarianTim1Hari(widget.idPosition, firstDate, endDate);
       setState(() {
@@ -912,6 +919,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
         });
       });
     } else {
+      isOneDay = false;
       var durasiResponse = await ApiService()
           .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
       setState(() {
@@ -941,7 +949,10 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                 : Container(
                     height: 150,
                     width: double.infinity,
-                    child: LineChartBebanKerja(listData: listDurasiHarian)),
+                    child: LineChartBebanKerja(
+                      listData: listDurasiHarian,
+                      isOneDay: isOneDay,
+                    )),
             SizedBox(
               height: 8,
             ),
@@ -1088,23 +1099,15 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                           case '1 Hari':
                             print(dateFormat.format(now));
                             String date = dateFormat.format(now);
-                            String nextDate =
-                                dateFormat.format(now.add(Duration(days: 1)));
                             setState(() {
-                              loadDurasiHarianTim(date, nextDate);
-                              loadDataTotalPekerjaan(date, nextDate);
+                              loadDurasiHarianTim(date, date);
+                              loadDataTotalPekerjaan(date, date);
                             });
                             break;
                           case '1 Minggu':
-                            DateTime firstDayofWeek =
-                                now.subtract(Duration(days: now.weekday - 1));
-                            DateTime lastDateofWeek =
-                                firstDayofWeek.add(Duration(days: 6));
-                            print(dateFormat.format(firstDayofWeek));
-                            print(dateFormat.format(lastDateofWeek));
-                            String firstDate =
-                                dateFormat.format(firstDayofWeek);
-                            String endDate = dateFormat.format(lastDateofWeek);
+                            String endDate = dateFormat.format(now);
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 6)));
                             setState(() {
                               loadDurasiHarianTim(firstDate, endDate);
                               loadDataTotalPekerjaan(firstDate, endDate);
@@ -1239,7 +1242,9 @@ class LineChartKehadiran extends StatelessWidget {
 
 class LineChartBebanKerja extends StatefulWidget {
   final List<DurasiHarian> listData;
-  const LineChartBebanKerja({Key? key, required this.listData})
+  final bool isOneDay;
+  const LineChartBebanKerja(
+      {Key? key, required this.listData, this.isOneDay = false})
       : super(key: key);
 
   @override
@@ -1260,7 +1265,10 @@ class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
     return chart.SfCartesianChart(
         tooltipBehavior: _tooltipBehavior,
         primaryXAxis: chart.DateTimeAxis(
-            edgeLabelPlacement: chart.EdgeLabelPlacement.shift),
+            edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
+            intervalType: widget.isOneDay
+                ? chart.DateTimeIntervalType.hours
+                : chart.DateTimeIntervalType.days),
         series: <chart.ChartSeries>[
           // Renders line chart
           chart.LineSeries<DurasiHarian, DateTime>(
@@ -1277,7 +1285,9 @@ class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
 
 class LineChartTotalPekerjaan extends StatefulWidget {
   final List<DurasiHarian> listData;
-  const LineChartTotalPekerjaan({Key? key, required this.listData})
+  final bool isOneDay;
+  const LineChartTotalPekerjaan(
+      {Key? key, required this.listData, this.isOneDay = false})
       : super(key: key);
 
   @override
@@ -1366,7 +1376,10 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
         },
         tooltipBehavior: _tooltipBehavior,
         primaryXAxis: chart.DateTimeAxis(
-            edgeLabelPlacement: chart.EdgeLabelPlacement.shift),
+            edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
+            intervalType: widget.isOneDay
+                ? chart.DateTimeIntervalType.hours
+                : chart.DateTimeIntervalType.days),
         series: <chart.ChartSeries>[
           // Renders line chart
           chart.LineSeries<DurasiHarian, DateTime>(
@@ -1391,7 +1404,8 @@ class ColumnChartKehadiran extends StatelessWidget {
     return chart.SfCartesianChart(
         tooltipBehavior: chart.TooltipBehavior(enable: true, format: 'point.y'),
         legend: chart.Legend(isVisible: true),
-        primaryXAxis: chart.DateTimeAxis(),
+        primaryXAxis:
+            chart.DateTimeAxis(intervalType: chart.DateTimeIntervalType.days),
         series: <chart.ChartSeries>[
           // Renders line chart
           chart.ColumnSeries<Kehadiran, DateTime>(

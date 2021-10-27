@@ -201,7 +201,7 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
 
 SubPekerjaan newSubPekerjaan(int idPekerjaan, int idUser) {
   DateTime date = DateTime.now();
-  String formatDate = DateFormat("yyyy-MM-dd").format(date);
+  String formatDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(date);
   return SubPekerjaan(
       idPekerjaan: idPekerjaan,
       tanggal: formatDate,
