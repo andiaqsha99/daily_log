@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:daily_log/BebanKerjaPage.dart';
+import 'package:daily_log/KehadiranPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
@@ -504,7 +505,9 @@ class _ItemListTimState extends State<ItemListTim> {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return widget.tab == "tim"
                   ? LaporanKinerjaPage(idUser: pengguna.id)
-                  : BebanKerjaPage(idUser: pengguna.id);
+                  : widget.tab == "beban kerja"
+                      ? BebanKerjaPage(idUser: pengguna.id)
+                      : KehadiranPage(idUser: pengguna.id);
             }));
           },
           leading: CircleAvatar(),

@@ -17,7 +17,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  final String baseUrl = "http://192.168.109.20:8000/api";
 
   var client = http.Client();
 
@@ -190,6 +191,15 @@ class ApiService {
     return DurasiHarianResponse.fromJson(data);
   }
 
+  Future<DurasiHarianResponse> getDurasiHarianTim1Hari(
+      int idPosition, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/chart/tim/$idPosition/tanggal/$dateFrom/$dateTo/hari")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return DurasiHarianResponse.fromJson(data);
+  }
+
   Future<void> checkInQRCode(
       String username, double latitude, double longitude) async {
     await client.get(
@@ -291,5 +301,14 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return data['data'];
+  }
+
+  Future<PresenceResponse> getUserPresenceByDate(
+      int idUser, String dateFrom, String dateTo) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/presence/list/$idUser/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PresenceResponse.fromJson(data);
   }
 }
