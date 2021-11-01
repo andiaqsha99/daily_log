@@ -602,7 +602,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
             listKehadiran.length == 0
                 ? Center(child: Text("Tidak ada data"))
                 : Container(
-                    height: 150,
+                    height: 200,
                     width: double.infinity,
                     child: isOneDay
                         ? ColumnChartKehadiran(listKehadiran: listKehadiran)
@@ -1225,7 +1225,8 @@ class LineChartKehadiran extends StatelessWidget {
     });
     return chart.SfCartesianChart(
         tooltipBehavior: chart.TooltipBehavior(enable: true),
-        legend: chart.Legend(isVisible: true),
+        legend: chart.Legend(
+            isVisible: true, position: chart.LegendPosition.bottom),
         primaryXAxis: chart.DateTimeAxis(),
         series: <chart.ChartSeries>[
           // Renders line chart
@@ -1406,7 +1407,8 @@ class ColumnChartKehadiran extends StatelessWidget {
   Widget build(BuildContext context) {
     return chart.SfCartesianChart(
         tooltipBehavior: chart.TooltipBehavior(enable: true, format: 'point.y'),
-        legend: chart.Legend(isVisible: true),
+        legend: chart.Legend(
+            isVisible: true, position: chart.LegendPosition.bottom),
         primaryXAxis:
             chart.DateTimeAxis(intervalType: chart.DateTimeIntervalType.days),
         series: <chart.ChartSeries>[
