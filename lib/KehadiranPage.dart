@@ -104,15 +104,14 @@ class _KehadiranPageState extends State<KehadiranPage> {
                       }
                       List<DataRow> listRow = [];
                       listPresence.forEach((presence) {
-                        String duration = "-";
+                        int duration = 0;
                         if (presence.checkOutTime != null) {
                           var dateFormat = DateFormat("HH:mm:ss");
                           DateTime first =
                               dateFormat.parse(presence.checkInTime);
                           DateTime second =
                               dateFormat.parse(presence.checkOutTime!);
-                          duration =
-                              second.difference(first).inHours.toString();
+                          duration = second.difference(first).inMinutes;
                         }
                         listRow.add(DataRow(cells: [
                           DataCell(Center(child: Text(presence.date))),
@@ -122,7 +121,21 @@ class _KehadiranPageState extends State<KehadiranPage> {
                                 ? "-"
                                 : presence.checkOutTime!),
                           )),
-                          DataCell(Center(child: Text(duration))),
+                          DataCell(Center(
+                              child: Text((() {
+                            if (duration < 10) {
+                              return "00.0$duration";
+                            } else if (duration > 59) {
+                              int jam = duration ~/ 60;
+                              int menit = duration % 60;
+                              if (menit < 10) {
+                                return "$jam.0$menit";
+                              }
+                              return "$jam.$menit";
+                            } else {
+                              return "00.$duration";
+                            }
+                          }())))),
                         ]));
                       });
                       return SingleChildScrollView(
