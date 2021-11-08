@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:daily_log/BebanKerjaPage.dart';
 import 'package:daily_log/KehadiranPage.dart';
+import 'package:daily_log/KinerjaTimStaffPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
@@ -74,6 +75,8 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
   bool isOneDay = false;
+  String _firstDate = '';
+  String _lastDate = '';
 
   List<DurasiHarian> listDurasiHarian = [];
 
@@ -97,6 +100,8 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   }
 
   loadDataTotalPekerjaan(String firstDate, String endDate) async {
+    _firstDate = firstDate;
+    _lastDate = endDate;
     final sharedPreferences = await SharedPreferences.getInstance();
     int idPosition = sharedPreferences.getInt("position_id")!;
 
@@ -115,6 +120,8 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   }
 
   loadDurasiHarianTim(String firstDate, String endDate) async {
+    _firstDate = firstDate;
+    _lastDate = endDate;
     listDurasiHarian.clear();
     if (firstDate == endDate) {
       isOneDay = true;
@@ -362,6 +369,8 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
             ListTeam(
               tab: "tim",
               idPosition: widget.idPosition,
+              firstDate: _firstDate,
+              lastDate: _lastDate,
             )
           ],
         ),
@@ -408,9 +417,16 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
 }
 
 class ListTeam extends StatefulWidget {
+  final String firstDate;
+  final String lastDate;
   final String tab;
   final int idPosition;
-  const ListTeam({Key? key, required this.tab, required this.idPosition})
+  const ListTeam(
+      {Key? key,
+      required this.tab,
+      required this.idPosition,
+      this.firstDate = '',
+      this.lastDate = ''})
       : super(key: key);
 
   @override
@@ -451,7 +467,9 @@ class _ListTeamState extends State<ListTeam> {
                 return ItemListTim(
                     position: listStaf[index],
                     listPosition: filteredList,
-                    tab: widget.tab);
+                    tab: widget.tab,
+                    firstDate: widget.firstDate,
+                    lastDate: widget.lastDate);
               });
         }
 
@@ -462,6 +480,8 @@ class _ListTeamState extends State<ListTeam> {
 }
 
 class ItemListTim extends StatefulWidget {
+  final String firstDate;
+  final String lastDate;
   final Position position;
   final List<Position> listPosition;
   final String tab;
@@ -469,7 +489,9 @@ class ItemListTim extends StatefulWidget {
       {Key? key,
       required this.position,
       required this.listPosition,
-      required this.tab})
+      required this.tab,
+      this.firstDate = '',
+      this.lastDate = ''})
       : super(key: key);
 
   @override
@@ -504,7 +526,11 @@ class _ItemListTimState extends State<ItemListTim> {
                 await ApiService().getPenggunaByPosition(widget.position.id);
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return widget.tab == "tim"
-                  ? LaporanKinerjaPage(idUser: pengguna.id)
+                  ? LaporanKinerjaPage(
+                      idUser: pengguna.id,
+                      firstDate: widget.firstDate,
+                      lastDate: widget.lastDate,
+                    )
                   : widget.tab == "beban kerja"
                       ? BebanKerjaPage(idUser: pengguna.id)
                       : KehadiranPage(idUser: pengguna.id);
@@ -514,15 +540,37 @@ class _ItemListTimState extends State<ItemListTim> {
           title: Text(widget.position.position),
           subtitle: Text(widget.position.position),
           trailing: listStaf.isNotEmpty
-              ? GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isExpanded = !isExpanded;
-                    });
-                  },
-                  child: isExpanded
-                      ? Icon(Icons.keyboard_arrow_up)
-                      : Icon(Icons.keyboard_arrow_down),
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    widget.tab == "tim"
+                        ? GestureDetector(
+                            onTap: () async {
+                              Pengguna pengguna = await ApiService()
+                                  .getPenggunaByPosition(widget.position.id);
+                              Navigator.of(context)
+                                  .push(MaterialPageRoute(builder: (context) {
+                                return KinerjaTimStaffPage(
+                                    firstDate: widget.firstDate,
+                                    lastDate: widget.lastDate,
+                                    idPosition: widget.position.id,
+                                    idStaff: pengguna.id);
+                              }));
+                            },
+                            child: Icon(Icons.show_chart),
+                          )
+                        : SizedBox(),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      },
+                      child: isExpanded
+                          ? Icon(Icons.keyboard_arrow_up)
+                          : Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ],
                 )
               : SizedBox(),
         )),

@@ -18,7 +18,7 @@ import 'package:intl/intl.dart';
 
 class ApiService {
   // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  final String baseUrl = "http://192.168.109.20:8000/api";
+  final String baseUrl = "http://192.168.42.20:8000/api";
 
   var client = http.Client();
 
@@ -310,5 +310,23 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return PresenceResponse.fromJson(data);
+  }
+
+  Future<DurasiHarianResponse> getDurasiHarianTimStaff(
+      int idPosition, int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/chart/tim/$idPosition/$idStaff/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return DurasiHarianResponse.fromJson(data);
+  }
+
+  Future<DurasiHarianResponse> getDurasiHarianTimStaff1Hari(
+      int idPosition, int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/chart/tim/$idPosition/$idStaff/tanggal/$dateFrom/$dateTo/hari")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return DurasiHarianResponse.fromJson(data);
   }
 }

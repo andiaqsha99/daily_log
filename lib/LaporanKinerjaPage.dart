@@ -13,7 +13,11 @@ import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class LaporanKinerjaPage extends StatefulWidget {
   final int idUser;
-  const LaporanKinerjaPage({Key? key, required this.idUser}) : super(key: key);
+  final String? firstDate;
+  final String? lastDate;
+  const LaporanKinerjaPage(
+      {Key? key, required this.idUser, this.firstDate, this.lastDate})
+      : super(key: key);
 
   @override
   _LaporanKinerjaPageState createState() => _LaporanKinerjaPageState();
@@ -46,6 +50,10 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
+    if (widget.firstDate != null && widget.lastDate != null) {
+      firstDate = widget.firstDate!;
+      firstDate = widget.lastDate!;
+    }
     int count = await ApiService()
         .getValidPekerjaanCount(widget.idUser, firstDate, endDate);
     setState(() {
@@ -61,7 +69,11 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-
+    if (widget.firstDate != null && widget.lastDate != null) {
+      firstDate = widget.firstDate!;
+      endDate = widget.lastDate!;
+      print("lapor $firstDate $endDate");
+    }
     pekerjaanResponse =
         ApiService().getPekerjaanSatuBulan(widget.idUser, firstDate, endDate);
   }
@@ -74,7 +86,10 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-
+    if (widget.firstDate != null && widget.lastDate != null) {
+      firstDate = widget.firstDate!;
+      endDate = widget.lastDate!;
+    }
     var durasiResponse =
         await ApiService().getDurasiHarian(widget.idUser, firstDate, endDate);
     setState(() {
