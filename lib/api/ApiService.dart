@@ -17,8 +17,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  final String baseUrl = "http://192.168.42.20:8000/api";
+  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  // final String baseUrl = "http://192.168.42.20:8000/api";
 
   var client = http.Client();
 
@@ -138,7 +138,9 @@ class ApiService {
   }
 
   Future<PositionResponse> getPosition() async {
-    final response = await client.get((Uri.parse("$baseUrl/position")));
+    // final response = await client.get((Uri.parse("$baseUrl/position")));
+    final response = await client.get((Uri.parse(
+        "https://hurryup.universitaspertamina.ac.id/api/positions")));
     var data = jsonDecode(response.body);
     return PositionResponse.fromJson(data);
   }
@@ -174,7 +176,7 @@ class ApiService {
     return CityResponse.fromJson(data);
   }
 
-  Future<Pengguna> getPenggunaByPosition(int idPosition) async {
+  Future<Pengguna> getPenggunaByPosition(String idPosition) async {
     final response =
         await client.get(Uri.parse("$baseUrl/pengguna/position/$idPosition"));
     var data = jsonDecode(response.body);
@@ -183,18 +185,18 @@ class ApiService {
   }
 
   Future<DurasiHarianResponse> getDurasiHarianTim(
-      int idPosition, String dateFrom, String dateTo) async {
-    final response = await client.get((Uri.parse(
-        "$baseUrl/chart/tim/$idPosition/tanggal/$dateFrom/$dateTo")));
+      int idUser, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/chart/tim/$idUser/tanggal/$dateFrom/$dateTo")));
     var data = jsonDecode(response.body);
     print(data);
     return DurasiHarianResponse.fromJson(data);
   }
 
   Future<DurasiHarianResponse> getDurasiHarianTim1Hari(
-      int idPosition, String dateFrom, String dateTo) async {
+      int idUser, String dateFrom, String dateTo) async {
     final response = await client.get((Uri.parse(
-        "$baseUrl/chart/tim/$idPosition/tanggal/$dateFrom/$dateTo/hari")));
+        "$baseUrl/chart/tim/$idUser/tanggal/$dateFrom/$dateTo/hari")));
     var data = jsonDecode(response.body);
     print(data);
     return DurasiHarianResponse.fromJson(data);
@@ -226,9 +228,9 @@ class ApiService {
   }
 
   Future<KehadiranResponse> getKehadiranTim(
-      int idPosition, String dateFrom, String dateTo) async {
-    final response = await client.get(
-        (Uri.parse("$baseUrl/presence/tim/$idPosition/$dateFrom/$dateTo")));
+      int idUser, String dateFrom, String dateTo) async {
+    final response = await client
+        .get((Uri.parse("$baseUrl/presence/tim/$idUser/$dateFrom/$dateTo")));
     var data = jsonDecode(response.body);
     print(data);
     return KehadiranResponse.fromJson(data);
@@ -313,7 +315,7 @@ class ApiService {
   }
 
   Future<DurasiHarianResponse> getDurasiHarianTimStaff(
-      int idPosition, int idStaff, String dateFrom, String dateTo) async {
+      String idPosition, int idStaff, String dateFrom, String dateTo) async {
     final response = await client.get((Uri.parse(
         "$baseUrl/chart/tim/$idPosition/$idStaff/tanggal/$dateFrom/$dateTo")));
     var data = jsonDecode(response.body);
@@ -322,7 +324,7 @@ class ApiService {
   }
 
   Future<DurasiHarianResponse> getDurasiHarianTimStaff1Hari(
-      int idPosition, int idStaff, String dateFrom, String dateTo) async {
+      String idPosition, int idStaff, String dateFrom, String dateTo) async {
     final response = await client.get((Uri.parse(
         "$baseUrl/chart/tim/$idPosition/$idStaff/tanggal/$dateFrom/$dateTo/hari")));
     var data = jsonDecode(response.body);

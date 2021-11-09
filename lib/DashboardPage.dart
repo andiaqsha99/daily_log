@@ -12,10 +12,11 @@ import 'package:daily_log/model/Kehadiran.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
+import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart' as chart;
 
 class DashboardPage extends StatelessWidget {
@@ -47,13 +48,13 @@ class DashboardPage extends StatelessWidget {
           ),
           body: TabBarView(children: [
             LaporanKinerjaTim(
-              idPosition: this.idPosition,
+              idUser: this.idUser,
             ),
             DashboardKehadiran(
-              idPosition: this.idPosition,
+              idUser: this.idUser,
             ),
             BebanKerjaTim(
-              idPosition: this.idPosition,
+              idUser: this.idUser,
             )
           ]),
           bottomSheet: MenuBottom(),
@@ -62,9 +63,8 @@ class DashboardPage extends StatelessWidget {
 }
 
 class LaporanKinerjaTim extends StatefulWidget {
-  final int idPosition;
-  const LaporanKinerjaTim({Key? key, required this.idPosition})
-      : super(key: key);
+  final int idUser;
+  const LaporanKinerjaTim({Key? key, required this.idUser}) : super(key: key);
 
   @override
   _LaporanKinerjaTimState createState() => _LaporanKinerjaTimState();
@@ -102,12 +102,10 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   loadDataTotalPekerjaan(String firstDate, String endDate) async {
     _firstDate = firstDate;
     _lastDate = endDate;
-    final sharedPreferences = await SharedPreferences.getInstance();
-    int idPosition = sharedPreferences.getInt("position_id")!;
 
     int count = 0;
     PenggunaResponse penggunaResponse =
-        await ApiService().getPenggunaStaff(idPosition);
+        await ApiService().getPenggunaStaff(widget.idUser);
     List<Pengguna> listStaff = penggunaResponse.data;
     listStaff.forEach((element) async {
       int counter = await ApiService()
@@ -126,14 +124,14 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
     if (firstDate == endDate) {
       isOneDay = true;
       var durasiResponse = await ApiService()
-          .getDurasiHarianTim1Hari(widget.idPosition, firstDate, endDate);
+          .getDurasiHarianTim1Hari(widget.idUser, firstDate, endDate);
       setState(() {
         listDurasiHarian = durasiResponse.data;
       });
     } else {
       isOneDay = false;
       var durasiResponse = await ApiService()
-          .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
+          .getDurasiHarianTim(widget.idUser, firstDate, endDate);
       setState(() {
         listDurasiHarian = durasiResponse.data;
       });
@@ -368,7 +366,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
             ),
             ListTeam(
               tab: "tim",
-              idPosition: widget.idPosition,
+              idUser: widget.idUser,
               firstDate: _firstDate,
               lastDate: _lastDate,
             )
@@ -420,11 +418,11 @@ class ListTeam extends StatefulWidget {
   final String firstDate;
   final String lastDate;
   final String tab;
-  final int idPosition;
+  final int idUser;
   const ListTeam(
       {Key? key,
       required this.tab,
-      required this.idPosition,
+      required this.idUser,
       this.firstDate = '',
       this.lastDate = ''})
       : super(key: key);
@@ -435,38 +433,45 @@ class ListTeam extends StatefulWidget {
 
 class _ListTeamState extends State<ListTeam> {
   late Future<PositionResponse> positionResponse;
+  late Future<PenggunaResponse> penggunaResponse;
+  List<Position> listPosition = [];
 
   @override
   void initState() {
-    positionResponse = ApiService().getPosition();
+    loadStaffData();
+    loadPositionData();
     super.initState();
+  }
+
+  loadPositionData() async {
+    positionResponse = ApiService().getPosition();
+    positionResponse.then((value) => listPosition = value.data);
+  }
+
+  loadStaffData() async {
+    penggunaResponse = ApiService().getPenggunaStaff(widget.idUser);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: FutureBuilder<PositionResponse>(
-      future: positionResponse,
+        child: FutureBuilder<PenggunaResponse>(
+      future: penggunaResponse,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
             child: Text("No Data"),
           );
         } else if (snapshot.hasData) {
-          List<Position> items = snapshot.data!.data;
-          var listStaf = items
-              .where((element) => element.parentId == widget.idPosition)
-              .toList();
-          var filteredList =
-              items.where((element) => element.level > 1).toList();
+          List<Pengguna> items = snapshot.data!.data;
           return ListView.builder(
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: listStaf.length,
+              itemCount: items.length,
               itemBuilder: (context, index) {
                 return ItemListTim(
-                    position: listStaf[index],
-                    listPosition: filteredList,
+                    // listPosition: listPosition,
+                    pengguna: items[index],
                     tab: widget.tab,
                     firstDate: widget.firstDate,
                     lastDate: widget.lastDate);
@@ -482,13 +487,11 @@ class _ListTeamState extends State<ListTeam> {
 class ItemListTim extends StatefulWidget {
   final String firstDate;
   final String lastDate;
-  final Position position;
-  final List<Position> listPosition;
+  final Pengguna pengguna;
   final String tab;
   const ItemListTim(
       {Key? key,
-      required this.position,
-      required this.listPosition,
+      required this.pengguna,
       required this.tab,
       this.firstDate = '',
       this.lastDate = ''})
@@ -502,59 +505,58 @@ class _ItemListTimState extends State<ItemListTim> {
   bool isExpanded = false;
   bool isAtasan = true;
   late List<Position> filteredList;
-  late List<Position> listStaf;
+  late Future<PenggunaResponse> penggunaResponse;
 
   @override
   void initState() {
-    filteredList = widget.listPosition
-        .where((element) => element.level > widget.position.level)
-        .toList();
-    listStaf = filteredList
-        .where((element) => element.parentId == widget.position.id)
-        .toList();
+    loadStaffData();
     super.initState();
+  }
+
+  loadStaffData() async {
+    penggunaResponse = ApiService().getPenggunaStaff(widget.pengguna.id);
   }
 
   @override
   Widget build(BuildContext context) {
+    var positionProvider = Provider.of<PositionProvider>(context);
     return Column(
       children: [
         Card(
             child: ListTile(
           onTap: () async {
-            Pengguna pengguna =
-                await ApiService().getPenggunaByPosition(widget.position.id);
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return widget.tab == "tim"
                   ? LaporanKinerjaPage(
-                      idUser: pengguna.id,
+                      idUser: widget.pengguna.id,
                       firstDate: widget.firstDate,
                       lastDate: widget.lastDate,
                     )
                   : widget.tab == "beban kerja"
-                      ? BebanKerjaPage(idUser: pengguna.id)
-                      : KehadiranPage(idUser: pengguna.id);
+                      ? BebanKerjaPage(idUser: widget.pengguna.id)
+                      : KehadiranPage(idUser: widget.pengguna.id);
             }));
           },
           leading: CircleAvatar(),
-          title: Text(widget.position.position),
-          subtitle: Text(widget.position.position),
-          trailing: listStaf.isNotEmpty
+          title: Text(widget.pengguna.username),
+          subtitle: Text(positionProvider
+              .getPosition(widget.pengguna.positionId)
+              .position),
+          trailing: widget.pengguna.jabatan == "atasan"
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     widget.tab == "tim"
                         ? GestureDetector(
                             onTap: () async {
-                              Pengguna pengguna = await ApiService()
-                                  .getPenggunaByPosition(widget.position.id);
                               Navigator.of(context)
                                   .push(MaterialPageRoute(builder: (context) {
                                 return KinerjaTimStaffPage(
                                     firstDate: widget.firstDate,
                                     lastDate: widget.lastDate,
-                                    idPosition: widget.position.id,
-                                    idStaff: pengguna.id);
+                                    idPosition:
+                                        widget.pengguna.positionId.toString(),
+                                    idStaff: widget.pengguna.id);
                               }));
                             },
                             child: Icon(Icons.show_chart),
@@ -576,28 +578,40 @@ class _ItemListTimState extends State<ItemListTim> {
         )),
         if (isExpanded)
           Container(
-            padding: EdgeInsets.only(left: 10),
-            child: ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: listStaf.length,
-                itemBuilder: (context, index) {
-                  return ItemListTim(
-                    position: listStaf[index],
-                    listPosition: filteredList,
-                    tab: widget.tab,
-                  );
-                }),
-          )
+              padding: EdgeInsets.only(left: 10),
+              child: FutureBuilder<PenggunaResponse>(
+                future: penggunaResponse,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text("No Data"),
+                    );
+                  } else if (snapshot.hasData) {
+                    List<Pengguna> items = snapshot.data!.data;
+                    return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return ItemListTim(
+                              pengguna: items[index],
+                              tab: widget.tab,
+                              firstDate: widget.firstDate,
+                              lastDate: widget.lastDate);
+                        });
+                  }
+
+                  return CircularProgressIndicator();
+                },
+              ))
       ],
     );
   }
 }
 
 class DashboardKehadiran extends StatefulWidget {
-  final int idPosition;
-  const DashboardKehadiran({Key? key, required this.idPosition})
-      : super(key: key);
+  final int idUser;
+  const DashboardKehadiran({Key? key, required this.idUser}) : super(key: key);
 
   @override
   _DashboardKehadiranState createState() => _DashboardKehadiranState();
@@ -632,8 +646,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
 
   loadKehadiranTim(String firstDate, String endDate) async {
     firstDate == endDate ? isOneDay = true : isOneDay = false;
-    var durasiResponse = await ApiService()
-        .getKehadiranTim(widget.idPosition, firstDate, endDate);
+    var durasiResponse =
+        await ApiService().getKehadiranTim(widget.idUser, firstDate, endDate);
     setState(() {
       listKehadiran = durasiResponse.data;
     });
@@ -849,7 +863,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
             ),
             ListTeam(
               tab: "kehadiran",
-              idPosition: widget.idPosition,
+              idUser: widget.idUser,
             )
           ],
         ),
@@ -903,8 +917,8 @@ class OrdinalSales {
 }
 
 class BebanKerjaTim extends StatefulWidget {
-  final int idPosition;
-  const BebanKerjaTim({Key? key, required this.idPosition}) : super(key: key);
+  final int idUser;
+  const BebanKerjaTim({Key? key, required this.idUser}) : super(key: key);
 
   @override
   _BebanKerjaTimState createState() => _BebanKerjaTimState();
@@ -938,12 +952,9 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   }
 
   loadDataTotalPekerjaan(String firstDate, String endDate) async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    int idPosition = sharedPreferences.getInt("position_id")!;
-
     int count = 0;
     PenggunaResponse penggunaResponse =
-        await ApiService().getPenggunaStaff(idPosition);
+        await ApiService().getPenggunaStaff(widget.idUser);
     List<Pengguna> listStaff = penggunaResponse.data;
     listStaff.forEach((element) async {
       int counter = await ApiService()
@@ -959,7 +970,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
     if (firstDate == endDate) {
       isOneDay = true;
       var durasiResponse = await ApiService()
-          .getDurasiHarianTim1Hari(widget.idPosition, firstDate, endDate);
+          .getDurasiHarianTim1Hari(widget.idUser, firstDate, endDate);
       setState(() {
         listDurasiHarian.clear();
         List<DurasiHarian> listDurasiTemp = durasiResponse.data;
@@ -972,7 +983,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
     } else {
       isOneDay = false;
       var durasiResponse = await ApiService()
-          .getDurasiHarianTim(widget.idPosition, firstDate, endDate);
+          .getDurasiHarianTim(widget.idUser, firstDate, endDate);
       setState(() {
         listDurasiHarian.clear();
         List<DurasiHarian> listDurasiTemp = durasiResponse.data;
@@ -1211,7 +1222,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
             ),
             ListTeam(
               tab: "beban kerja",
-              idPosition: widget.idPosition,
+              idUser: widget.idUser,
             )
           ],
         ),

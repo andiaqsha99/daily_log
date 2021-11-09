@@ -1,4 +1,6 @@
+import 'package:daily_log/model/PositionProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilStatus extends StatefulWidget {
@@ -10,17 +12,21 @@ class ProfilStatus extends StatefulWidget {
 
 class _ProfilStatusState extends State<ProfilStatus> {
   String username = " ";
+  int idPosition = 0;
+  late PositionProvider positionProvider;
 
   @override
   void initState() {
     super.initState();
     getLoginData();
+    positionProvider = Provider.of<PositionProvider>(context, listen: false);
   }
 
   getLoginData() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       username = sharedPreferences.getString("username")!;
+      idPosition = sharedPreferences.getInt("position_id")!;
     });
   }
 
@@ -64,12 +70,6 @@ class _ProfilStatusState extends State<ProfilStatus> {
               ),
             ),
           ),
-          // Expanded(
-          //     flex: 1,
-          //     child: Text(
-          //       "0%",
-          //       style: TextStyle(color: Colors.white),
-          //     ))
         ],
       ),
     );

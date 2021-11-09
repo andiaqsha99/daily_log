@@ -57,7 +57,7 @@ class ListValidasiPage extends StatefulWidget {
 
 class _ListValidasiPageState extends State<ListValidasiPage> {
   late Future<PenggunaResponse> listStaff;
-  int idPosition = 0;
+  int idUser = 0;
   String query = '';
   late List<Pengguna> items;
   List<Pengguna> listPengguna = [];
@@ -71,13 +71,14 @@ class _ListValidasiPageState extends State<ListValidasiPage> {
   }
 
   loadStaffData() async {
-    listStaff = ApiService().getPenggunaStaff(idPosition);
+    listStaff = ApiService().getPenggunaStaff(idUser);
+    print(idUser);
   }
 
   getLoginData() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      idPosition = sharedPreferences.getInt("position_id")!;
+      idUser = sharedPreferences.getInt("id_user")!;
       loadStaffData();
     });
   }

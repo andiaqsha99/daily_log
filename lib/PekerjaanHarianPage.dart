@@ -21,9 +21,9 @@ class PekerjaanHarianPage extends StatefulWidget {
 
 class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
   late Future<PekerjaanResponse> pekerjaanResponse;
-  List<SubPekerjaan> listSubPekerjaan = [SubPekerjaan()];
   List<List<SubPekerjaan>> mapPekerjaan = [];
   int idAtasan = 0;
+  DateTime dateFilled = DateTime.now();
 
   @override
   void initState() {
@@ -49,15 +49,41 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
         child: Column(
           children: [
             ProfilStatus(),
-            Container(
-              padding: EdgeInsets.only(left: 16, top: 8),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Tupoksi",
-                style: TextStyle(
-                  color: Colors.blue,
+            SizedBox(
+              height: 8,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left: 16, top: 8),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Tupoksi",
+                    style: TextStyle(
+                      color: Colors.blue,
+                    ),
+                  ),
                 ),
-              ),
+                Container(
+                  margin: EdgeInsets.only(right: 16),
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        final date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            lastDate: DateTime.now(),
+                            firstDate:
+                                DateTime.now().subtract(Duration(days: 2)));
+                        if (date != null) {
+                          setState(() {
+                            dateFilled = date;
+                          });
+                        }
+                      },
+                      child: Text(DateFormat("dd/MM/yyyy").format(dateFilled))),
+                )
+              ],
             ),
             FutureBuilder<PekerjaanResponse>(
                 future: pekerjaanResponse,
@@ -66,18 +92,21 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                     var listPekerjaan = snapshot.data;
                     List<Pekerjaan> items = listPekerjaan!.data;
                     if (items.length > 0) {
+                      mapPekerjaan.clear();
                       return ListView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
                           mapPekerjaan.add([
-                            newSubPekerjaan(items[index].id, widget.idUser)
+                            newSubPekerjaan(
+                                items[index].id, widget.idUser, dateFilled)
                           ]);
                           return PekerjaanListWidget(
                             headerText: items[index].nama,
                             idPekerjaan: items[index].id,
                             listSubPekerjaan: mapPekerjaan[index],
                             idUser: widget.idUser,
+                            dateFilled: dateFilled,
                           );
                         },
                         itemCount: items.length,
@@ -139,12 +168,14 @@ class PekerjaanListWidget extends StatefulWidget {
   final String headerText;
   final int idPekerjaan;
   final List<SubPekerjaan> listSubPekerjaan;
+  final DateTime dateFilled;
   const PekerjaanListWidget(
       {Key? key,
       required this.headerText,
       required this.idPekerjaan,
       required this.listSubPekerjaan,
-      required this.idUser})
+      required this.idUser,
+      required this.dateFilled})
       : super(key: key);
 
   @override
@@ -178,8 +209,8 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
           child: MaterialButton(
             onPressed: () {
               setState(() {
-                widget.listSubPekerjaan
-                    .add(newSubPekerjaan(widget.idPekerjaan, widget.idUser));
+                widget.listSubPekerjaan.add(newSubPekerjaan(
+                    widget.idPekerjaan, widget.idUser, widget.dateFilled));
               });
             },
             height: 56,
@@ -199,12 +230,14 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
   }
 }
 
-SubPekerjaan newSubPekerjaan(int idPekerjaan, int idUser) {
+SubPekerjaan newSubPekerjaan(int idPekerjaan, int idUser, DateTime dateFilled) {
   DateTime date = DateTime.now();
-  String formatDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+  String selectDate = DateFormat("yyyy-MM-dd").format(dateFilled);
+  String formatDate = DateFormat("HH:mm:ss").format(date);
+  print("tes $selectDate $formatDate");
   return SubPekerjaan(
       idPekerjaan: idPekerjaan,
-      tanggal: formatDate,
+      tanggal: "$selectDate $formatDate",
       status: 'submit',
       idUser: idUser);
 }

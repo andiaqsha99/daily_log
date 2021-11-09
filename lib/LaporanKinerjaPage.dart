@@ -29,18 +29,24 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
   List<DurasiHarian> listDurasiHarian = [];
   String selectedDate = '';
   var now = new DateTime.now();
+  String? _firstDate = '';
+  String? _lastDate = '';
 
   @override
   void initState() {
     super.initState();
-
+    setDate();
     String thisMonth = DateFormat("MMMM yyyy").format(now);
     selectedDate = thisMonth;
-
     DateTime firstDate = DateTime(now.year, now.month, 1);
     loadDurasiHarianPerBulan(firstDate);
     loadDataTotalPekerjaan(firstDate);
     loadPekeraanSatuBulan(firstDate);
+  }
+
+  setDate() {
+    _firstDate = widget.firstDate;
+    _lastDate = widget.lastDate;
   }
 
   loadDataTotalPekerjaan(DateTime date) async {
@@ -50,9 +56,9 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-    if (widget.firstDate != null && widget.lastDate != null) {
+    if (_firstDate != null && _lastDate != null) {
       firstDate = widget.firstDate!;
-      firstDate = widget.lastDate!;
+      endDate = widget.lastDate!;
     }
     int count = await ApiService()
         .getValidPekerjaanCount(widget.idUser, firstDate, endDate);
@@ -122,6 +128,8 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
                             .then((date) {
                           if (date != null) {
                             setState(() {
+                              _firstDate = null;
+                              _lastDate = null;
                               print(date);
                               String thisMonth =
                                   DateFormat("MMMM yyyy").format(date);

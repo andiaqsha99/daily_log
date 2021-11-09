@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 class Position {
-  int id;
-  int? parentId;
+  String id;
+  String? parentId;
   String position;
-  int level;
-  int orgUnit;
+  String level;
+  String orgUnit;
 
   Position(
       {required this.id,

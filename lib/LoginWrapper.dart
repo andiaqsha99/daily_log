@@ -1,6 +1,7 @@
 import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/LoginPage.dart';
 import 'package:daily_log/model/NotifProvider.dart';
+import 'package:daily_log/model/PositionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,6 +38,9 @@ class _LoginWrapperState extends State<LoginWrapper> {
       var providerCounter =
           Provider.of<NotifCounterProvider>(context, listen: false);
       providerCounter.addListNotif(idUser);
+      var positionProvider =
+          Provider.of<PositionProvider>(context, listen: false);
+      positionProvider.setListPosition();
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (context) {
         return isLogin ? HomePage() : LoginPage();
