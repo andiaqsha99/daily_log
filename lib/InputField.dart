@@ -17,6 +17,7 @@ class _InputFieldState extends State<InputField> {
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
   final _formKey = GlobalKey<FormState>();
+  bool _passwordVisible = false;
 
   @override
   void initState() {
@@ -53,10 +54,10 @@ class _InputFieldState extends State<InputField> {
                       child: TextFormField(
                         controller: _usernameController,
                         decoration: InputDecoration(
-                            hintText: "Username",
-                            hintStyle: TextStyle(color: Colors.grey),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10))),
+                          prefixIcon: Icon(Icons.person),
+                          hintText: "Username",
+                          hintStyle: TextStyle(color: Colors.grey),
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -64,13 +65,22 @@ class _InputFieldState extends State<InputField> {
                     ),
                     Container(
                       child: TextFormField(
-                        obscureText: true,
+                        obscureText: !_passwordVisible,
                         controller: _passwordController,
                         decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.lock),
                             hintText: "Password",
                             hintStyle: TextStyle(color: Colors.grey),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10))),
+                            suffixIcon: IconButton(
+                              icon: Icon(_passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                              onPressed: () {
+                                setState(() {
+                                  _passwordVisible = !_passwordVisible;
+                                });
+                              },
+                            )),
                       ),
                     )
                   ],
@@ -125,7 +135,7 @@ class _InputFieldState extends State<InputField> {
                 }
               },
               height: 56,
-              minWidth: 96,
+              minWidth: double.infinity,
               color: Colors.blue,
               textColor: Colors.white,
               shape: RoundedRectangleBorder(

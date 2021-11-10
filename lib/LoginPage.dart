@@ -10,7 +10,7 @@ class LoginPage extends StatelessWidget {
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Color(0xFFFFE4AF),
+          color: Colors.white,
         ),
         child: Column(
           children: [

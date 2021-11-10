@@ -23,6 +23,7 @@ class HomePage extends StatelessWidget {
         actions: [NotificationWidget()],
       ),
       body: SafeArea(child: MenuPage()),
+      bottomNavigationBar: MenuBottom(),
     );
   }
 }
@@ -59,9 +60,9 @@ class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         ProfilStatus(),
+        SizedBox(height: 64),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -89,31 +90,6 @@ class _MenuPageState extends State<MenuPage> {
                         ),
                       ),
                       Text("Kehadiran")
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  child: Column(
-                    children: [
-                      Card(
-                        color: Color(0xFFB0D8FD),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LaporanKinerjaPage(
-                                          idUser: this.idUSer,
-                                        )));
-                          },
-                          icon: Icon(Icons.assignment_ind),
-                          iconSize: 56,
-                        ),
-                      ),
-                      Text("Laporan Kinerja")
                     ],
                   ),
                 ),
@@ -194,6 +170,35 @@ class _MenuPageState extends State<MenuPage> {
                 SizedBox(
                   height: 8,
                 ),
+              ],
+            ),
+            Column(
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      Card(
+                        color: Color(0xFFB0D8FD),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LaporanKinerjaPage(
+                                          idUser: this.idUSer,
+                                        )));
+                          },
+                          icon: Icon(Icons.assignment_ind),
+                          iconSize: 56,
+                        ),
+                      ),
+                      Text("Laporan Kinerja")
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
                 Opacity(
                   opacity: jabatan != "atasan" ? 0.0 : 1.0,
                   child: Container(
@@ -221,10 +226,9 @@ class _MenuPageState extends State<MenuPage> {
                   ),
                 ),
               ],
-            ),
+            )
           ],
         ),
-        MenuBottom()
       ],
     );
   }

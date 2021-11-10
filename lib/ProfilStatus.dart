@@ -70,6 +70,14 @@ class _ProfilStatusState extends State<ProfilStatus> {
               ),
             ),
           ),
+          Expanded(
+              flex: 1,
+              child: IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                  )))
         ],
       ),
     );
