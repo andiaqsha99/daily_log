@@ -17,18 +17,18 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  final String baseUrl = "http://192.168.42.20:8000/api";
+  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  // final String baseUrl = "http://192.168.42.20:8000/api";
 
   var client = http.Client();
 
-  Future<Pengguna> login(Pengguna pengguna) async {
+  Future<PenggunaResponse> login(Pengguna pengguna) async {
     final response = await client.post(Uri.parse("$baseUrl/pengguna/login"),
         headers: {"content-type": "application/json"},
         body: penggunaToJson(pengguna));
     var data = jsonDecode(response.body);
-    print(data['data']);
-    return Pengguna.fromJson(data['data']);
+    print(data);
+    return PenggunaResponse.fromJson(data);
   }
 
   Future<PekerjaanResponse> getPekerjaan(int idUser) async {

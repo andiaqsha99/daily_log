@@ -2,6 +2,7 @@ import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +53,11 @@ class _InputFieldState extends State<InputField> {
                   children: [
                     Container(
                       child: TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Masukkan username';
+                          }
+                        },
                         controller: _usernameController,
                         decoration: InputDecoration(
                           prefixIcon: Icon(Icons.person),
@@ -65,6 +71,11 @@ class _InputFieldState extends State<InputField> {
                     ),
                     Container(
                       child: TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Masukkan password';
+                          }
+                        },
                         obscureText: !_passwordVisible,
                         controller: _passwordController,
                         decoration: InputDecoration(
@@ -105,33 +116,47 @@ class _InputFieldState extends State<InputField> {
             ),
             MaterialButton(
               onPressed: () async {
-                final sharedPreferences = await SharedPreferences.getInstance();
-                Pengguna pengguna = Pengguna(
-                    id: 1,
-                    username: _usernameController.text.trim(),
-                    password: _passwordController.text.trim(),
-                    jabatan: 'staff',
-                    positionId: 1,
-                    atasanId: 1);
-                Pengguna api = await ApiService().login(pengguna);
-                if (_usernameController.text.trim() == api.username) {
-                  sharedPreferences.setString("username", api.username);
-                  sharedPreferences.setBool("isLogin", true);
-                  sharedPreferences.setString("jabatan", api.jabatan);
-                  sharedPreferences.setInt("position_id", api.positionId);
-                  sharedPreferences.setInt("id_user", api.id);
-                  sharedPreferences.setBool("is_checkin", false);
-                  if (api.atasanId != null) {
-                    sharedPreferences.setInt("atasan_id", api.atasanId!);
+                if (_formKey.currentState!.validate()) {
+                  final sharedPreferences =
+                      await SharedPreferences.getInstance();
+                  Pengguna pengguna = Pengguna(
+                      id: 1,
+                      username: _usernameController.text.trim(),
+                      password: _passwordController.text.trim(),
+                      jabatan: 'staff',
+                      positionId: 1,
+                      atasanId: 1);
+                  PenggunaResponse login = await ApiService().login(pengguna);
+
+                  if (login.success) {
+                    Pengguna api = login.data[0];
+                    if (_usernameController.text.trim() == api.username) {
+                      sharedPreferences.setString("username", api.username);
+                      sharedPreferences.setBool("isLogin", true);
+                      sharedPreferences.setString("jabatan", api.jabatan);
+                      sharedPreferences.setInt("position_id", api.positionId);
+                      sharedPreferences.setInt("id_user", api.id);
+                      sharedPreferences.setBool("is_checkin", false);
+                      if (api.atasanId != null) {
+                        sharedPreferences.setInt("atasan_id", api.atasanId!);
+                      }
+                      var provider =
+                          Provider.of<NotifProvider>(context, listen: false);
+                      provider.addListNotif(api.id);
+                      var providerCounter = Provider.of<NotifCounterProvider>(
+                          context,
+                          listen: false);
+                      providerCounter.addListNotif(api.id);
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => HomePage()));
+                    }
+                  } else {
+                    final snackbar = SnackBar(
+                      content: Text(login.message),
+                      backgroundColor: Colors.red,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackbar);
                   }
-                  var provider =
-                      Provider.of<NotifProvider>(context, listen: false);
-                  provider.addListNotif(api.id);
-                  var providerCounter =
-                      Provider.of<NotifCounterProvider>(context, listen: false);
-                  providerCounter.addListNotif(api.id);
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => HomePage()));
                 }
               },
               height: 56,
