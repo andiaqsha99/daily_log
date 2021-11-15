@@ -22,8 +22,9 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: ThemeData(
-            primarySwatch: Colors.blue,
-          ),
+              appBarTheme: AppBarTheme(color: Color(0xffB31412)),
+              // primarySwatch: Colors.blue,
+              primaryColor: Color(0xffB31412)),
           home: LoginWrapper()),
     );
   }

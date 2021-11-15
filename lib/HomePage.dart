@@ -72,7 +72,8 @@ class _MenuPageState extends State<MenuPage> {
                   child: Column(
                     children: [
                       Card(
-                        color: Color(0xFFB0D8FD),
+                        // color: Color(0xFFB0D8FD),
+                        color: Color(0xffD93025),
                         child: IconButton(
                           onPressed: () {
                             Navigator.push(
@@ -85,7 +86,10 @@ class _MenuPageState extends State<MenuPage> {
                                         : CheckInPresensiPage(
                                             idUser: this.idUSer)));
                           },
-                          icon: Icon(Icons.alarm),
+                          icon: Icon(
+                            Icons.alarm,
+                            color: Colors.white,
+                          ),
                           iconSize: 56,
                         ),
                       ),
@@ -100,7 +104,8 @@ class _MenuPageState extends State<MenuPage> {
                   child: Column(
                     children: [
                       Card(
-                        color: Color(0xFFB0D8FD),
+                        // color: Color(0xFFB0D8FD),
+                        color: Color(0xffD93025),
                         child: IconButton(
                           onPressed: () {
                             Navigator.push(context,
@@ -108,7 +113,10 @@ class _MenuPageState extends State<MenuPage> {
                               return QrCodePage();
                             }));
                           },
-                          icon: Icon(Icons.qr_code),
+                          icon: Icon(
+                            Icons.qr_code,
+                            color: Colors.white,
+                          ),
                           iconSize: 56,
                         ),
                       ),
@@ -124,7 +132,8 @@ class _MenuPageState extends State<MenuPage> {
                   child: Column(
                     children: [
                       Card(
-                        color: Color(0xFFB0D8FD),
+                        // color: Color(0xFFB0D8FD),
+                        color: Color(0xffD93025),
                         child: IconButton(
                           onPressed: () {
                             Navigator.push(
@@ -134,7 +143,10 @@ class _MenuPageState extends State<MenuPage> {
                                           idUser: this.idUSer,
                                         )));
                           },
-                          icon: Icon(Icons.desktop_windows),
+                          icon: Icon(
+                            Icons.desktop_windows,
+                            color: Colors.white,
+                          ),
                           iconSize: 56,
                         ),
                       ),
@@ -149,7 +161,8 @@ class _MenuPageState extends State<MenuPage> {
                   child: Column(
                     children: [
                       Card(
-                        color: Color(0xFFB0D8FD),
+                        // color: Color(0xFFB0D8FD),
+                        color: Color(0xffD93025),
                         child: IconButton(
                           onPressed: () {
                             Navigator.push(
@@ -159,7 +172,10 @@ class _MenuPageState extends State<MenuPage> {
                                         ? PersetujuanPage()
                                         : PersetujuanAtasanPage()));
                           },
-                          icon: Icon(Icons.assignment_turned_in),
+                          icon: Icon(
+                            Icons.assignment_turned_in,
+                            color: Colors.white,
+                          ),
                           iconSize: 56,
                         ),
                       ),
@@ -178,7 +194,8 @@ class _MenuPageState extends State<MenuPage> {
                   child: Column(
                     children: [
                       Card(
-                        color: Color(0xFFB0D8FD),
+                        // color: Color(0xFFB0D8FD),
+                        color: Color(0xffD93025),
                         child: IconButton(
                           onPressed: () {
                             Navigator.push(
@@ -188,7 +205,7 @@ class _MenuPageState extends State<MenuPage> {
                                           idUser: this.idUSer,
                                         )));
                           },
-                          icon: Icon(Icons.assignment_ind),
+                          icon: Icon(Icons.assignment_ind, color: Colors.white),
                           iconSize: 56,
                         ),
                       ),
@@ -205,7 +222,8 @@ class _MenuPageState extends State<MenuPage> {
                     child: Column(
                       children: [
                         Card(
-                          color: Color(0xFFB0D8FD),
+                          // color: Color(0xFFB0D8FD),
+                          color: Color(0xffD93025),
                           child: IconButton(
                             onPressed: () {
                               if (jabatan == "atasan") {
@@ -216,7 +234,10 @@ class _MenuPageState extends State<MenuPage> {
                                         )));
                               }
                             },
-                            icon: Icon(Icons.dashboard),
+                            icon: Icon(
+                              Icons.dashboard,
+                              color: Colors.white,
+                            ),
                             iconSize: 56,
                           ),
                         ),

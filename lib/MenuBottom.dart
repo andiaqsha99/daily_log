@@ -23,16 +23,46 @@ class MenuBottom extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => HomePage()),
                         (route) => false)
                   },
-              icon: Icon(Icons.home)),
+              icon: Icon(
+                Icons.home,
+                color: Colors.white,
+              )),
           IconButton(
               onPressed: () async {
-                final sharedPreferences = await SharedPreferences.getInstance();
-                sharedPreferences.setBool("isLogin", false);
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => LoginWrapper()),
-                    (route) => false);
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Keluar"),
+                        content: Text("Anda yakin untuk keluar?"),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context, 'BATAL');
+                              },
+                              child: Text(
+                                "BATAL",
+                                style: TextStyle(color: Colors.black),
+                              )),
+                          TextButton(
+                              onPressed: () async {
+                                final sharedPreferences =
+                                    await SharedPreferences.getInstance();
+                                sharedPreferences.setBool("isLogin", false);
+                                Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (context) => LoginWrapper()),
+                                    (route) => false);
+                              },
+                              child: Text("KELUAR"))
+                        ],
+                      );
+                    });
               },
-              icon: Icon(Icons.logout))
+              icon: Icon(
+                Icons.logout,
+                color: Colors.white,
+              ))
         ],
       ),
     );

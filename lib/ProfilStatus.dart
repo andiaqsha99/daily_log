@@ -34,7 +34,8 @@ class _ProfilStatusState extends State<ProfilStatus> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(8),
-      color: Color(0xFF5A9EFF),
+      // color: Color(0xFF5A9EFF),
+      color: Color(0xffD93025),
       child: Row(
         children: [
           Expanded(
