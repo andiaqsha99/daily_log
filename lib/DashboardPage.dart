@@ -89,14 +89,10 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
 
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     DateTime now = DateTime.now();
-    DateTime firstDate = DateTime(now.year, now.month, 1);
-    var lastDayDateTime = (now.month < 12)
-        ? new DateTime(now.year, now.month + 1, 0)
-        : new DateTime(now.year + 1, 1, 0);
-    loadDataTotalPekerjaan(
-        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
-    loadDurasiHarianTim(
-        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
+    String firstDate = dateFormat.format(now.subtract(Duration(days: 30)));
+    String lastDate = dateFormat.format(now);
+    loadDataTotalPekerjaan(firstDate, lastDate);
+    loadDurasiHarianTim(firstDate, lastDate);
   }
 
   loadDataTotalPekerjaan(String firstDate, String endDate) async {
@@ -320,19 +316,14 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                             });
                             break;
                           case '1 Bulan':
-                            DateTime firstDate =
-                                DateTime(now.year, now.month, 1);
-                            var lastDayDateTime = (now.month < 12)
-                                ? new DateTime(now.year, now.month + 1, 0)
-                                : new DateTime(now.year + 1, 1, 0);
-                            print(dateFormat.format(firstDate));
-                            print(dateFormat.format(lastDayDateTime));
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 30)));
+                            String lastDate = dateFormat.format(now);
+                            print(firstDate);
+                            print(lastDate);
                             setState(() {
-                              loadDurasiHarianTim(dateFormat.format(firstDate),
-                                  dateFormat.format(lastDayDateTime));
-                              loadDataTotalPekerjaan(
-                                  dateFormat.format(firstDate),
-                                  dateFormat.format(lastDayDateTime));
+                              loadDurasiHarianTim(firstDate, lastDate);
+                              loadDataTotalPekerjaan(firstDate, lastDate);
                             });
                             break;
                           default:
@@ -635,13 +626,10 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
 
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     DateTime now = DateTime.now();
-    DateTime firstDate = DateTime(now.year, now.month, 1);
-    var lastDayDateTime = (now.month < 12)
-        ? new DateTime(now.year, now.month + 1, 0)
-        : new DateTime(now.year + 1, 1, 0);
+    String firstDate = dateFormat.format(now.subtract(Duration(days: 30)));
+    String lastDate = dateFormat.format(now);
 
-    loadKehadiranTim(
-        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
+    loadKehadiranTim(firstDate, lastDate);
   }
 
   loadKehadiranTim(String firstDate, String endDate) async {
@@ -819,17 +807,14 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                             });
                             break;
                           case '1 Bulan':
-                            DateTime firstDate =
-                                DateTime(now.year, now.month, 1);
-                            var lastDayDateTime = (now.month < 12)
-                                ? new DateTime(now.year, now.month + 1, 0)
-                                : new DateTime(now.year + 1, 1, 0);
-                            print(dateFormat.format(firstDate));
-                            print(dateFormat.format(lastDayDateTime));
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 30)));
+                            String lastDate = dateFormat.format(now);
+                            print(firstDate);
+                            print(lastDate);
                             setState(() {
                               selectedFilter = dropdownValue;
-                              loadKehadiranTim(dateFormat.format(firstDate),
-                                  dateFormat.format(lastDayDateTime));
+                              loadKehadiranTim(firstDate, lastDate);
                             });
                             break;
                           default:
@@ -941,14 +926,10 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
 
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     DateTime now = DateTime.now();
-    DateTime firstDate = DateTime(now.year, now.month, 1);
-    var lastDayDateTime = (now.month < 12)
-        ? new DateTime(now.year, now.month + 1, 0)
-        : new DateTime(now.year + 1, 1, 0);
-    loadDataTotalPekerjaan(
-        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
-    loadDurasiHarianTim(
-        dateFormat.format(firstDate), dateFormat.format(lastDayDateTime));
+    String firstDate = dateFormat.format(now.subtract(Duration(days: 30)));
+    String lastDate = dateFormat.format(now);
+    loadDataTotalPekerjaan(firstDate, lastDate);
+    loadDurasiHarianTim(firstDate, lastDate);
   }
 
   loadDataTotalPekerjaan(String firstDate, String endDate) async {
@@ -1176,19 +1157,14 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                             });
                             break;
                           case '1 Bulan':
-                            DateTime firstDate =
-                                DateTime(now.year, now.month, 1);
-                            var lastDayDateTime = (now.month < 12)
-                                ? new DateTime(now.year, now.month + 1, 0)
-                                : new DateTime(now.year + 1, 1, 0);
-                            print(dateFormat.format(firstDate));
-                            print(dateFormat.format(lastDayDateTime));
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 30)));
+                            String lastDate = dateFormat.format(now);
+                            print(firstDate);
+                            print(lastDate);
                             setState(() {
-                              loadDurasiHarianTim(dateFormat.format(firstDate),
-                                  dateFormat.format(lastDayDateTime));
-                              loadDataTotalPekerjaan(
-                                  dateFormat.format(firstDate),
-                                  dateFormat.format(lastDayDateTime));
+                              loadDurasiHarianTim(firstDate, lastDate);
+                              loadDataTotalPekerjaan(firstDate, lastDate);
                             });
                             break;
                           default:
