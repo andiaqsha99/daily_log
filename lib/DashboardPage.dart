@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:daily_log/BebanKerjaPage.dart';
+import 'package:daily_log/BebanKerjaTimStaffPage.dart';
 import 'package:daily_log/KehadiranPage.dart';
+import 'package:daily_log/KehadiranTimStaffPage.dart';
 import 'package:daily_log/KinerjaTimStaffPage.dart';
 import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
@@ -537,22 +539,37 @@ class _ItemListTimState extends State<ItemListTim> {
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    widget.tab == "tim"
-                        ? GestureDetector(
-                            onTap: () async {
-                              Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (context) {
-                                return KinerjaTimStaffPage(
-                                    firstDate: widget.firstDate,
-                                    lastDate: widget.lastDate,
-                                    idPosition:
-                                        widget.pengguna.positionId.toString(),
-                                    idStaff: widget.pengguna.id);
-                              }));
-                            },
-                            child: Icon(Icons.show_chart),
-                          )
-                        : SizedBox(),
+                    GestureDetector(
+                      onTap: () async {
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
+                          return widget.tab == "tim"
+                              ? KinerjaTimStaffPage(
+                                  firstDate: widget.firstDate,
+                                  lastDate: widget.lastDate,
+                                  idPosition:
+                                      widget.pengguna.positionId.toString(),
+                                  idStaff: widget.pengguna.id)
+                              : widget.tab == "beban kerja"
+                                  ? BebanKerjaTimStaffPage(
+                                      firstDate: widget.firstDate,
+                                      lastDate: widget.lastDate,
+                                      idPosition:
+                                          widget.pengguna.positionId.toString(),
+                                      idStaff: widget.pengguna.id)
+                                  : KehadiranTimStaffPage(
+                                      firstDate: widget.firstDate,
+                                      lastDate: widget.lastDate,
+                                      idPosition:
+                                          widget.pengguna.positionId.toString(),
+                                      idStaff: widget.pengguna.id);
+                        }));
+                      },
+                      child: Icon(Icons.group),
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
                     GestureDetector(
                       onTap: () {
                         setState(() {
@@ -614,6 +631,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
   bool isOneDay = false;
+  String _firstDate = '';
+  String _lastDate = '';
 
   List<Kehadiran> listKehadiran = [];
 
@@ -633,6 +652,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
   }
 
   loadKehadiranTim(String firstDate, String endDate) async {
+    _firstDate = firstDate;
+    _lastDate = endDate;
     firstDate == endDate ? isOneDay = true : isOneDay = false;
     var durasiResponse =
         await ApiService().getKehadiranTim(widget.idUser, firstDate, endDate);
@@ -849,6 +870,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
             ListTeam(
               tab: "kehadiran",
               idUser: widget.idUser,
+              firstDate: _firstDate,
+              lastDate: _lastDate,
             )
           ],
         ),
@@ -914,6 +937,8 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
   bool isOneDay = false;
+  String _firstDate = '';
+  String _lastDate = '';
 
   List<DurasiHarian> listDurasiHarian = [];
 
@@ -933,6 +958,8 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   }
 
   loadDataTotalPekerjaan(String firstDate, String endDate) async {
+    _firstDate = firstDate;
+    _lastDate = endDate;
     int count = 0;
     PenggunaResponse penggunaResponse =
         await ApiService().getPenggunaStaff(widget.idUser);
@@ -948,6 +975,8 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   }
 
   loadDurasiHarianTim(String firstDate, String endDate) async {
+    _firstDate = firstDate;
+    _lastDate = endDate;
     if (firstDate == endDate) {
       isOneDay = true;
       var durasiResponse = await ApiService()
@@ -1199,6 +1228,8 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
             ListTeam(
               tab: "beban kerja",
               idUser: widget.idUser,
+              firstDate: _firstDate,
+              lastDate: _lastDate,
             )
           ],
         ),

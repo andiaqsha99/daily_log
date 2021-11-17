@@ -33,15 +33,10 @@ class KinerjaTimStaffPage extends StatefulWidget {
 }
 
 class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
-  String dropdownValue = '1 Bulan';
-  DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
   bool isOneDay = false;
 
   List<DurasiHarian> listDurasiHarian = [];
-
-  TextEditingController _fromDateController = TextEditingController();
-  TextEditingController _untilDateController = TextEditingController();
 
   @override
   void initState() {
@@ -145,43 +140,6 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
       ),
       bottomNavigationBar: MenuBottom(),
     );
-  }
-
-  Future pickDateRange(BuildContext context) async {
-    final initialDateRange = DateTimeRange(
-        start: DateTime.now(),
-        end: DateTime.now().add(Duration(hours: 24 * 2)));
-    final newDateRange = await showDateRangePicker(
-        context: context,
-        firstDate: DateTime(DateTime.now().year - 5),
-        lastDate: DateTime(DateTime.now().year + 5),
-        initialDateRange: dateTimeRange ?? initialDateRange);
-
-    if (newDateRange == null) {
-      return;
-    } else {
-      setState(() {
-        dateTimeRange = newDateRange;
-        _untilDateController.text = getUntilDate();
-        _fromDateController.text = getFromDate();
-      });
-    }
-  }
-
-  String getFromDate() {
-    if (dateTimeRange == null) {
-      return '';
-    } else {
-      return DateFormat("dd/MM/yyyy").format(dateTimeRange!.start);
-    }
-  }
-
-  String getUntilDate() {
-    if (dateTimeRange == null) {
-      return '';
-    } else {
-      return DateFormat("dd/MM/yyyy").format(dateTimeRange!.end);
-    }
   }
 }
 
