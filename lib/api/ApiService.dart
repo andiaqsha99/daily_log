@@ -17,8 +17,9 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  // final String baseUrl = "http://192.168.42.20:8000/api";
+  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  final String baseUrl = "http://192.168.46.20:8000/api";
+  final String storageUrl = "http://192.168.46.20:8000/storage/";
 
   var client = http.Client();
 
@@ -330,5 +331,28 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return DurasiHarianResponse.fromJson(data);
+  }
+
+  Future<KehadiranResponse> getKehadiranTimStaff(
+      int idUser, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/presence/tim/staff/$idUser/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return KehadiranResponse.fromJson(data);
+  }
+
+  Future<String> uploadFoto(String idUser, String path) async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse("$baseUrl/pengguna/foto/upload"));
+    request.fields['id'] = idUser;
+    var image = await http.MultipartFile.fromPath('foto', path);
+    request.files.add(image);
+    await request.send();
+
+    final response =
+        await client.get(Uri.parse("$baseUrl/pengguna/foto/$idUser"));
+    var data = jsonDecode(response.body);
+    return data['data'];
   }
 }

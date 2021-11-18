@@ -16,6 +16,8 @@ class PositionProvider extends ChangeNotifier {
   }
 
   Position getPosition(int idPosition) {
+    final notifResponse = ApiService().getPosition();
+    notifResponse.then((value) => _listPosition = value.data);
     return _listPosition
         .firstWhere((element) => element.id == idPosition.toString());
   }

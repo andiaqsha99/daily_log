@@ -1,3 +1,5 @@
+import 'package:daily_log/UploadFotoPage.dart';
+import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/PositionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,13 +15,14 @@ class ProfilStatus extends StatefulWidget {
 class _ProfilStatusState extends State<ProfilStatus> {
   String username = " ";
   int idPosition = 0;
-  late PositionProvider positionProvider;
+  String position = "jabatan";
+  int idUser = 0;
+  String? foto;
 
   @override
   void initState() {
     super.initState();
     getLoginData();
-    positionProvider = Provider.of<PositionProvider>(context, listen: false);
   }
 
   getLoginData() async {
@@ -27,6 +30,10 @@ class _ProfilStatusState extends State<ProfilStatus> {
     setState(() {
       username = sharedPreferences.getString("username")!;
       idPosition = sharedPreferences.getInt("position_id")!;
+      idUser = sharedPreferences.getInt("id_user")!;
+      position = sharedPreferences.getString("position")!;
+      foto = sharedPreferences.getString("foto");
+      print(foto);
     });
   }
 
@@ -40,9 +47,29 @@ class _ProfilStatusState extends State<ProfilStatus> {
         children: [
           Expanded(
             flex: 2,
-            child: CircleAvatar(
-              backgroundColor: Colors.grey,
-              maxRadius: 36,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return UploadFotoPage(
+                    idUser: idUser,
+                  );
+                })).then((value) {
+                  setState(() {
+                    getLoginData();
+                  });
+                });
+              },
+              child: foto == null
+                  ? CircleAvatar(
+                      backgroundColor: Colors.white,
+                      maxRadius: 36,
+                    )
+                  : CircleAvatar(
+                      backgroundImage:
+                          NetworkImage("${ApiService().storageUrl}$foto"),
+                      maxRadius: 36,
+                    ),
             ),
           ),
           Expanded(
@@ -64,21 +91,13 @@ class _ProfilStatusState extends State<ProfilStatus> {
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   Text(
-                    "Jabatan",
+                    position,
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   )
                 ],
               ),
             ),
           ),
-          Expanded(
-              flex: 1,
-              child: IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                  )))
         ],
       ),
     );

@@ -530,7 +530,12 @@ class _ItemListTimState extends State<ItemListTim> {
                       : KehadiranPage(idUser: widget.pengguna.id);
             }));
           },
-          leading: CircleAvatar(),
+          leading: widget.pengguna.foto == null
+              ? CircleAvatar()
+              : CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      "${ApiService().storageUrl}${widget.pengguna.foto}"),
+                ),
           title: Text(widget.pengguna.username),
           subtitle: Text(positionProvider
               .getPosition(widget.pengguna.positionId)

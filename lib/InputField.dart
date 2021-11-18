@@ -3,6 +3,8 @@ import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
+import 'package:daily_log/model/Position.dart';
+import 'package:daily_log/model/PositionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -140,6 +142,9 @@ class _InputFieldState extends State<InputField> {
                       if (api.atasanId != null) {
                         sharedPreferences.setInt("atasan_id", api.atasanId!);
                       }
+                      if (api.foto != null) {
+                        sharedPreferences.setString("foto", api.foto!);
+                      }
                       var provider =
                           Provider.of<NotifProvider>(context, listen: false);
                       provider.addListNotif(api.id);
@@ -147,6 +152,12 @@ class _InputFieldState extends State<InputField> {
                           context,
                           listen: false);
                       providerCounter.addListNotif(api.id);
+                      var positionProvider =
+                          Provider.of<PositionProvider>(context, listen: false);
+                      Position position =
+                          positionProvider.getPosition(api.positionId);
+                      sharedPreferences.setString(
+                          "position", position.position);
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
                     }
