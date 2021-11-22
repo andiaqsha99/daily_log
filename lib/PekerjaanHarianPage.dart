@@ -85,6 +85,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                 )
               ],
             ),
+            SizedBox(height: 16),
             FutureBuilder<PekerjaanResponse>(
                 future: pekerjaanResponse,
                 builder: (context, snapshot) {
@@ -190,42 +191,45 @@ class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      maintainState: true,
-      title: Text(widget.headerText),
-      children: [
-        ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: widget.listSubPekerjaan.length,
-            itemBuilder: (context, index) {
-              return InputPekerjaanWidget(
-                subPekerjaan: widget.listSubPekerjaan[index],
-              );
-            }),
-        Container(
-          alignment: Alignment.centerRight,
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: MaterialButton(
-            onPressed: () {
-              setState(() {
-                widget.listSubPekerjaan.add(newSubPekerjaan(
-                    widget.idPekerjaan, widget.idUser, widget.dateFilled));
-              });
-            },
-            height: 56,
-            minWidth: 96,
-            color: Colors.blue,
-            textColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: Text(
-              "TAMBAH",
-              style: TextStyle(fontSize: 14),
+    return Card(
+      margin: EdgeInsets.only(left: 16, right: 16, bottom: 8),
+      child: ExpansionTile(
+        maintainState: true,
+        title: Text(widget.headerText),
+        children: [
+          ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: widget.listSubPekerjaan.length,
+              itemBuilder: (context, index) {
+                return InputPekerjaanWidget(
+                  subPekerjaan: widget.listSubPekerjaan[index],
+                );
+              }),
+          Container(
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: MaterialButton(
+              onPressed: () {
+                setState(() {
+                  widget.listSubPekerjaan.add(newSubPekerjaan(
+                      widget.idPekerjaan, widget.idUser, widget.dateFilled));
+                });
+              },
+              height: 56,
+              minWidth: 96,
+              color: Colors.blue,
+              textColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              child: Text(
+                "TAMBAH",
+                style: TextStyle(fontSize: 14),
+              ),
             ),
-          ),
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 }
