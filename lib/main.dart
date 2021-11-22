@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Demo',
           theme: ThemeData(
               appBarTheme: AppBarTheme(color: Color(0xffB31412)),
+              fontFamily: 'Helvetica',
               // primarySwatch: Colors.blue,
               primaryColor: Color(0xffB31412)),
           home: LoginWrapper()),
