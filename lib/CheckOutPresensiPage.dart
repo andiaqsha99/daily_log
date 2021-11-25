@@ -121,8 +121,25 @@ class _CheckOutPresensiPageState extends State<CheckOutPresensiPage> {
                     var sharedPreferences =
                         await SharedPreferences.getInstance();
                     sharedPreferences.setBool("is_checkin", false);
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
+                    AlertDialog alertDialog = AlertDialog(
+                      content: Text("Check Out berhasil"),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomePage()));
+                            },
+                            child: Text("OK"))
+                      ],
+                    );
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return alertDialog;
+                        });
                   },
                   height: 48,
                   minWidth: 96,

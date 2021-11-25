@@ -13,13 +13,16 @@ import 'package:daily_log/model/Presence.dart';
 import 'package:daily_log/model/PresenceResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
+import 'package:daily_log/model/Users.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  final String baseUrl = "http://192.168.46.20:8000/api";
-  final String storageUrl = "http://192.168.46.20:8000/storage/";
+  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  final String storageUrl =
+      "https://hurryup.universitaspertamina.ac.id/daily/storage/";
+  // final String baseUrl = "http://192.168.137.20:8000/api";
+  // final String storageUrl = "http://192.168.137.20:8000/storage/";
 
   var client = http.Client();
 
@@ -354,5 +357,15 @@ class ApiService {
         await client.get(Uri.parse("$baseUrl/pengguna/foto/$idUser"));
     var data = jsonDecode(response.body);
     return data['data'];
+  }
+
+  Future<List<Users>> getListUsers() async {
+    final response =
+        await client.get(Uri.parse("http://36.37.91.71:21800/api/User"));
+    var data = jsonDecode(response.body);
+    print(data['data']);
+    return List<Users>.from(data['data'].map((user) {
+      return Users.fromJson(user);
+    }));
   }
 }

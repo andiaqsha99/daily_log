@@ -8,6 +8,7 @@ class Pengguna {
   int positionId;
   int? atasanId;
   String? foto;
+  String? idUser;
 
   Pengguna(
       {required this.id,
@@ -16,7 +17,8 @@ class Pengguna {
       required this.jabatan,
       required this.positionId,
       required this.atasanId,
-      this.foto});
+      this.foto,
+      this.idUser});
 
   factory Pengguna.fromJson(Map<String, dynamic> map) {
     return Pengguna(
@@ -26,7 +28,8 @@ class Pengguna {
         jabatan: map['jabatan'],
         positionId: map['position_id'],
         atasanId: map['atasan_id'],
-        foto: map['foto']);
+        foto: map['foto'],
+        idUser: map['id_user']);
   }
 
   Map<String, dynamic> toJson() {
@@ -37,7 +40,8 @@ class Pengguna {
       "jabatan": jabatan,
       "position_id": positionId,
       "atasan_id": atasanId,
-      "foto": foto
+      "foto": foto,
+      "id_user": idUser
     };
   }
 }

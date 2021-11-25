@@ -230,10 +230,26 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
                             var sharedPreference =
                                 await SharedPreferences.getInstance();
                             sharedPreference.setBool("is_checkin", true);
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomePage()));
+                            AlertDialog alertDialog = AlertDialog(
+                              content: Text("Check In berhasil"),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  HomePage()));
+                                    },
+                                    child: Text("OK"))
+                              ],
+                            );
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return alertDialog;
+                                });
                           }
                         },
                         height: 48,

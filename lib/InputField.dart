@@ -5,6 +5,8 @@ import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionProvider.dart';
+import 'package:daily_log/model/Users.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -158,6 +160,14 @@ class _InputFieldState extends State<InputField> {
                           positionProvider.getPosition(api.positionId);
                       sharedPreferences.setString(
                           "position", position.position);
+                      var usersProvider =
+                          Provider.of<UsersProvider>(context, listen: false);
+                      if (api.idUser != null) {
+                        Users users = usersProvider.getUsers(api.idUser!);
+                        sharedPreferences.setString("nama", users.name);
+                      } else {
+                        sharedPreferences.setString("nama", api.username);
+                      }
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
                     }

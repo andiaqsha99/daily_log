@@ -16,6 +16,7 @@ import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/PositionResponse.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -513,6 +514,7 @@ class _ItemListTimState extends State<ItemListTim> {
   @override
   Widget build(BuildContext context) {
     var positionProvider = Provider.of<PositionProvider>(context);
+    var usersProvider = Provider.of<UsersProvider>(context);
     return Column(
       children: [
         Card(
@@ -536,7 +538,9 @@ class _ItemListTimState extends State<ItemListTim> {
                   backgroundImage: NetworkImage(
                       "${ApiService().storageUrl}${widget.pengguna.foto}"),
                 ),
-          title: Text(widget.pengguna.username),
+          title: widget.pengguna.idUser == null
+              ? Text(widget.pengguna.username)
+              : Text(usersProvider.getUsers(widget.pengguna.idUser!).name),
           subtitle: Text(positionProvider
               .getPosition(widget.pengguna.positionId)
               .position),

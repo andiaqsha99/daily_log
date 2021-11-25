@@ -134,12 +134,27 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                       ApiService().submitSubPekerjaan(element);
                       ApiService().createSubmitNotif(
                           idAtasan, element.id, widget.idUser);
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (context) {
-                        return HomePage();
-                      }));
                     });
                   });
+                  AlertDialog alertDialog = AlertDialog(
+                    content: Text("Submit pekerjaan berhasil"),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage()));
+                          },
+                          child: Text("OK"))
+                    ],
+                  );
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return alertDialog;
+                      });
                 },
                 height: 56,
                 minWidth: 96,

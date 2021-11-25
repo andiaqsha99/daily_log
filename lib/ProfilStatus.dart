@@ -18,6 +18,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
   String position = "jabatan";
   int idUser = 0;
   String? foto;
+  String name = " ";
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
       idUser = sharedPreferences.getInt("id_user")!;
       position = sharedPreferences.getString("position")!;
       foto = sharedPreferences.getString("foto");
+      name = sharedPreferences.getString("nama")!;
       print(foto);
     });
   }
@@ -87,7 +89,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
                     height: 8,
                   ),
                   Text(
-                    username,
+                    name,
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   Text(
