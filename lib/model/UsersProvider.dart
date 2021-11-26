@@ -15,9 +15,9 @@ class UsersProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Users getUsers(String idUsers) {
+  Users getUsers(String nip) {
     final notifResponse = ApiService().getListUsers();
     notifResponse.then((value) => _listUsers = value);
-    return _listUsers.firstWhere((element) => element.id == idUsers);
+    return _listUsers.firstWhere((element) => element.nip == nip);
   }
 }

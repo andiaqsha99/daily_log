@@ -9,6 +9,7 @@ class Pengguna {
   int? atasanId;
   String? foto;
   String? idUser;
+  String nip;
 
   Pengguna(
       {required this.id,
@@ -17,6 +18,7 @@ class Pengguna {
       required this.jabatan,
       required this.positionId,
       required this.atasanId,
+      required this.nip,
       this.foto,
       this.idUser});
 
@@ -29,7 +31,8 @@ class Pengguna {
         positionId: map['position_id'],
         atasanId: map['atasan_id'],
         foto: map['foto'],
-        idUser: map['id_user']);
+        idUser: map['id_user'],
+        nip: map['nip']);
   }
 
   Map<String, dynamic> toJson() {
@@ -41,7 +44,8 @@ class Pengguna {
       "position_id": positionId,
       "atasan_id": atasanId,
       "foto": foto,
-      "id_user": idUser
+      "id_user": idUser,
+      "nip": nip
     };
   }
 }

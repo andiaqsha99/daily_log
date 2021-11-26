@@ -62,194 +62,203 @@ class _MenuPageState extends State<MenuPage> {
     return Column(
       children: [
         ProfilStatus(),
-        SizedBox(height: 64),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Column(
-              children: [
-                Container(
-                  child: Column(
-                    children: [
-                      Card(
-                        // color: Color(0xFFB0D8FD),
-                        color: Color(0xffD93025),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => isCheckIn
-                                        ? CheckOutPresensiPage(
-                                            idUser: this.idUSer,
-                                          )
-                                        : CheckInPresensiPage(
-                                            idUser: this.idUSer)));
-                          },
-                          icon: Icon(
-                            Icons.alarm,
-                            color: Colors.white,
-                          ),
-                          iconSize: 56,
-                        ),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: 2,
+            mainAxisSpacing: 5,
+            crossAxisSpacing: 30,
+            primary: false,
+            children: [
+              Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                elevation: 4,
+                // color: Color(0xFFB0D8FD),
+                color: Color(0xffD93025),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => isCheckIn
+                                    ? CheckOutPresensiPage(
+                                        idUser: this.idUSer,
+                                      )
+                                    : CheckInPresensiPage(
+                                        idUser: this.idUSer)));
+                      },
+                      icon: Icon(
+                        Icons.alarm,
+                        color: Colors.white,
                       ),
-                      Text("Kehadiran")
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  child: Column(
-                    children: [
-                      Card(
-                        // color: Color(0xFFB0D8FD),
-                        color: Color(0xffD93025),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return QrCodePage();
-                            }));
-                          },
-                          icon: Icon(
-                            Icons.qr_code,
-                            color: Colors.white,
-                          ),
-                          iconSize: 56,
-                        ),
-                      ),
-                      Text("QR Code")
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Column(
-              children: [
-                Container(
-                  child: Column(
-                    children: [
-                      Card(
-                        // color: Color(0xFFB0D8FD),
-                        color: Color(0xffD93025),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => PekerjaanHarianPage(
-                                          idUser: this.idUSer,
-                                        )));
-                          },
-                          icon: Icon(
-                            Icons.desktop_windows,
-                            color: Colors.white,
-                          ),
-                          iconSize: 56,
-                        ),
-                      ),
-                      Text("Pekerjaan Harian")
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  child: Column(
-                    children: [
-                      Card(
-                        // color: Color(0xFFB0D8FD),
-                        color: Color(0xffD93025),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => jabatan == "staff"
-                                        ? PersetujuanPage()
-                                        : PersetujuanAtasanPage()));
-                          },
-                          icon: Icon(
-                            Icons.assignment_turned_in,
-                            color: Colors.white,
-                          ),
-                          iconSize: 56,
-                        ),
-                      ),
-                      Text("Persetujuan")
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-              ],
-            ),
-            Column(
-              children: [
-                Container(
-                  child: Column(
-                    children: [
-                      Card(
-                        // color: Color(0xFFB0D8FD),
-                        color: Color(0xffD93025),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LaporanKinerjaPage(
-                                          idUser: this.idUSer,
-                                        )));
-                          },
-                          icon: Icon(Icons.assignment_ind, color: Colors.white),
-                          iconSize: 56,
-                        ),
-                      ),
-                      Text("Laporan Kinerja")
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Opacity(
-                  opacity: jabatan != "atasan" ? 0.0 : 1.0,
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Card(
-                          // color: Color(0xFFB0D8FD),
-                          color: Color(0xffD93025),
-                          child: IconButton(
-                            onPressed: () {
-                              if (jabatan == "atasan") {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => DashboardPage(
-                                          idUser: this.idUSer,
-                                          idPosition: this.idPosition,
-                                        )));
-                              }
-                            },
-                            icon: Icon(
-                              Icons.dashboard,
-                              color: Colors.white,
-                            ),
-                            iconSize: 56,
-                          ),
-                        ),
-                        Text("Dashboard")
-                      ],
+                      iconSize: 72,
                     ),
+                    Text("Kehadiran",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ))
+                  ],
+                ),
+              ),
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                // color: Color(0xFFB0D8FD),
+                color: Color(0xffD93025),
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PekerjaanHarianPage(
+                                      idUser: this.idUSer,
+                                    )));
+                      },
+                      icon: Icon(
+                        Icons.desktop_windows,
+                        color: Colors.white,
+                      ),
+                      iconSize: 72,
+                    ),
+                    Text("Pekerjaan Harian",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ))
+                  ],
+                ),
+              ),
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                // color: Color(0xFFB0D8FD),
+                color: Color(0xffD93025),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LaporanKinerjaPage(
+                                      idUser: this.idUSer,
+                                    )));
+                      },
+                      icon: Icon(Icons.assignment_ind, color: Colors.white),
+                      iconSize: 72,
+                    ),
+                    Text("Laporan Kinerja",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ))
+                  ],
+                ),
+              ),
+              Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                elevation: 4,
+                // color: Color(0xFFB0D8FD),
+                color: Color(0xffD93025),
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => jabatan == "staff"
+                                    ? PersetujuanPage()
+                                    : PersetujuanAtasanPage()));
+                      },
+                      icon: Icon(
+                        Icons.assignment_turned_in,
+                        color: Colors.white,
+                      ),
+                      iconSize: 72,
+                    ),
+                    Text("Persetujuan",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ))
+                  ],
+                ),
+              ),
+              Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                elevation: 4,
+                // color: Color(0xFFB0D8FD),
+                color: Color(0xffD93025),
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return QrCodePage();
+                        }));
+                      },
+                      icon: Icon(
+                        Icons.qr_code,
+                        color: Colors.white,
+                      ),
+                      iconSize: 72,
+                    ),
+                    Text("QR Code",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ))
+                  ],
+                ),
+              ),
+              Opacity(
+                opacity: jabatan != "atasan" ? 0.0 : 1.0,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  elevation: 4,
+                  // color: Color(0xFFB0D8FD),
+                  color: Color(0xffD93025),
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          if (jabatan == "atasan") {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => DashboardPage(
+                                      idUser: this.idUSer,
+                                      idPosition: this.idPosition,
+                                    )));
+                          }
+                        },
+                        icon: Icon(
+                          Icons.dashboard,
+                          color: Colors.white,
+                        ),
+                        iconSize: 72,
+                      ),
+                      Text("Dashboard",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ))
+                    ],
                   ),
                 ),
-              ],
-            )
-          ],
-        ),
+              ),
+            ],
+          ),
+        )),
       ],
     );
   }

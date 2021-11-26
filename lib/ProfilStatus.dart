@@ -19,6 +19,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
   int idUser = 0;
   String? foto;
   String name = " ";
+  String? namaJabatan;
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
       position = sharedPreferences.getString("position")!;
       foto = sharedPreferences.getString("foto");
       name = sharedPreferences.getString("nama")!;
+      namaJabatan = sharedPreferences.getString("nama_jabatan");
       print(foto);
     });
   }
@@ -42,7 +44,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.all(16),
       // color: Color(0xFF5A9EFF),
       color: Color(0xffD93025),
       child: Row(
@@ -90,12 +92,21 @@ class _ProfilStatusState extends State<ProfilStatus> {
                   ),
                   Text(
                     name,
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
                   ),
-                  Text(
-                    position,
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  )
+                  SizedBox(
+                    height: 8,
+                  ),
+                  namaJabatan != null
+                      ? Text(namaJabatan!,
+                          style: TextStyle(color: Colors.white, fontSize: 16))
+                      : Text(
+                          position,
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        )
                 ],
               ),
             ),

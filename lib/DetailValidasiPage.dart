@@ -5,7 +5,9 @@ import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PersetujuanPekerjaan.dart';
 import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DetailValidasePage extends StatelessWidget {
   final Pengguna staff;
@@ -13,10 +15,11 @@ class DetailValidasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var users = Provider.of<UsersProvider>(context).getUsers(this.staff.nip);
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: Text(this.staff.username),
+        title: Text(users.name),
         actions: [NotificationWidget()],
       ),
       body: SafeArea(

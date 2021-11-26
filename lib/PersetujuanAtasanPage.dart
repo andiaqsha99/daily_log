@@ -5,6 +5,7 @@ import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/PositionProvider.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,6 +89,7 @@ class _ListValidasiPageState extends State<ListValidasiPage> {
   @override
   Widget build(BuildContext context) {
     var positionProvider = Provider.of<PositionProvider>(context);
+    var usersProvider = Provider.of<UsersProvider>(context);
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(8),
@@ -139,6 +141,7 @@ class _ListValidasiPageState extends State<ListValidasiPage> {
                           }));
                         },
                         child: Card(
+                            elevation: 4,
                             child: Container(
                                 padding: EdgeInsets.all(8),
                                 width: double.infinity,
@@ -147,19 +150,37 @@ class _ListValidasiPageState extends State<ListValidasiPage> {
                                   children: [
                                     Text(
                                       _textEditingController.text.isNotEmpty
-                                          ? listPengguna[index].username
-                                          : items[index].username,
+                                          ? listPengguna[index].nip == "000000"
+                                              ? listPengguna[index].username
+                                              : usersProvider
+                                                  .getUsers(
+                                                      listPengguna[index].nip)
+                                                  .name
+                                          : items[index].nip == "000000"
+                                              ? items[index].username
+                                              : usersProvider
+                                                  .getUsers(items[index].nip)
+                                                  .name,
                                       style: TextStyle(fontSize: 18),
                                     ),
                                     Text(_textEditingController.text.isNotEmpty
-                                        ? positionProvider
-                                            .getPosition(
-                                                listPengguna[index].positionId)
-                                            .position
-                                        : positionProvider
-                                            .getPosition(
-                                                items[index].positionId)
-                                            .position)
+                                        ? listPengguna[index].nip == "000000"
+                                            ? positionProvider
+                                                .getPosition(listPengguna[index]
+                                                    .positionId)
+                                                .position
+                                            : usersProvider
+                                                .getUsers(
+                                                    listPengguna[index].nip)
+                                                .namaJabatan
+                                        : items[index].nip == "000000"
+                                            ? positionProvider
+                                                .getPosition(
+                                                    items[index].positionId)
+                                                .position
+                                            : usersProvider
+                                                .getUsers(items[index].nip)
+                                                .namaJabatan)
                                   ],
                                 ))),
                       );

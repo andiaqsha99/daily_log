@@ -538,12 +538,14 @@ class _ItemListTimState extends State<ItemListTim> {
                   backgroundImage: NetworkImage(
                       "${ApiService().storageUrl}${widget.pengguna.foto}"),
                 ),
-          title: widget.pengguna.idUser == null
+          title: widget.pengguna.nip == "000000"
               ? Text(widget.pengguna.username)
-              : Text(usersProvider.getUsers(widget.pengguna.idUser!).name),
-          subtitle: Text(positionProvider
-              .getPosition(widget.pengguna.positionId)
-              .position),
+              : Text(usersProvider.getUsers(widget.pengguna.nip).name),
+          subtitle: widget.pengguna.nip == "000000"
+              ? Text(positionProvider
+                  .getPosition(widget.pengguna.positionId)
+                  .position)
+              : Text(usersProvider.getUsers(widget.pengguna.nip).namaJabatan),
           trailing: widget.pengguna.jabatan == "atasan"
               ? Row(
                   mainAxisSize: MainAxisSize.min,

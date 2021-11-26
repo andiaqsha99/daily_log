@@ -129,7 +129,8 @@ class _InputFieldState extends State<InputField> {
                       password: _passwordController.text.trim(),
                       jabatan: 'staff',
                       positionId: 1,
-                      atasanId: 1);
+                      atasanId: 1,
+                      nip: "");
                   PenggunaResponse login = await ApiService().login(pengguna);
 
                   if (login.success) {
@@ -162,9 +163,11 @@ class _InputFieldState extends State<InputField> {
                           "position", position.position);
                       var usersProvider =
                           Provider.of<UsersProvider>(context, listen: false);
-                      if (api.idUser != null) {
-                        Users users = usersProvider.getUsers(api.idUser!);
+                      if (api.nip != "000000") {
+                        Users users = usersProvider.getUsers(api.nip);
                         sharedPreferences.setString("nama", users.name);
+                        sharedPreferences.setString(
+                            "nama_jabatan", users.namaJabatan);
                       } else {
                         sharedPreferences.setString("nama", api.username);
                       }
