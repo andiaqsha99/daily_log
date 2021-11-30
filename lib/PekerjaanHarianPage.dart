@@ -28,6 +28,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
   @override
   void initState() {
     super.initState();
+    getLoginData();
     pekerjaanResponse = ApiService().getPekerjaan(widget.idUser);
   }
 
@@ -60,9 +61,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Tupoksi",
-                    style: TextStyle(
-                      color: Colors.blue,
-                    ),
+                    style: TextStyle(color: Colors.blue, fontSize: 16),
                   ),
                 ),
                 Container(
@@ -128,12 +127,15 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: MaterialButton(
                 onPressed: () async {
-                  mapPekerjaan.forEach((element) {
-                    element.forEach((element) {
-                      print(element.nama);
-                      ApiService().submitSubPekerjaan(element);
-                      ApiService().createSubmitNotif(
-                          idAtasan, element.id, widget.idUser);
+                  mapPekerjaan.forEach((elements) {
+                    elements.forEach((element) async {
+                      print(element.id);
+                      var subpekerjaan =
+                          await ApiService().submitSubPekerjaan(element);
+                      if (subpekerjaan.id != 0) {
+                        await ApiService().createSubmitNotif(
+                            idAtasan, subpekerjaan.id, widget.idUser);
+                      }
                     });
                   });
                   AlertDialog alertDialog = AlertDialog(
@@ -303,6 +305,9 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Detail Pekerjaan"),
+          SizedBox(
+            height: 4,
+          ),
           Container(
             child: TextFormField(
               onChanged: (value) => widget.subPekerjaan.nama = value,
@@ -318,6 +323,9 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
             height: 8,
           ),
           Text("Durasi"),
+          SizedBox(
+            height: 4,
+          ),
           GestureDetector(
             child: Container(
               child: IntrinsicWidth(

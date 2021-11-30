@@ -18,11 +18,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  // final String storageUrl =
-  //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  final String baseUrl = "http://192.168.137.20:8000/api";
-  final String storageUrl = "http://192.168.137.20:8000/storage/";
+  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  final String storageUrl =
+      "https://hurryup.universitaspertamina.ac.id/daily/storage/";
+  // final String baseUrl = "http://192.168.137.20:8000/api";
+  // final String storageUrl = "http://192.168.137.20:8000/storage/";
 
   var client = http.Client();
 
@@ -48,12 +48,13 @@ class ApiService {
     return PekerjaanResponse.fromJson(data);
   }
 
-  Future<void> submitSubPekerjaan(SubPekerjaan subPekerjaan) async {
+  Future<SubPekerjaan> submitSubPekerjaan(SubPekerjaan subPekerjaan) async {
     final response = await client.post(Uri.parse("$baseUrl/subpekerjaan/store"),
         headers: {"content-type": "application/json"},
         body: subPekerjaanToJson(subPekerjaan));
     var data = jsonDecode(response.body);
     print(data);
+    return SubPekerjaan.fromJson(data['data']);
   }
 
   Future<SubPekerjaanResponse> getSubmitPekerjaan(int idPekerjaan) async {
@@ -279,6 +280,8 @@ class ApiService {
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     String date = dateFormat.format(now);
 
+    print("$idReceiver, $idSubPekerjaan, $idSender");
+
     final response = await client.post(Uri.parse("$baseUrl/notification/store"),
         headers: {"content-type": "application/json"},
         body: jsonEncode({
@@ -363,7 +366,6 @@ class ApiService {
     final response =
         await client.get(Uri.parse("http://36.37.91.71:21800/api/User"));
     var data = jsonDecode(response.body);
-    print(data['data']);
     return List<Users>.from(data['data'].map((user) {
       return Users.fromJson(user);
     }));

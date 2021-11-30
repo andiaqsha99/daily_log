@@ -4,6 +4,7 @@ import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Notif.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:intl/intl.dart';
@@ -28,38 +29,40 @@ class _NotificationPageState extends State<NotificationPage> {
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Column(
           children: [
-            GroupedListView<Notif, String>(
-              shrinkWrap: true,
-              elements: widget.listNotif,
-              groupBy: (element) {
-                return element.date;
-              },
-              groupSeparatorBuilder: (groupBy) {
-                String dateFormat =
-                    DateFormat("dd MMMM yyyy").format(DateTime.parse(groupBy));
-                return Text(dateFormat);
-              },
-              itemBuilder: (context, notif) {
-                if (notif.status == 'submit') {
-                  return FutureBuilder<Pengguna>(
-                      future: ApiService().getPenggunaById(notif.sender!),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return NotificationItemSubmit(
-                            notif: notif,
-                            pengguna: snapshot.data!,
-                          );
-                        } else {
-                          return SizedBox();
-                        }
-                      });
-                } else {
-                  return NotificationItem(
-                    notif: notif,
-                  );
-                }
-              },
-            )
+            widget.listNotif.length == 0
+                ? Center(child: Text("Tidak ada pemberitahuan"))
+                : GroupedListView<Notif, String>(
+                    shrinkWrap: true,
+                    elements: widget.listNotif,
+                    groupBy: (element) {
+                      return element.date;
+                    },
+                    groupSeparatorBuilder: (groupBy) {
+                      String dateFormat = DateFormat("dd MMMM yyyy")
+                          .format(DateTime.parse(groupBy));
+                      return Text(dateFormat);
+                    },
+                    itemBuilder: (context, notif) {
+                      if (notif.status == 'submit') {
+                        return FutureBuilder<Pengguna>(
+                            future: ApiService().getPenggunaById(notif.sender!),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return NotificationItemSubmit(
+                                  notif: notif,
+                                  pengguna: snapshot.data!,
+                                );
+                              } else {
+                                return SizedBox();
+                              }
+                            });
+                      } else {
+                        return NotificationItem(
+                          notif: notif,
+                        );
+                      }
+                    },
+                  )
           ],
         ),
       ),
@@ -116,6 +119,7 @@ class NotificationItemSubmit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var usersProvider = Provider.of<UsersProvider>(context);
     return GestureDetector(
       onTap: () {
         ApiService().updateNotificationRead(notif.id);
@@ -140,7 +144,9 @@ class NotificationItemSubmit extends StatelessWidget {
                 TextSpan(
                     text: "submit",
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(text: " oleh ${pengguna.username}"),
+                TextSpan(
+                    text:
+                        " oleh ${usersProvider.getUsers(this.pengguna.nip).name}"),
               ])),
         ),
       ),
