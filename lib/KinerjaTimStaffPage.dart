@@ -11,6 +11,7 @@ import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/PositionResponse.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -133,6 +134,8 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
               ListTeam(
                 tab: "tim",
                 idUser: widget.idStaff,
+                firstDate: widget.firstDate,
+                lastDate: widget.lastDate,
               )
             ],
           ),
@@ -248,6 +251,7 @@ class _ItemListTimState extends State<ItemListTim> {
   @override
   Widget build(BuildContext context) {
     var positionProvider = Provider.of<PositionProvider>(context);
+    var usersProvider = Provider.of<UsersProvider>(context);
     return Column(
       children: [
         Card(
@@ -266,10 +270,14 @@ class _ItemListTimState extends State<ItemListTim> {
             }));
           },
           leading: CircleAvatar(),
-          title: Text(widget.pengguna.username),
-          subtitle: Text(positionProvider
-              .getPosition(widget.pengguna.positionId)
-              .position),
+          title: widget.pengguna.nip == "000000"
+              ? Text(widget.pengguna.username)
+              : Text(usersProvider.getUsers(widget.pengguna.nip).name),
+          subtitle: widget.pengguna.nip == "000000"
+              ? Text(positionProvider
+                  .getPosition(widget.pengguna.positionId)
+                  .position)
+              : Text(usersProvider.getUsers(widget.pengguna.nip).namaJabatan),
         )),
       ],
     );
