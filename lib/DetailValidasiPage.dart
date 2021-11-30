@@ -1,3 +1,4 @@
+import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
@@ -15,11 +16,14 @@ class DetailValidasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var users = Provider.of<UsersProvider>(context).getUsers(this.staff.nip);
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: Text(users.name),
+        title: staff.nip == "000000"
+            ? Text(staff.username)
+            : Text(Provider.of<UsersProvider>(context)
+                .getUsers(this.staff.nip)
+                .name),
         actions: [NotificationWidget()],
       ),
       body: SafeArea(
@@ -64,33 +68,105 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                   if (snapshot.hasData) {
                     items.addAll(snapshot.data!.data);
                     if (items.length > 0) {
-                      return ListView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      return Column(
+                        children: [
+                          ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: items.length,
+                              itemBuilder: (context, index) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(items[index].nama,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    ListView.builder(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount:
+                                            items[index].subPekerjaan.length,
+                                        itemBuilder: (context, indeks) {
+                                          return ValidasiCard(
+                                            subPekerjaan: items[index]
+                                                .subPekerjaan[indeks],
+                                          );
+                                        }),
+                                  ],
+                                );
+                              }),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(items[index].nama,
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                ListView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: items[index].subPekerjaan.length,
-                                    itemBuilder: (context, indeks) {
-                                      return ValidasiCard(
-                                        subPekerjaan:
-                                            items[index].subPekerjaan[indeks],
-                                      );
-                                    }),
+                                MaterialButton(
+                                  onPressed: () =>
+                                      {Navigator.of(context).pop()},
+                                  child: Text("KEMBALI"),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6)),
+                                  color: Color(0xFF1A73E9),
+                                  textColor: Colors.white,
+                                  height: 40,
+                                ),
+                                SizedBox(
+                                  width: 16,
+                                ),
+                                MaterialButton(
+                                  onPressed: () async {
+                                    items.forEach((element) {
+                                      element.subPekerjaan
+                                          .forEach((subpekerjaan) {
+                                        ApiService()
+                                            .updateSubPekerjaan(subpekerjaan);
+                                        if (subpekerjaan.status == 'reject') {
+                                          ApiService().createRejectNotif(
+                                              element.idUser, element.id);
+                                        }
+                                      });
+                                    });
+                                    AlertDialog alertDialog = AlertDialog(
+                                      content:
+                                          Text("Validasi pekerjaan berhasil"),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          HomePage()));
+                                            },
+                                            child: Text("OK"))
+                                      ],
+                                    );
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return alertDialog;
+                                        });
+                                  },
+                                  child: Text("VALIDASI"),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6)),
+                                  color: Color(0xFF1A73E9),
+                                  textColor: Colors.white,
+                                  height: 40,
+                                )
                               ],
-                            );
-                          });
+                            ),
+                          ),
+                        ],
+                      );
                     } else {
                       return Center(
-                        child: Text("No Data"),
+                        child: Text("Tidak ada Data"),
                       );
                     }
                   } else if (snapshot.hasError) {
@@ -100,50 +176,6 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                   }
                   return CircularProgressIndicator();
                 }),
-            SizedBox(
-              height: 8,
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  MaterialButton(
-                    onPressed: () => {Navigator.of(context).pop()},
-                    child: Text("KEMBALI"),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
-                    color: Color(0xFF1A73E9),
-                    textColor: Colors.white,
-                    height: 40,
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  MaterialButton(
-                    onPressed: () async {
-                      items.forEach((element) {
-                        element.subPekerjaan.forEach((subpekerjaan) {
-                          ApiService().updateSubPekerjaan(subpekerjaan);
-                          if (subpekerjaan.status == 'reject') {
-                            ApiService()
-                                .createRejectNotif(element.idUser, element.id);
-                          }
-                        });
-                      });
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("VALIDASI"),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
-                    color: Color(0xFF1A73E9),
-                    textColor: Colors.white,
-                    height: 40,
-                  )
-                ],
-              ),
-            ),
           ],
         ),
       ),
