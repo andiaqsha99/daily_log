@@ -126,7 +126,7 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                                             .updateSubPekerjaan(subpekerjaan);
                                         if (subpekerjaan.status == 'reject') {
                                           ApiService().createRejectNotif(
-                                              element.idUser, element.id);
+                                              element.idUser, subpekerjaan.id);
                                         }
                                       });
                                     });
