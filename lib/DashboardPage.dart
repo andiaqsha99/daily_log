@@ -150,7 +150,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                     child: Text("Tidak ada data"),
                   )
                 : Container(
-                    height: 150,
+                    height: MediaQuery.of(context).size.height * 0.30,
                     width: double.infinity,
                     child: LineChartTotalPekerjaan(
                       listData: listDurasiHarian,
@@ -528,7 +528,11 @@ class _ItemListTimState extends State<ItemListTim> {
                       lastDate: widget.lastDate,
                     )
                   : widget.tab == "beban kerja"
-                      ? BebanKerjaPage(idUser: widget.pengguna.id)
+                      ? BebanKerjaPage(
+                          idUser: widget.pengguna.id,
+                          firstDate: widget.firstDate,
+                          lastDate: widget.lastDate,
+                        )
                       : KehadiranPage(idUser: widget.pengguna.id);
             }));
           },
@@ -684,7 +688,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
             listKehadiran.length == 0
                 ? Center(child: Text("Tidak ada data"))
                 : Container(
-                    height: 200,
+                    height: MediaQuery.of(context).size.height * 0.30,
                     width: double.infinity,
                     child: isOneDay
                         ? ColumnChartKehadiran(listKehadiran: listKehadiran)
@@ -1030,7 +1034,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                     child: Text("Tidak ada data"),
                   )
                 : Container(
-                    height: 150,
+                    height: MediaQuery.of(context).size.height * 0.30,
                     width: double.infinity,
                     child: LineChartBebanKerja(
                       listData: listDurasiHarian,

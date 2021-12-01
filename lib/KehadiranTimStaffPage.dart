@@ -60,7 +60,7 @@ class _KehadiranTimStaffPageState extends State<KehadiranTimStaffPage> {
               listKehadiran.length == 0
                   ? Center(child: Text("Tidak ada data"))
                   : Container(
-                      height: 200,
+                      height: MediaQuery.of(context).size.height * 0.30,
                       width: double.infinity,
                       child: isOneDay
                           ? ColumnChartKehadiran(listKehadiran: listKehadiran)

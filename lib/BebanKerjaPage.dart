@@ -7,15 +7,22 @@ import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:provider/provider.dart';
 
 class BebanKerjaPage extends StatefulWidget {
   final int idUser;
-  const BebanKerjaPage({Key? key, required this.idUser}) : super(key: key);
+  final String? firstDate;
+  final String? lastDate;
+  const BebanKerjaPage(
+      {Key? key, required this.idUser, this.firstDate, this.lastDate})
+      : super(key: key);
 
   @override
   _BebanKerjaPageState createState() => _BebanKerjaPageState();
@@ -27,11 +34,14 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
   List<DurasiHarian> listDurasiHarian = [];
   String selectedDate = '';
   var now = new DateTime.now();
+  String? _firstDate = '';
+  String? _lastDate = '';
+  Pengguna? _pengguna;
 
   @override
   void initState() {
     super.initState();
-
+    setDate();
     String thisMonth = DateFormat("MMMM yyyy").format(now);
     selectedDate = thisMonth;
 
@@ -39,6 +49,12 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     loadDurasiHarianPerBulan(firstDate);
     loadDataTotalPekerjaan(firstDate);
     loadPekeraanSatuBulan(firstDate);
+    loadDataPengguna();
+  }
+
+  setDate() {
+    _firstDate = widget.firstDate;
+    _lastDate = widget.lastDate;
   }
 
   loadDataTotalPekerjaan(DateTime date) async {
@@ -48,6 +64,10 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
+    if (_firstDate != null && _lastDate != null) {
+      firstDate = widget.firstDate!;
+      endDate = widget.lastDate!;
+    }
     int count = await ApiService()
         .getValidPekerjaanCount(widget.idUser, firstDate, endDate);
     setState(() {
@@ -63,7 +83,10 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-
+    if (widget.firstDate != null && widget.lastDate != null) {
+      firstDate = widget.firstDate!;
+      endDate = widget.lastDate!;
+    }
     pekerjaanResponse =
         ApiService().getPekerjaanSatuBulan(widget.idUser, firstDate, endDate);
   }
@@ -76,7 +99,10 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-
+    if (widget.firstDate != null && widget.lastDate != null) {
+      firstDate = widget.firstDate!;
+      endDate = widget.lastDate!;
+    }
     var durasiResponse =
         await ApiService().getDurasiHarian(widget.idUser, firstDate, endDate);
     setState(() {
@@ -89,11 +115,23 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     });
   }
 
+  loadDataPengguna() async {
+    var pengguna = await ApiService().getPenggunaById(widget.idUser);
+    setState(() {
+      _pengguna = pengguna;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    var usersProvider = Provider.of<UsersProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Beban Kerja"),
+        title: _pengguna == null
+            ? Text("Beban Kerja")
+            : _pengguna!.nip == "000000"
+                ? Text("Beban Kerja")
+                : Text(usersProvider.getUsers(_pengguna!.nip).name),
         actions: [NotificationWidget()],
       ),
       body: Container(
@@ -133,60 +171,69 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
                           textAlign: TextAlign.right,
                         ),
                       ))),
-              Container(
-                  height: 200,
-                  width: double.infinity,
-                  child: LineChartBebanKerja(
-                    listData: listDurasiHarian,
-                  )),
               SizedBox(
                 height: 8,
               ),
-              Container(
-                padding: EdgeInsets.all(8),
-                color: Colors.blue,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "$totalPekerjaan",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      "Total Pekerjaan",
-                      style: TextStyle(color: Colors.white),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              Text("Daftar Pekerjaan"),
-              FutureBuilder<PekerjaanResponse>(
-                  future: pekerjaanResponse,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text("Error");
-                    } else if (snapshot.hasData) {
-                      List<Pekerjaan> items = snapshot.data!.data;
-                      if (items.length > 0) {
-                        return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: items.length,
-                            itemBuilder: (context, index) {
-                              return ListPekerjaanValid(
-                                pekerjaan: items[index],
-                              );
-                            });
-                      } else {
-                        return Center(child: Text("No Data"));
-                      }
-                    }
+              totalPekerjaan == 0
+                  ? Center(child: Text("Tidak ada data"))
+                  : Column(
+                      children: [
+                        Container(
+                            height: MediaQuery.of(context).size.height * 0.30,
+                            width: double.infinity,
+                            child: LineChartBebanKerja(
+                              listData: listDurasiHarian,
+                            )),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          color: Colors.blue,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "$totalPekerjaan",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Text(
+                                "Total Pekerjaan",
+                                style: TextStyle(color: Colors.white),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Text("Daftar Pekerjaan"),
+                        FutureBuilder<PekerjaanResponse>(
+                            future: pekerjaanResponse,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Text("Error");
+                              } else if (snapshot.hasData) {
+                                List<Pekerjaan> items = snapshot.data!.data;
+                                if (items.length > 0) {
+                                  return ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: items.length,
+                                      itemBuilder: (context, index) {
+                                        return ListPekerjaanValid(
+                                          pekerjaan: items[index],
+                                        );
+                                      });
+                                } else {
+                                  return Center(child: Text("No Data"));
+                                }
+                              }
 
-                    return CircularProgressIndicator();
-                  })
+                              return CircularProgressIndicator();
+                            }),
+                      ],
+                    )
             ],
           ),
         ),

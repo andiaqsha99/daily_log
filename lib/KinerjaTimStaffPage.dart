@@ -102,7 +102,7 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
                       child: Text("Tidak ada data"),
                     )
                   : Container(
-                      height: 150,
+                      height: MediaQuery.of(context).size.height * 0.30,
                       width: double.infinity,
                       child: LineChartTotalPekerjaan(
                         listData: listDurasiHarian,
@@ -265,7 +265,11 @@ class _ItemListTimState extends State<ItemListTim> {
                       lastDate: widget.lastDate,
                     )
                   : widget.tab == "beban kerja"
-                      ? BebanKerjaPage(idUser: widget.pengguna.id)
+                      ? BebanKerjaPage(
+                          idUser: widget.pengguna.id,
+                          firstDate: widget.firstDate,
+                          lastDate: widget.lastDate,
+                        )
                       : KehadiranPage(idUser: widget.pengguna.id);
             }));
           },

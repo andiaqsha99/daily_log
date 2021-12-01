@@ -4,11 +4,14 @@ import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/Presence.dart';
 import 'package:daily_log/model/PresenceResponse.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:provider/provider.dart';
 
 class KehadiranPage extends StatefulWidget {
   final int idUser;
@@ -23,6 +26,7 @@ class _KehadiranPageState extends State<KehadiranPage> {
   List<Presence> listPresence = [];
   String selectedDate = '';
   var now = new DateTime.now();
+  Pengguna? _pengguna;
 
   @override
   void initState() {
@@ -34,6 +38,7 @@ class _KehadiranPageState extends State<KehadiranPage> {
     DateTime firstDate = DateTime(now.year, now.month, 1);
 
     loadPresenceSatuBulan(firstDate);
+    loadDataPengguna();
   }
 
   loadPresenceSatuBulan(DateTime date) {
@@ -49,11 +54,23 @@ class _KehadiranPageState extends State<KehadiranPage> {
         ApiService().getUserPresenceByDate(widget.idUser, firstDate, endDate);
   }
 
+  loadDataPengguna() async {
+    var pengguna = await ApiService().getPenggunaById(widget.idUser);
+    setState(() {
+      _pengguna = pengguna;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    var usersProvider = Provider.of<UsersProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Kehadiran"),
+        title: _pengguna == null
+            ? Text("Kehadiran")
+            : _pengguna!.nip == "000000"
+                ? Text("Kehadiran")
+                : Text(usersProvider.getUsers(_pengguna!.nip).name),
         actions: [NotificationWidget()],
       ),
       body: Container(

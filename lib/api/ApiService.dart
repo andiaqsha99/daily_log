@@ -36,12 +36,6 @@ class ApiService {
   }
 
   Future<PekerjaanResponse> getPekerjaan(int idUser) async {
-    // DateTime now = DateTime.now();
-    // DateTime threeDayTomorrow = now.subtract(Duration(days: 10));
-    // DateFormat dateFormat = DateFormat("yyyy-MM-dd");
-    // String dateTo = dateFormat.format(now);
-    // String dateFrom = dateFormat.format(threeDayTomorrow);
-
     final response =
         await client.get((Uri.parse("$baseUrl/pekerjaan/pengguna/$idUser")));
     var data = jsonDecode(response.body);
@@ -179,14 +173,6 @@ class ApiService {
     final response = await client.get((Uri.parse("$baseUrl/city")));
     var data = jsonDecode(response.body);
     return CityResponse.fromJson(data);
-  }
-
-  Future<Pengguna> getPenggunaByPosition(String idPosition) async {
-    final response =
-        await client.get(Uri.parse("$baseUrl/pengguna/position/$idPosition"));
-    var data = jsonDecode(response.body);
-    print(data['data']);
-    return Pengguna.fromJson(data['data']);
   }
 
   Future<DurasiHarianResponse> getDurasiHarianTim(

@@ -5,11 +5,14 @@ import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
+import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:provider/provider.dart';
 
 class LaporanKinerjaPage extends StatefulWidget {
   final int idUser;
@@ -31,6 +34,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
   var now = new DateTime.now();
   String? _firstDate = '';
   String? _lastDate = '';
+  Pengguna? _pengguna;
 
   @override
   void initState() {
@@ -42,6 +46,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     loadDurasiHarianPerBulan(firstDate);
     loadDataTotalPekerjaan(firstDate);
     loadPekeraanSatuBulan(firstDate);
+    loadDataPengguna();
   }
 
   setDate() {
@@ -78,7 +83,6 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     if (widget.firstDate != null && widget.lastDate != null) {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
-      print("lapor $firstDate $endDate");
     }
     pekerjaanResponse =
         ApiService().getPekerjaanSatuBulan(widget.idUser, firstDate, endDate);
@@ -103,11 +107,23 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     });
   }
 
+  loadDataPengguna() async {
+    var pengguna = await ApiService().getPenggunaById(widget.idUser);
+    setState(() {
+      _pengguna = pengguna;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    var usersProvider = Provider.of<UsersProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Laporan Kinerja"),
+        title: _pengguna == null
+            ? Text("Laporan Kinerja")
+            : _pengguna!.nip == "000000"
+                ? Text("Laporan Kinerja")
+                : Text(usersProvider.getUsers(_pengguna!.nip).name),
         actions: [NotificationWidget()],
       ),
       body: Container(
@@ -157,7 +173,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
                   : Column(
                       children: [
                         Container(
-                            height: 200,
+                            height: MediaQuery.of(context).size.height * 0.30,
                             width: double.infinity,
                             child: LineChartTotalPekerjaan(
                               listData: listDurasiHarian,

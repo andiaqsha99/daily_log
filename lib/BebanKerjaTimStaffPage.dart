@@ -101,7 +101,7 @@ class _BebanKerjaTimStaffPageState extends State<BebanKerjaTimStaffPage> {
                       child: Text("Tidak ada data"),
                     )
                   : Container(
-                      height: 150,
+                      height: MediaQuery.of(context).size.height * 0.30,
                       width: double.infinity,
                       child: LineChartBebanKerja(
                         listData: listDurasiHarian,
@@ -131,9 +131,10 @@ class _BebanKerjaTimStaffPageState extends State<BebanKerjaTimStaffPage> {
                 height: 8,
               ),
               timStaff.ListTeam(
-                tab: "beban kerja",
-                idUser: widget.idStaff,
-              )
+                  tab: "beban kerja",
+                  idUser: widget.idStaff,
+                  firstDate: widget.firstDate,
+                  lastDate: widget.lastDate)
             ],
           ),
         ),
