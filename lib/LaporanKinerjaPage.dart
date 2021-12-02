@@ -6,6 +6,8 @@ import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/PersetujuanPekerjaan.dart';
+import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:daily_log/model/UsersProvider.dart';
@@ -27,13 +29,13 @@ class LaporanKinerjaPage extends StatefulWidget {
 }
 
 class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
-  late Future<PekerjaanResponse> pekerjaanResponse;
+  late Future<PersetujuanResponse> pekerjaanResponse;
   int totalPekerjaan = 0;
   List<DurasiHarian> listDurasiHarian = [];
   String selectedDate = '';
   var now = new DateTime.now();
-  String? _firstDate = '';
-  String? _lastDate = '';
+  String? _firstDate = '-';
+  String? _lastDate = '-';
   Pengguna? _pengguna;
 
   @override
@@ -50,8 +52,10 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
   }
 
   setDate() {
-    _firstDate = widget.firstDate;
-    _lastDate = widget.lastDate;
+    if (widget.firstDate != null) {
+      _firstDate = widget.firstDate;
+      _lastDate = widget.lastDate;
+    }
   }
 
   loadDataTotalPekerjaan(DateTime date) async {
@@ -61,10 +65,11 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-    if (_firstDate != null && _lastDate != null) {
+    if (_firstDate != '-' && _lastDate != '-') {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
     }
+    print("total pekerjaan $firstDate $endDate");
     int count = await ApiService()
         .getValidPekerjaanCount(widget.idUser, firstDate, endDate);
     setState(() {
@@ -80,10 +85,11 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-    if (widget.firstDate != null && widget.lastDate != null) {
+    if (_firstDate != '-' && _lastDate != '-') {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
     }
+    print("pekerjaan $firstDate $endDate");
     pekerjaanResponse =
         ApiService().getPekerjaanSatuBulan(widget.idUser, firstDate, endDate);
   }
@@ -96,10 +102,11 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-    if (widget.firstDate != null && widget.lastDate != null) {
+    if (_firstDate != '-' && _lastDate != '-') {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
     }
+    print("durasi harian $firstDate $endDate");
     var durasiResponse =
         await ApiService().getDurasiHarian(widget.idUser, firstDate, endDate);
     setState(() {
@@ -144,8 +151,8 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
                             .then((date) {
                           if (date != null) {
                             setState(() {
-                              _firstDate = null;
-                              _lastDate = null;
+                              _firstDate = '-';
+                              _lastDate = '-';
                               print(date);
                               String thisMonth =
                                   DateFormat("MMMM yyyy").format(date);
@@ -202,13 +209,14 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
                           height: 8,
                         ),
                         Text("Daftar Pekerjaan"),
-                        FutureBuilder<PekerjaanResponse>(
+                        FutureBuilder<PersetujuanResponse>(
                             future: pekerjaanResponse,
                             builder: (context, snapshot) {
                               if (snapshot.hasError) {
                                 return Text("Error");
                               } else if (snapshot.hasData) {
-                                List<Pekerjaan> items = snapshot.data!.data;
+                                List<PersetujuanPekerjaan> items =
+                                    snapshot.data!.data;
                                 if (items.length > 0) {
                                   return ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
@@ -238,7 +246,7 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
 }
 
 class ListPekerjaanValid extends StatefulWidget {
-  final Pekerjaan pekerjaan;
+  final PersetujuanPekerjaan pekerjaan;
   const ListPekerjaanValid({Key? key, required this.pekerjaan})
       : super(key: key);
 
@@ -247,7 +255,7 @@ class ListPekerjaanValid extends StatefulWidget {
 }
 
 class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
-  late Future<SubPekerjaanResponse> subPekerjaanResponse;
+  late List<SubPekerjaan> listSubpekerjaan;
   int durasi = 0;
   int jam = 0;
   int menit = 0;
@@ -255,16 +263,16 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
   @override
   void initState() {
     super.initState();
-    subPekerjaanResponse = ApiService().getValidPekerjaan(widget.pekerjaan.id);
+    listSubpekerjaan = widget.pekerjaan.subPekerjaan;
     setTotalDurasi();
   }
 
   setTotalDurasi() async {
-    await subPekerjaanResponse.then((value) => (value.data.forEach((element) {
-          setState(() {
-            durasi = durasi + element.durasi;
-          });
-        })));
+    listSubpekerjaan.forEach((element) {
+      setState(() {
+        durasi = durasi + element.durasi;
+      });
+    });
     setState(() {
       jam = durasi ~/ 60;
       menit = durasi % 60;
@@ -282,7 +290,9 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(this.widget.pekerjaan.nama),
-              Text(this.widget.pekerjaan.tanggal),
+              SizedBox(
+                height: 4,
+              ),
               Text(
                   menit > 9 ? "Durasi: 0$jam:$menit" : "Durasi: 0$jam:0$menit"),
               const Divider(
@@ -291,57 +301,44 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
                 indent: 0,
                 endIndent: 0,
               ),
-              FutureBuilder<SubPekerjaanResponse>(
-                  future: subPekerjaanResponse,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text("Error");
-                    } else if (snapshot.hasData) {
-                      List<SubPekerjaan> items = snapshot.data!.data;
-                      if (items.length > 0) {
-                        return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: items.length,
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.only(left: 16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(items[index].nama),
-                                    Text((() {
-                                      if (items[index].durasi < 10) {
-                                        return "Durasi: 00:0${items[index].durasi}";
-                                      } else if (items[index].durasi > 59) {
-                                        int jam = items[index].durasi ~/ 60;
-                                        int menit = items[index].durasi % 60;
-                                        if (menit < 10) {
-                                          return "Durasi: 0$jam:0$menit";
-                                        }
-                                        return "Durasi: $jam:$menit";
-                                      } else {
-                                        return "Durasi: 00:${items[index].durasi}";
-                                      }
-                                    }())),
-                                    const Divider(
-                                      height: 20,
-                                      thickness: 2,
-                                      indent: 0,
-                                      endIndent: 0,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
-                      } else {
-                        return Center(
-                          child: Text("No Data"),
-                        );
-                      }
-                    }
-                    return CircularProgressIndicator();
+              ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: listSubpekerjaan.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.only(left: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(listSubpekerjaan[index].nama),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Text((() {
+                            if (listSubpekerjaan[index].durasi < 10) {
+                              return "Durasi: 00:0${listSubpekerjaan[index].durasi}";
+                            } else if (listSubpekerjaan[index].durasi > 59) {
+                              int jam = listSubpekerjaan[index].durasi ~/ 60;
+                              int menit = listSubpekerjaan[index].durasi % 60;
+                              if (menit < 10) {
+                                return "Durasi: 0$jam:0$menit";
+                              }
+                              return "Durasi: $jam:$menit";
+                            } else {
+                              return "Durasi: 00:${listSubpekerjaan[index].durasi}";
+                            }
+                          }())),
+                          const Divider(
+                            height: 20,
+                            thickness: 2,
+                            indent: 0,
+                            endIndent: 0,
+                          ),
+                        ],
+                      ),
+                    );
                   })
             ],
           ),

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:daily_log/DashboardPage.dart';
+import 'package:daily_log/LaporanKinerjaPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
@@ -8,6 +9,7 @@ import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
+import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/SubPekerjaanResponse.dart';
 import 'package:daily_log/model/UsersProvider.dart';
@@ -15,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
+
+import 'model/PersetujuanPekerjaan.dart';
 
 class BebanKerjaPage extends StatefulWidget {
   final int idUser;
@@ -29,7 +33,7 @@ class BebanKerjaPage extends StatefulWidget {
 }
 
 class _BebanKerjaPageState extends State<BebanKerjaPage> {
-  late Future<PekerjaanResponse> pekerjaanResponse;
+  late Future<PersetujuanResponse> pekerjaanResponse;
   int totalPekerjaan = 0;
   List<DurasiHarian> listDurasiHarian = [];
   String selectedDate = '';
@@ -208,13 +212,14 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
                           height: 8,
                         ),
                         Text("Daftar Pekerjaan"),
-                        FutureBuilder<PekerjaanResponse>(
+                        FutureBuilder<PersetujuanResponse>(
                             future: pekerjaanResponse,
                             builder: (context, snapshot) {
                               if (snapshot.hasError) {
                                 return Text("Error");
                               } else if (snapshot.hasData) {
-                                List<Pekerjaan> items = snapshot.data!.data;
+                                List<PersetujuanPekerjaan> items =
+                                    snapshot.data!.data;
                                 if (items.length > 0) {
                                   return ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
@@ -239,109 +244,6 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
         ),
       ),
       bottomNavigationBar: MenuBottom(),
-    );
-  }
-}
-
-class ListPekerjaanValid extends StatefulWidget {
-  final Pekerjaan pekerjaan;
-  const ListPekerjaanValid({Key? key, required this.pekerjaan})
-      : super(key: key);
-
-  @override
-  _ListPekerjaanValidState createState() => _ListPekerjaanValidState();
-}
-
-class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
-  late Future<SubPekerjaanResponse> subPekerjaanResponse;
-  int durasi = 0;
-  int jam = 0;
-  int menit = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    subPekerjaanResponse = ApiService().getValidPekerjaan(widget.pekerjaan.id);
-    setTotalDurasi();
-  }
-
-  setTotalDurasi() async {
-    await subPekerjaanResponse.then((value) => (value.data.forEach((element) {
-          setState(() {
-            durasi = durasi + element.durasi;
-          });
-        })));
-    setState(() {
-      jam = durasi ~/ 60;
-      menit = durasi % 60;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Card(
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(this.widget.pekerjaan.nama),
-              Text(this.widget.pekerjaan.tanggal),
-              Text(
-                  menit > 9 ? "Durasi: 0$jam:$menit" : "Durasi: 0$jam:0$menit"),
-              const Divider(
-                height: 20,
-                thickness: 2,
-                indent: 0,
-                endIndent: 0,
-              ),
-              FutureBuilder<SubPekerjaanResponse>(
-                  future: subPekerjaanResponse,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text("Error");
-                    } else if (snapshot.hasData) {
-                      List<SubPekerjaan> items = snapshot.data!.data;
-                      if (items.length > 0) {
-                        return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: items.length,
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.only(left: 16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(items[index].nama),
-                                    Text(items[index].durasi < 10
-                                        ? "Durasi: 00:0${items[index].durasi}"
-                                        : "Durasi: 00:${items[index].durasi}"),
-                                    const Divider(
-                                      height: 20,
-                                      thickness: 2,
-                                      indent: 0,
-                                      endIndent: 0,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
-                      } else {
-                        return Center(
-                          child: Text("No Data"),
-                        );
-                      }
-                    }
-                    return CircularProgressIndicator();
-                  })
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
