@@ -20,22 +20,31 @@ class PekerjaanHarianPage extends StatefulWidget {
 }
 
 class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
-  late Future<PekerjaanResponse> pekerjaanResponse;
+  late PekerjaanResponse pekerjaanResponse;
   List<List<SubPekerjaan>> mapPekerjaan = [];
+  List<List<SubPekerjaan>> listPekerjaan = [];
   int idAtasan = 0;
   DateTime dateFilled = DateTime.now();
+  List<Pekerjaan> items = [];
 
   @override
   void initState() {
     super.initState();
     getLoginData();
-    pekerjaanResponse = ApiService().getPekerjaan(widget.idUser);
+    getListPekerjaan();
   }
 
   getLoginData() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       idAtasan = sharedPreferences.getInt("atasan_id")!;
+    });
+  }
+
+  getListPekerjaan() async {
+    pekerjaanResponse = await ApiService().getPekerjaan(widget.idUser);
+    setState(() {
+      items = pekerjaanResponse.data;
     });
   }
 
@@ -77,6 +86,9 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                         if (date != null) {
                           setState(() {
                             dateFilled = date;
+                            mapPekerjaan.forEach((elements) {
+                              listPekerjaan.add(elements);
+                            });
                           });
                         }
                       },
@@ -85,56 +97,48 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
               ],
             ),
             SizedBox(height: 16),
-            FutureBuilder<PekerjaanResponse>(
-                future: pekerjaanResponse,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    var listPekerjaan = snapshot.data;
-                    List<Pekerjaan> items = listPekerjaan!.data;
-                    if (items.length > 0) {
-                      mapPekerjaan.clear();
-                      return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          mapPekerjaan.add([
-                            newSubPekerjaan(
-                                items[index].id, widget.idUser, dateFilled)
-                          ]);
-                          return PekerjaanListWidget(
-                            headerText: items[index].nama,
-                            idPekerjaan: items[index].id,
-                            listSubPekerjaan: mapPekerjaan[index],
-                            idUser: widget.idUser,
-                            dateFilled: dateFilled,
-                          );
-                        },
-                        itemCount: items.length,
-                      );
-                    } else {
-                      return Center(
-                        child: Text("No Data"),
-                      );
-                    }
-                  } else if (snapshot.hasError) {
-                    return Text("Error");
-                  }
-
-                  return CircularProgressIndicator();
-                }),
+            ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                mapPekerjaan.clear();
+                mapPekerjaan.add([
+                  newSubPekerjaan(items[index].id, widget.idUser, dateFilled)
+                ]);
+                return PekerjaanListWidget(
+                  headerText: items[index].nama,
+                  idPekerjaan: items[index].id,
+                  listSubPekerjaan: mapPekerjaan[index],
+                  idUser: widget.idUser,
+                  dateFilled: dateFilled,
+                );
+              },
+              itemCount: items.length,
+            ),
             Container(
               alignment: Alignment.centerRight,
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: MaterialButton(
                 onPressed: () async {
+                  DateTime date = DateTime.now();
+                  String selectDate =
+                      DateFormat("yyyy-MM-dd").format(dateFilled);
+                  String formatDate = DateFormat("HH:mm:ss").format(date);
+
                   mapPekerjaan.forEach((elements) {
+                    listPekerjaan.add(elements);
+                  });
+
+                  listPekerjaan.forEach((elements) {
                     elements.forEach((element) async {
-                      print(element.id);
-                      var subpekerjaan =
-                          await ApiService().submitSubPekerjaan(element);
-                      if (subpekerjaan.id != 0) {
-                        await ApiService().createSubmitNotif(
-                            idAtasan, subpekerjaan.id, widget.idUser);
+                      element.tanggal = "$selectDate $formatDate";
+                      if (element.nama != '') {
+                        var subpekerjaan =
+                            await ApiService().submitSubPekerjaan(element);
+                        if (subpekerjaan.id != 0) {
+                          await ApiService().createSubmitNotif(
+                              idAtasan, subpekerjaan.id, widget.idUser);
+                        }
                       }
                     });
                   });

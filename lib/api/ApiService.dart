@@ -46,6 +46,7 @@ class ApiService {
     final response = await client.post(Uri.parse("$baseUrl/subpekerjaan/store"),
         headers: {"content-type": "application/json"},
         body: subPekerjaanToJson(subPekerjaan));
+    print(response.body);
     var data = jsonDecode(response.body);
     print(data);
     return SubPekerjaan.fromJson(data['data']);
@@ -127,13 +128,13 @@ class ApiService {
     return DurasiHarianResponse.fromJson(data);
   }
 
-  Future<PekerjaanResponse> getPekerjaanSatuBulan(
+  Future<PersetujuanResponse> getPekerjaanSatuBulan(
       int idUser, String dateFrom, String dateTo) async {
     final response = await client.get((Uri.parse(
-        "$baseUrl/pekerjaan/pengguna/$idUser/tanggal/$dateFrom/$dateTo")));
+        "$baseUrl/pengguna/$idUser/persetujuan/subpekerjaan/valid/$dateFrom/$dateTo")));
     var data = jsonDecode(response.body);
     print(data);
-    return PekerjaanResponse.fromJson(data);
+    return PersetujuanResponse.fromJson(data);
   }
 
   Future<PositionResponse> getPosition() async {
