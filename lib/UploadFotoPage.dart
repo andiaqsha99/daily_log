@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:daily_log/HomePage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';

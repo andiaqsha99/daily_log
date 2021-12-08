@@ -1,9 +1,6 @@
-import 'package:daily_log/DashboardPage.dart';
 import 'package:daily_log/MenuBottom.dart';
 import 'package:daily_log/NotificationWidget.dart';
 import 'package:daily_log/api/ApiService.dart';
-import 'package:daily_log/model/DurasiHarian.dart';
-import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/Presence.dart';
 import 'package:daily_log/model/PresenceResponse.dart';

@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:daily_log/DashboardPage.dart';
 import 'package:daily_log/KinerjaTimStaffPage.dart' as timStaff;

@@ -13,7 +13,6 @@ import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class KinerjaTimStaffPage extends StatefulWidget {
