@@ -132,7 +132,7 @@ class _QRCodeScannerViewState extends State<QRCodeScannerView> {
           borderLength: 20,
           borderRadius: 10,
           borderWidth: 10,
-          borderColor: Theme.of(context).accentColor),
+          borderColor: Theme.of(context).colorScheme.secondary),
     );
   }
 
