@@ -221,6 +221,7 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                               child: TextFormField(
                                 controller: listController[index].nama,
                                 decoration: InputDecoration(
+                                    labelText: "Nama pekerjaan",
                                     hintText: "Nama Pekerjaan",
                                     hintStyle: TextStyle(color: Colors.grey),
                                     border: OutlineInputBorder(
@@ -229,7 +230,7 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                               ),
                             ),
                             SizedBox(
-                              height: 8,
+                              height: 16,
                             ),
                             Container(
                               child: GestureDetector(
@@ -272,6 +273,7 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                                   enabled: false,
                                   controller: listController[index].durasi,
                                   decoration: InputDecoration(
+                                      labelText: "Durasi",
                                       hintText: "Durasi",
                                       hintStyle: TextStyle(color: Colors.grey),
                                       border: OutlineInputBorder(
@@ -281,7 +283,7 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                               ),
                             ),
                             SizedBox(
-                              height: 8,
+                              height: 16,
                             ),
                             GestureDetector(
                               onTap: () async {
@@ -308,6 +310,7 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                                 enabled: false,
                                 controller: listController[index].tanggal,
                                 decoration: InputDecoration(
+                                    labelText: "Tanggal",
                                     hintText: "Tanggal",
                                     hintStyle: TextStyle(color: Colors.grey),
                                     border: OutlineInputBorder(
@@ -578,6 +581,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                                 child: TextFormField(
                                   controller: listController[index].nama,
                                   decoration: InputDecoration(
+                                      labelText: "Nama Pekerjaan",
                                       hintText: "Nama Pekerjaan",
                                       hintStyle: TextStyle(color: Colors.grey),
                                       border: OutlineInputBorder(
@@ -586,7 +590,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                                 ),
                               ),
                               SizedBox(
-                                height: 8,
+                                height: 16,
                               ),
                               Container(
                                 child: GestureDetector(
@@ -630,6 +634,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                                     enabled: false,
                                     controller: listController[index].durasi,
                                     decoration: InputDecoration(
+                                        labelText: "Durasi",
                                         hintText: "Durasi",
                                         hintStyle:
                                             TextStyle(color: Colors.grey),
@@ -640,7 +645,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                                 ),
                               ),
                               SizedBox(
-                                height: 8,
+                                height: 16,
                               ),
                               GestureDetector(
                                 onTap: () async {
@@ -667,6 +672,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                                   enabled: false,
                                   controller: listController[index].tanggal,
                                   decoration: InputDecoration(
+                                      labelText: "Tanggal",
                                       hintText: "Tanggal",
                                       hintStyle: TextStyle(color: Colors.grey),
                                       border: OutlineInputBorder(
