@@ -36,17 +36,19 @@ class DashboardPage extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             title: Text("Dashboard"),
-            bottom: TabBar(tabs: [
-              Tab(
-                text: "TIM",
-              ),
-              Tab(
-                text: "KEHADIRAN",
-              ),
-              Tab(
-                text: "BEBAN KERJA",
-              ),
-            ]),
+            bottom: TabBar(
+                labelPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                tabs: [
+                  Tab(
+                    text: "TIM",
+                  ),
+                  Tab(
+                    text: "KEHADIRAN",
+                  ),
+                  Tab(
+                    text: "BEBAN KERJA",
+                  ),
+                ]),
             actions: [NotificationWidget()],
           ),
           body: TabBarView(children: [
