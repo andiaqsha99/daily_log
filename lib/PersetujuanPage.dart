@@ -7,11 +7,13 @@ import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'model/PersetujuanPekerjaan.dart';
+import 'model/SettingProvider.dart';
 
 class PersetujuanPage extends StatelessWidget {
   final int intialIndex;
@@ -86,10 +88,6 @@ class _MenungguPageState extends State<MenungguPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Tupoksi",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
             SizedBox(
               height: 8,
             ),
@@ -99,24 +97,30 @@ class _MenungguPageState extends State<MenungguPage> {
                   if (snapshot.hasData) {
                     var data = snapshot.data!.data;
                     List<PersetujuanPekerjaan> listPekerjaan = data;
-                    return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: listPekerjaan.length,
-                        itemBuilder: (context, index) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(listPekerjaan[index].nama,
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              PekerjaanMenungguCard(
-                                listSubPekerjaan:
-                                    listPekerjaan[index].subPekerjaan,
-                              )
-                            ],
-                          );
-                        });
+                    if (listPekerjaan.length > 0) {
+                      return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: listPekerjaan.length,
+                          itemBuilder: (context, index) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(listPekerjaan[index].nama,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                PekerjaanMenungguCard(
+                                  listSubPekerjaan:
+                                      listPekerjaan[index].subPekerjaan,
+                                  loadData: getLoginData,
+                                )
+                              ],
+                            );
+                          });
+                    } else {
+                      return Center(
+                          child: Text("Tidak ada pekerjaan yang disubmit"));
+                    }
                   } else if (snapshot.hasError) {
                     return Text("Error");
                   }
@@ -131,7 +135,9 @@ class _MenungguPageState extends State<MenungguPage> {
 
 class PekerjaanMenungguCard extends StatefulWidget {
   final List<SubPekerjaan> listSubPekerjaan;
-  const PekerjaanMenungguCard({Key? key, required this.listSubPekerjaan})
+  final Function loadData;
+  const PekerjaanMenungguCard(
+      {Key? key, required this.listSubPekerjaan, required this.loadData})
       : super(key: key);
 
   @override
@@ -157,6 +163,7 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
 
   @override
   Widget build(BuildContext context) {
+    var settingProvider = Provider.of<SettingProvider>(context);
     return ListView.builder(
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -276,7 +283,27 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                             SizedBox(
                               height: 8,
                             ),
-                            Container(
+                            GestureDetector(
+                              onTap: () async {
+                                DateTime itemDate =
+                                    DateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                                        listController[index].tanggal.text);
+                                final date = await showDatePicker(
+                                    context: context,
+                                    initialDate: itemDate,
+                                    lastDate: itemDate,
+                                    firstDate: itemDate.subtract(Duration(
+                                        days:
+                                            settingProvider.numBackDate - 1)));
+                                if (date != null) {
+                                  String formatTime = DateFormat("HH:mm:ss")
+                                      .format(DateTime.now());
+                                  String formatDate =
+                                      DateFormat("yyyy-MM-dd").format(date);
+                                  listController[index].tanggal.text =
+                                      "$formatDate $formatTime";
+                                }
+                              },
                               child: TextFormField(
                                 enabled: false,
                                 controller: listController[index].tanggal,
@@ -332,6 +359,10 @@ class _PekerjaanMenungguCardState extends State<PekerjaanMenungguCard> {
                   onPressed: () async {
                     setState(() {
                       ApiService().deleteSubPekerjaan(items[index].id);
+                      var provider =
+                          Provider.of<NotifProvider>(context, listen: false);
+                      provider.onChange();
+                      widget.loadData();
                     });
                   },
                   child: Text("DELETE"),
@@ -391,10 +422,6 @@ class _DitolakPageState extends State<DitolakPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Tupoksi",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
           SizedBox(
             height: 8,
           ),
@@ -404,38 +431,44 @@ class _DitolakPageState extends State<DitolakPage> {
                 if (snapshot.hasData) {
                   var data = snapshot.data!.data;
                   List<PersetujuanPekerjaan> listPekerjaan = data;
-                  if (widget.idSubPekerjaan != null) {
-                    var position = listPekerjaan.indexWhere(
-                        (element) => element.id == widget.idSubPekerjaan!);
-                    SchedulerBinding.instance!
-                        .addPostFrameCallback((timeStamp) {
-                      itemScrollController.jumpTo(
-                          index: position, alignment: 0);
-                    });
+                  if (listPekerjaan.length > 0) {
+                    if (widget.idSubPekerjaan != null) {
+                      var position = listPekerjaan.indexWhere(
+                          (element) => element.id == widget.idSubPekerjaan!);
+                      SchedulerBinding.instance!
+                          .addPostFrameCallback((timeStamp) {
+                        itemScrollController.jumpTo(
+                            index: position, alignment: 0);
+                      });
+                    }
+                    return Expanded(
+                      child: ScrollablePositionedList.builder(
+                          itemScrollController: itemScrollController,
+                          scrollDirection: Axis.vertical,
+                          itemCount: listPekerjaan.length,
+                          itemBuilder: (context, index) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(listPekerjaan[index].nama,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                PekerjaanDitolakCard(
+                                  listSubPekerjaan:
+                                      listPekerjaan[index].subPekerjaan,
+                                  loadData: getLoginData,
+                                  idAtasan: atasanId,
+                                  idUser: idUser,
+                                )
+                              ],
+                            );
+                          }),
+                    );
+                  } else {
+                    return Center(
+                      child: Text("Tidak ada pekerjaan yang ditolak"),
+                    );
                   }
-                  return Expanded(
-                    child: ScrollablePositionedList.builder(
-                        itemScrollController: itemScrollController,
-                        scrollDirection: Axis.vertical,
-                        itemCount: listPekerjaan.length,
-                        itemBuilder: (context, index) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(listPekerjaan[index].nama,
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              PekerjaanDitolakCard(
-                                listSubPekerjaan:
-                                    listPekerjaan[index].subPekerjaan,
-                                loadData: loadPekerjaanData,
-                                idAtasan: atasanId,
-                                idUser: idUser,
-                              )
-                            ],
-                          );
-                        }),
-                  );
                 } else if (snapshot.hasError) {
                   return Text("Error");
                 }
@@ -483,6 +516,7 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
 
   @override
   Widget build(BuildContext context) {
+    var settingProvider = Provider.of<SettingProvider>(context);
     return ListView.builder(
         physics: NeverScrollableScrollPhysics(),
         itemCount: items.length,
@@ -608,7 +642,27 @@ class _PekerjaanDitolakCardState extends State<PekerjaanDitolakCard> {
                               SizedBox(
                                 height: 8,
                               ),
-                              Container(
+                              GestureDetector(
+                                onTap: () async {
+                                  DateTime itemDate =
+                                      DateFormat("yyyy-MM-dd HH:mm:ss").parse(
+                                          listController[index].tanggal.text);
+                                  final date = await showDatePicker(
+                                      context: context,
+                                      initialDate: itemDate,
+                                      lastDate: itemDate,
+                                      firstDate: itemDate.subtract(Duration(
+                                          days: settingProvider.numBackDate -
+                                              1)));
+                                  if (date != null) {
+                                    String formatTime = DateFormat("HH:mm:ss")
+                                        .format(DateTime.now());
+                                    String formatDate =
+                                        DateFormat("yyyy-MM-dd").format(date);
+                                    listController[index].tanggal.text =
+                                        "$formatDate $formatTime";
+                                  }
+                                },
                                 child: TextFormField(
                                   enabled: false,
                                   controller: listController[index].tanggal,
