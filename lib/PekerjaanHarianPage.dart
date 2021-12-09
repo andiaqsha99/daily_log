@@ -5,10 +5,12 @@ import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
+import 'package:daily_log/model/SettingProvider.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PekerjaanHarianPage extends StatefulWidget {
@@ -50,6 +52,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
 
   @override
   Widget build(BuildContext context) {
+    var settingProvider = Provider.of<SettingProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Pekerjaan Harian"),
@@ -81,8 +84,8 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                             context: context,
                             initialDate: DateTime.now(),
                             lastDate: DateTime.now(),
-                            firstDate:
-                                DateTime.now().subtract(Duration(days: 2)));
+                            firstDate: DateTime.now().subtract(Duration(
+                                days: settingProvider.numBackDate - 1)));
                         if (date != null) {
                           setState(() {
                             dateFilled = date;

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'model/SettingProvider.dart';
+
 class LoginWrapper extends StatefulWidget {
   const LoginWrapper({Key? key}) : super(key: key);
 
@@ -33,17 +35,25 @@ class _LoginWrapperState extends State<LoginWrapper> {
       jabatan = sharedPreferences.getString("jabatan") ?? " ";
       idUser = sharedPreferences.getInt("id_user") ?? 0;
       idPosition = sharedPreferences.getInt("position_id") ?? 0;
+
       var provider = Provider.of<NotifProvider>(context, listen: false);
-      // provider.addListStaff(idPosition);
       provider.addListNotif(idUser);
+
       var providerCounter =
           Provider.of<NotifCounterProvider>(context, listen: false);
       providerCounter.addListNotif(idUser);
+
       var positionProvider =
           Provider.of<PositionProvider>(context, listen: false);
       positionProvider.setListPosition();
+
       var usersProvider = Provider.of<UsersProvider>(context, listen: false);
       usersProvider.setListUsers();
+
+      var settingProvider =
+          Provider.of<SettingProvider>(context, listen: false);
+      settingProvider.setNumBackdate();
+
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (context) {
         return isLogin ? HomePage() : LoginPage();
