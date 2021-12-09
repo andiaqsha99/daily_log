@@ -286,12 +286,20 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(this.widget.pekerjaan.nama),
+              Text(
+                this.widget.pekerjaan.nama,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(
                 height: 4,
               ),
-              Text(
-                  menit > 9 ? "Durasi: 0$jam:$menit" : "Durasi: 0$jam:0$menit"),
+              Text(menit > 9
+                  ? jam > 9
+                      ? "Durasi: $jam:$menit"
+                      : "Durasi: 0$jam:$menit"
+                  : jam > 9
+                      ? "Durasi: $jam:0$menit"
+                      : "Durasi: 0$jam:0$menit"),
               const Divider(
                 height: 20,
                 thickness: 2,
@@ -309,7 +317,16 @@ class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(listSubpekerjaan[index].nama),
+                          Text(
+                            listSubpekerjaan[index].nama,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Text("Tanggal: " +
+                              DateFormat("dd-MM-yyyy").format(DateTime.parse(
+                                  listSubpekerjaan[index].tanggal))),
                           SizedBox(
                             height: 4,
                           ),
