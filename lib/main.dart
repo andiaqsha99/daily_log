@@ -1,6 +1,7 @@
 import 'package:daily_log/LoginWrapper.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/PositionProvider.dart';
+import 'package:daily_log/model/SettingProvider.dart';
 import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NotifCounterProvider()),
         ChangeNotifierProvider(create: (_) => PositionProvider()),
         ChangeNotifierProvider(create: (_) => UsersProvider()),
+        ChangeNotifierProvider(create: (_) => SettingProvider()),
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
