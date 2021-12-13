@@ -125,10 +125,14 @@ class NotificationItemSubmit extends StatelessWidget {
         ApiService().updateNotificationRead(notif.id);
         Provider.of<NotifCounterProvider>(context, listen: false).onChange();
         Provider.of<NotifProvider>(context, listen: false).onChange();
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: (context) {
-          return DetailValidasePage(staff: pengguna);
-        }));
+        ApiService().getSubpekerjaanById(notif.subPekerjaanId).then((value) {
+          if (value.status == 'submit') {
+            Navigator.of(context)
+                .pushReplacement(MaterialPageRoute(builder: (context) {
+              return DetailValidasePage(staff: pengguna);
+            }));
+          }
+        });
       },
       child: Card(
         color: notif.isRead == 0 ? Color(0xFFEDFEFF) : Color(0xFFFFFFFF),

@@ -18,11 +18,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  final String storageUrl =
-      "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  // final String baseUrl = "http://192.168.137.20:8000/api";
-  // final String storageUrl = "http://192.168.137.20:8000/storage/";
+  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  // final String storageUrl =
+  //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
+  final String baseUrl = "http://192.168.31.20:8000/api";
+  final String storageUrl = "http://192.168.31.20:8000/storage/";
 
   var client = http.Client();
 
@@ -356,5 +356,20 @@ class ApiService {
     return List<Users>.from(data['data'].map((user) {
       return Users.fromJson(user);
     }));
+  }
+
+  Future<int> getBackdate() async {
+    final response = await client.get((Uri.parse("$baseUrl/setting")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return data['data'];
+  }
+
+  Future<SubPekerjaan> getSubpekerjaanById(int idSubpekerjaan) async {
+    final response =
+        await client.get((Uri.parse("$baseUrl/subpekerjaan/$idSubpekerjaan")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return SubPekerjaan.fromJson(data['data']);
   }
 }

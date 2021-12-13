@@ -15,6 +15,7 @@ class NotificationWidget extends StatelessWidget {
         badgeContent: Text(provider.counter.toString()),
         child: IconButton(
             onPressed: () => {
+                  provider.onChange(),
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (context) {
                     return NotificationPage(listNotif: notifProvider.listNotif);
