@@ -8,6 +8,8 @@ import 'package:daily_log/model/PersetujuanResponse.dart';
 import 'package:daily_log/model/SubPekerjaan.dart';
 import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:grouped_list/grouped_list.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class DetailValidasePage extends StatelessWidget {
@@ -81,17 +83,32 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                                     Text(items[index].nama,
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
-                                    ListView.builder(
-                                        physics: NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount:
-                                            items[index].subPekerjaan.length,
-                                        itemBuilder: (context, indeks) {
-                                          return ValidasiCard(
-                                            subPekerjaan: items[index]
-                                                .subPekerjaan[indeks],
-                                          );
-                                        }),
+                                    SizedBox(
+                                      height: 4,
+                                    ),
+                                    GroupedListView<SubPekerjaan, String>(
+                                      shrinkWrap: true,
+                                      elements: items[index].subPekerjaan,
+                                      groupBy: (element) {
+                                        return DateFormat("yyyy-MM-dd").format(
+                                            DateTime.parse(element.tanggal));
+                                      },
+                                      groupSeparatorBuilder: (groupBy) {
+                                        String dateFormat =
+                                            DateFormat("dd MMMM yyyy").format(
+                                                DateTime.parse(groupBy));
+                                        return Text(
+                                          dateFormat,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        );
+                                      },
+                                      itemBuilder: (context, subpekerjaan) {
+                                        return ValidasiCard(
+                                          subPekerjaan: subpekerjaan,
+                                        );
+                                      },
+                                    ),
                                   ],
                                 );
                               }),
@@ -193,6 +210,7 @@ class ValidasiCard extends StatefulWidget {
 
 class _ValidasiCardState extends State<ValidasiCard> {
   bool isChecked = true;
+  bool isCheckBoxChecked = true;
   late TextEditingController _textSaranController;
 
   @override
@@ -239,11 +257,25 @@ class _ValidasiCardState extends State<ValidasiCard> {
                     onChanged: (val) => {
                           setState(() {
                             isChecked = val;
-                            val
-                                ? widget.subPekerjaan.status = 'valid'
-                                : widget.subPekerjaan.status = 'reject';
+                            isCheckBoxChecked
+                                ? isChecked
+                                    ? widget.subPekerjaan.status = 'valid'
+                                    : widget.subPekerjaan.status = 'reject'
+                                : widget.subPekerjaan.status = 'submit';
                           })
-                        })
+                        }),
+                Checkbox(
+                    value: isCheckBoxChecked,
+                    onChanged: (val) {
+                      setState(() {
+                        isCheckBoxChecked = val!;
+                        val
+                            ? isChecked
+                                ? widget.subPekerjaan.status = 'valid'
+                                : widget.subPekerjaan.status = 'reject'
+                            : widget.subPekerjaan.status = 'submit';
+                      });
+                    })
               ],
             ),
             if (!isChecked) Text("Saran"),
