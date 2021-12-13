@@ -42,9 +42,7 @@ class NotifCounterProvider extends ChangeNotifier {
   }
 
   onChange() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final idUser = sharedPreferences.getInt("id_user")!;
-    addListNotif(idUser);
+    _counter = 0;
     notifyListeners();
   }
 }
