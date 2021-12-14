@@ -1,4 +1,3 @@
-
 import 'package:daily_log/DashboardPage.dart';
 import 'package:daily_log/KinerjaTimStaffPage.dart' as timStaff;
 import 'package:daily_log/MenuBottom.dart';
@@ -45,7 +44,7 @@ class _BebanKerjaTimStaffPageState extends State<BebanKerjaTimStaffPage> {
         .getValidPekerjaanCount(widget.idStaff, firstDate, endDate);
     count += counter;
     PenggunaResponse penggunaResponse =
-        await ApiService().getPenggunaStaff(int.parse(widget.idPosition));
+        await ApiService().getPenggunaStaff(widget.idStaff);
     List<Pengguna> listStaff = penggunaResponse.data;
     listStaff.forEach((element) async {
       int counter = await ApiService()
