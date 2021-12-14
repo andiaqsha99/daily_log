@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:daily_log/BebanKerjaPage.dart';
 import 'package:daily_log/DashboardPage.dart';
 import 'package:daily_log/KehadiranPage.dart';
@@ -10,7 +12,6 @@ import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionProvider.dart';
-import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,15 +36,25 @@ class KinerjaTimStaffPage extends StatefulWidget {
 class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
   int totalPekerjaan = 0;
   bool isOneDay = false;
+  bool isAllTimChecked = false;
+  Queue<int> idAtasan = new Queue();
+  Pengguna? _pengguna;
 
   List<DurasiHarian> listDurasiHarian = [];
 
   @override
   void initState() {
     super.initState();
-
+    loadDataPengguna();
     loadDataTotalPekerjaan(widget.firstDate, widget.lastDate);
     loadDurasiHarianTim(widget.firstDate, widget.lastDate);
+  }
+
+  loadDataPengguna() async {
+    var pengguna = await ApiService().getPenggunaById(widget.idStaff);
+    setState(() {
+      _pengguna = pengguna;
+    });
   }
 
   loadDataTotalPekerjaan(String firstDate, String endDate) async {
@@ -52,16 +63,50 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
         .getValidPekerjaanCount(widget.idStaff, firstDate, endDate);
     count += counter;
     PenggunaResponse penggunaResponse =
-        await ApiService().getPenggunaStaff(int.parse(widget.idPosition));
+        await ApiService().getPenggunaStaff(widget.idStaff);
     List<Pengguna> listStaff = penggunaResponse.data;
-    listStaff.forEach((element) async {
-      counter = await ApiService()
-          .getValidPekerjaanCount(element.id, firstDate, endDate);
-      count += counter;
-      setState(() {
-        totalPekerjaan = count;
+    if (isAllTimChecked) {
+      listStaff.forEach((element) async {
+        counter = await ApiService()
+            .getValidPekerjaanCount(element.id, firstDate, endDate);
+        count += counter;
+
+        if (element.jabatan == 'atasan') {
+          idAtasan.addLast(element.id);
+        }
+
+        while (idAtasan.length != 0) {
+          print(idAtasan);
+          PenggunaResponse penggunaResponse =
+              await ApiService().getPenggunaStaff(idAtasan.removeFirst());
+          List<Pengguna> listStaffs = penggunaResponse.data;
+          listStaffs.forEach((pengguna) async {
+            counter = await ApiService()
+                .getValidPekerjaanCount(pengguna.id, firstDate, endDate);
+            count += counter;
+            setState(() {
+              totalPekerjaan = count;
+            });
+            if (pengguna.jabatan == 'atasan') {
+              idAtasan.addLast(pengguna.id);
+              print(idAtasan);
+            }
+          });
+        }
+        setState(() {
+          totalPekerjaan = count;
+        });
       });
-    });
+    } else {
+      listStaff.forEach((element) async {
+        counter = await ApiService()
+            .getValidPekerjaanCount(element.id, firstDate, endDate);
+        count += counter;
+        setState(() {
+          totalPekerjaan = count;
+        });
+      });
+    }
   }
 
   loadDurasiHarianTim(String firstDate, String endDate) async {
@@ -91,7 +136,7 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
         actions: [NotificationWidget()],
       ),
       body: Container(
-        padding: EdgeInsets.fromLTRB(8, 8, 8, 56),
+        padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,12 +175,52 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
               SizedBox(
                 height: 8,
               ),
-              ListTeam(
-                tab: "tim",
-                idUser: widget.idStaff,
-                firstDate: widget.firstDate,
-                lastDate: widget.lastDate,
-              )
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text("Semua tim"),
+                  Switch(
+                      value: isAllTimChecked,
+                      onChanged: (val) {
+                        setState(() {
+                          isAllTimChecked = val;
+                          loadDataTotalPekerjaan(
+                              widget.firstDate, widget.lastDate);
+                          loadDurasiHarianTim(
+                              widget.firstDate, widget.lastDate);
+                        });
+                      }),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              isAllTimChecked
+                  ? ItemListAllTim(
+                      tab: "tim",
+                      pengguna: _pengguna!,
+                      firstDate: widget.firstDate,
+                      lastDate: widget.lastDate,
+                    )
+                  : Column(
+                      children: [
+                        ItemListTim(
+                          tab: "tim",
+                          pengguna: _pengguna!,
+                          firstDate: widget.firstDate,
+                          lastDate: widget.lastDate,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(left: 8),
+                          child: ListTeam(
+                            tab: "tim",
+                            idUser: widget.idStaff,
+                            firstDate: widget.firstDate,
+                            lastDate: widget.lastDate,
+                          ),
+                        ),
+                      ],
+                    )
             ],
           ),
         ),
@@ -163,20 +248,12 @@ class ListTeam extends StatefulWidget {
 }
 
 class _ListTeamState extends State<ListTeam> {
-  late Future<PositionResponse> positionResponse;
   late Future<PenggunaResponse> penggunaResponse;
-  List<Position> listPosition = [];
 
   @override
   void initState() {
     loadStaffData();
-    loadPositionData();
     super.initState();
-  }
-
-  loadPositionData() async {
-    positionResponse = ApiService().getPosition();
-    positionResponse.then((value) => listPosition = value.data);
   }
 
   loadStaffData() async {
@@ -272,7 +349,12 @@ class _ItemListTimState extends State<ItemListTim> {
                       : KehadiranPage(idUser: widget.pengguna.id);
             }));
           },
-          leading: CircleAvatar(),
+          leading: widget.pengguna.foto == null
+              ? CircleAvatar()
+              : CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      "${ApiService().storageUrl}${widget.pengguna.foto}"),
+                ),
           title: widget.pengguna.nip == "000000"
               ? Text(widget.pengguna.username)
               : Text(usersProvider.getUsers(widget.pengguna.nip).name),
@@ -282,6 +364,190 @@ class _ItemListTimState extends State<ItemListTim> {
                   .position)
               : Text(usersProvider.getUsers(widget.pengguna.nip).namaJabatan),
         )),
+      ],
+    );
+  }
+}
+
+class ListAllTeam extends StatefulWidget {
+  final String firstDate;
+  final String lastDate;
+  final String tab;
+  final int idUser;
+  const ListAllTeam(
+      {Key? key,
+      required this.tab,
+      required this.idUser,
+      this.firstDate = '',
+      this.lastDate = ''})
+      : super(key: key);
+
+  @override
+  _ListAllTeamState createState() => _ListAllTeamState();
+}
+
+class _ListAllTeamState extends State<ListAllTeam> {
+  late Future<PenggunaResponse> penggunaResponse;
+  List<Position> listPosition = [];
+
+  @override
+  void initState() {
+    loadStaffData();
+    super.initState();
+  }
+
+  loadStaffData() async {
+    penggunaResponse = ApiService().getPenggunaStaff(widget.idUser);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: FutureBuilder<PenggunaResponse>(
+      future: penggunaResponse,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text("No Data"),
+          );
+        } else if (snapshot.hasData) {
+          List<Pengguna> items = snapshot.data!.data;
+          return ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ItemListAllTim(
+                    pengguna: items[index],
+                    tab: widget.tab,
+                    firstDate: widget.firstDate,
+                    lastDate: widget.lastDate);
+              });
+        }
+
+        return CircularProgressIndicator();
+      },
+    ));
+  }
+}
+
+class ItemListAllTim extends StatefulWidget {
+  final String firstDate;
+  final String lastDate;
+  final Pengguna pengguna;
+  final String tab;
+  const ItemListAllTim(
+      {Key? key,
+      required this.pengguna,
+      required this.tab,
+      this.firstDate = '',
+      this.lastDate = ''})
+      : super(key: key);
+
+  @override
+  _ItemListAllTimState createState() => _ItemListAllTimState();
+}
+
+class _ItemListAllTimState extends State<ItemListAllTim> {
+  bool isExpanded = false;
+  bool isAtasan = true;
+  late Future<PenggunaResponse> penggunaResponse;
+
+  @override
+  void initState() {
+    loadStaffData();
+    super.initState();
+  }
+
+  loadStaffData() async {
+    penggunaResponse = ApiService().getPenggunaStaff(widget.pengguna.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var positionProvider = Provider.of<PositionProvider>(context);
+    var usersProvider = Provider.of<UsersProvider>(context);
+    return Column(
+      children: [
+        Card(
+            child: ListTile(
+          onTap: () async {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return widget.tab == "tim"
+                  ? LaporanKinerjaPage(
+                      idUser: widget.pengguna.id,
+                      firstDate: widget.firstDate,
+                      lastDate: widget.lastDate,
+                    )
+                  : widget.tab == "beban kerja"
+                      ? BebanKerjaPage(
+                          idUser: widget.pengguna.id,
+                          firstDate: widget.firstDate,
+                          lastDate: widget.lastDate,
+                        )
+                      : KehadiranPage(idUser: widget.pengguna.id);
+            }));
+          },
+          leading: widget.pengguna.foto == null
+              ? CircleAvatar()
+              : CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      "${ApiService().storageUrl}${widget.pengguna.foto}"),
+                ),
+          title: widget.pengguna.nip == "000000"
+              ? Text(widget.pengguna.username)
+              : Text(usersProvider.getUsers(widget.pengguna.nip).name),
+          subtitle: widget.pengguna.nip == "000000"
+              ? Text(positionProvider
+                  .getPosition(widget.pengguna.positionId)
+                  .position)
+              : Text(usersProvider.getUsers(widget.pengguna.nip).namaJabatan),
+          trailing: widget.pengguna.jabatan == "atasan"
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      },
+                      child: isExpanded
+                          ? Icon(Icons.keyboard_arrow_up)
+                          : Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ],
+                )
+              : SizedBox(),
+        )),
+        if (isExpanded)
+          Container(
+              padding: EdgeInsets.only(left: 10),
+              child: FutureBuilder<PenggunaResponse>(
+                future: penggunaResponse,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text("No Data"),
+                    );
+                  } else if (snapshot.hasData) {
+                    List<Pengguna> items = snapshot.data!.data;
+                    return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return ItemListAllTim(
+                              pengguna: items[index],
+                              tab: widget.tab,
+                              firstDate: widget.firstDate,
+                              lastDate: widget.lastDate);
+                        });
+                  }
+
+                  return CircularProgressIndicator();
+                },
+              ))
       ],
     );
   }
