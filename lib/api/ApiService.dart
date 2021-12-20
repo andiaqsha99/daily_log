@@ -18,11 +18,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  final String storageUrl =
-      "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  // final String baseUrl = "http://192.168.31.20:8000/api";
-  // final String storageUrl = "http://192.168.31.20:8000/storage/";
+  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  // final String storageUrl =
+  //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
+  final String baseUrl = "http://192.168.166.20:8000/api";
+  final String storageUrl = "http://192.168.166.20:8000/storage/";
 
   var client = http.Client();
 
@@ -371,5 +371,23 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return SubPekerjaan.fromJson(data['data']);
+  }
+
+  Future<DurasiHarianResponse> getDurasiHarianAllTimStaff(
+      int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/chart/tim/all/$idStaff/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return DurasiHarianResponse.fromJson(data);
+  }
+
+  Future<DurasiHarianResponse> getDurasiHarianAllTimStaff1Hari(
+      int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get((Uri.parse(
+        "$baseUrl/chart/tim/all/$idStaff/tanggal/$dateFrom/$dateTo/hari")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return DurasiHarianResponse.fromJson(data);
   }
 }

@@ -113,18 +113,34 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
     listDurasiHarian.clear();
     if (firstDate == endDate) {
       isOneDay = true;
-      var durasiResponse = await ApiService().getDurasiHarianTimStaff1Hari(
-          widget.idPosition, widget.idStaff, firstDate, endDate);
-      setState(() {
-        listDurasiHarian = durasiResponse.data;
-      });
+      if (isAllTimChecked) {
+        var durasiResponse = await ApiService().getDurasiHarianAllTimStaff1Hari(
+            widget.idStaff, firstDate, endDate);
+        setState(() {
+          listDurasiHarian = durasiResponse.data;
+        });
+      } else {
+        var durasiResponse = await ApiService().getDurasiHarianTimStaff1Hari(
+            widget.idPosition, widget.idStaff, firstDate, endDate);
+        setState(() {
+          listDurasiHarian = durasiResponse.data;
+        });
+      }
     } else {
       isOneDay = false;
-      var durasiResponse = await ApiService().getDurasiHarianTimStaff(
-          widget.idPosition, widget.idStaff, firstDate, endDate);
-      setState(() {
-        listDurasiHarian = durasiResponse.data;
-      });
+      if (isAllTimChecked) {
+        var durasiResponse = await ApiService()
+            .getDurasiHarianAllTimStaff(widget.idStaff, firstDate, endDate);
+        setState(() {
+          listDurasiHarian = durasiResponse.data;
+        });
+      } else {
+        var durasiResponse = await ApiService().getDurasiHarianTimStaff(
+            widget.idPosition, widget.idStaff, firstDate, endDate);
+        setState(() {
+          listDurasiHarian = durasiResponse.data;
+        });
+      }
     }
   }
 
