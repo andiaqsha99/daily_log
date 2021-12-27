@@ -41,6 +41,7 @@ dependencies:
   grouped_list: ^4.1.0
   syncfusion_flutter_charts: ^19.2.62
   image_picker: ^0.8.4+4
+  flutter_downloader: ^1.7.1
 
 dev_dependencies:
   flutter_test:
