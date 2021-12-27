@@ -36,7 +36,7 @@ class KinerjaTimStaffPage extends StatefulWidget {
 class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
   int totalPekerjaan = 0;
   bool isOneDay = false;
-  bool isAllTimChecked = false;
+  bool isAllTimChecked = true;
   Queue<int> idAtasan = new Queue();
   Pengguna? _pengguna;
 
@@ -162,7 +162,7 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
                       child: Text("Tidak ada data"),
                     )
                   : Container(
-                      height: MediaQuery.of(context).size.height * 0.30,
+                      height: MediaQuery.of(context).size.height * 0.35,
                       width: double.infinity,
                       child: LineChartTotalPekerjaan(
                         listData: listDurasiHarian,
@@ -188,26 +188,26 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text("Semua tim"),
-                  Switch(
-                      value: isAllTimChecked,
-                      onChanged: (val) {
-                        setState(() {
-                          isAllTimChecked = val;
-                          loadDataTotalPekerjaan(
-                              widget.firstDate, widget.lastDate);
-                          loadDurasiHarianTim(
-                              widget.firstDate, widget.lastDate);
-                        });
-                      }),
-                ],
-              ),
+              // SizedBox(
+              //   height: 8,
+              // ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.end,
+              //   children: [
+              //     Text("Semua tim"),
+              //     Switch(
+              //         value: isAllTimChecked,
+              //         onChanged: (val) {
+              //           setState(() {
+              //             isAllTimChecked = val;
+              //             loadDataTotalPekerjaan(
+              //                 widget.firstDate, widget.lastDate);
+              //             loadDurasiHarianTim(
+              //                 widget.firstDate, widget.lastDate);
+              //           });
+              //         }),
+              //   ],
+              // ),
               SizedBox(
                 height: 8,
               ),
