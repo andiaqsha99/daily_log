@@ -152,7 +152,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                     child: Text("Tidak ada data"),
                   )
                 : Container(
-                    height: MediaQuery.of(context).size.height * 0.30,
+                    height: MediaQuery.of(context).size.height * 0.35,
                     width: double.infinity,
                     child: LineChartTotalPekerjaan(
                       listData: listDurasiHarian,
@@ -1036,7 +1036,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                     child: Text("Tidak ada data"),
                   )
                 : Container(
-                    height: MediaQuery.of(context).size.height * 0.30,
+                    height: MediaQuery.of(context).size.height * 0.35,
                     width: double.infinity,
                     child: LineChartBebanKerja(
                       listData: listDurasiHarian,
@@ -1351,6 +1351,8 @@ class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
   Widget build(BuildContext context) {
     return chart.SfCartesianChart(
         tooltipBehavior: _tooltipBehavior,
+        legend: chart.Legend(
+            isVisible: true, position: chart.LegendPosition.bottom),
         primaryXAxis: chart.DateTimeAxis(
             edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
             intervalType: widget.isOneDay
@@ -1359,7 +1361,7 @@ class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
         series: <chart.ChartSeries>[
           // Renders line chart
           chart.LineSeries<DurasiHarian, DateTime>(
-              name: 'Beban Kerja',
+              name: 'Total beban kerja & tanggal',
               enableTooltip: true,
               dataSource: widget.listData,
               xValueMapper: (DurasiHarian durasiHarian, _) =>
@@ -1462,6 +1464,9 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
           }
         },
         tooltipBehavior: _tooltipBehavior,
+        legend: chart.Legend(
+            isVisible: true, position: chart.LegendPosition.bottom),
+        primaryYAxis: chart.NumericAxis(interval: 60.0),
         primaryXAxis: chart.DateTimeAxis(
             edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
             intervalType: widget.isOneDay
@@ -1470,7 +1475,7 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
         series: <chart.ChartSeries>[
           // Renders line chart
           chart.LineSeries<DurasiHarian, DateTime>(
-              name: 'Total durasi pekerjaan',
+              name: 'Total jam pekerjaan & tanggal',
               enableTooltip: true,
               dataSource: widget.listData,
               xValueMapper: (DurasiHarian durasiHarian, _) =>
