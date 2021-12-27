@@ -1,4 +1,5 @@
 import 'package:daily_log/HomePage.dart';
+import 'package:daily_log/PekerjaanHarianPage.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/Pengguna.dart';
@@ -7,6 +8,7 @@ import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/Users.dart';
 import 'package:daily_log/model/UsersProvider.dart';
+import 'package:daily_log/sdm/DownloadKinerjaPage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,63 +125,83 @@ class _InputFieldState extends State<InputField> {
                 if (_formKey.currentState!.validate()) {
                   final sharedPreferences =
                       await SharedPreferences.getInstance();
-                  Pengguna pengguna = Pengguna(
-                      id: 1,
-                      username: _usernameController.text.trim(),
-                      password: _passwordController.text.trim(),
-                      jabatan: 'staff',
-                      positionId: 1,
-                      atasanId: 1,
-                      nip: "");
-                  PenggunaResponse login = await ApiService().login(pengguna);
-
-                  if (login.success) {
-                    Pengguna api = login.data[0];
-                    if (_usernameController.text.trim() == api.username) {
-                      sharedPreferences.setString("username", api.username);
-                      sharedPreferences.setBool("isLogin", true);
-                      sharedPreferences.setString("jabatan", api.jabatan);
-                      sharedPreferences.setInt("position_id", api.positionId);
-                      sharedPreferences.setInt("id_user", api.id);
-                      sharedPreferences.setBool("is_checkin", false);
-                      if (api.atasanId != null) {
-                        sharedPreferences.setInt("atasan_id", api.atasanId!);
-                      }
-                      if (api.foto != null) {
-                        sharedPreferences.setString("foto", api.foto!);
-                      }
-                      var provider =
-                          Provider.of<NotifProvider>(context, listen: false);
-                      provider.addListNotif(api.id);
-                      var providerCounter = Provider.of<NotifCounterProvider>(
-                          context,
-                          listen: false);
-                      providerCounter.addListNotif(api.id);
-                      var positionProvider =
-                          Provider.of<PositionProvider>(context, listen: false);
-                      Position position =
-                          positionProvider.getPosition(api.positionId);
-                      sharedPreferences.setString(
-                          "position", position.position);
-                      var usersProvider =
-                          Provider.of<UsersProvider>(context, listen: false);
-                      if (api.nip != "000000") {
-                        Users users = usersProvider.getUsers(api.nip);
-                        sharedPreferences.setString("nama", users.name);
-                        sharedPreferences.setString(
-                            "nama_jabatan", users.namaJabatan);
-                      } else {
-                        sharedPreferences.setString("nama", api.username);
-                      }
-                      Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
-                    }
+                  if (_usernameController.text == "sdm" &&
+                      _passwordController.text == '12345678') {
+                    sharedPreferences.setBool("isLogin", true);
+                    sharedPreferences.setBool("isSdm", true);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DownloadKinerjaPage()));
                   } else {
-                    final snackbar = SnackBar(
-                      content: Text(login.message),
-                      backgroundColor: Colors.red,
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                    Pengguna pengguna = Pengguna(
+                        id: 1,
+                        username: _usernameController.text.trim(),
+                        password: _passwordController.text.trim(),
+                        jabatan: 'staff',
+                        positionId: 1,
+                        atasanId: 1,
+                        nip: "");
+                    PenggunaResponse login = await ApiService().login(pengguna);
+
+                    if (login.success) {
+                      Pengguna api = login.data[0];
+                      if (_usernameController.text.trim() == api.username) {
+                        sharedPreferences.setString("username", api.username);
+                        sharedPreferences.setBool("isLogin", true);
+                        sharedPreferences.setString("jabatan", api.jabatan);
+                        sharedPreferences.setInt("position_id", api.positionId);
+                        sharedPreferences.setInt("id_user", api.id);
+                        sharedPreferences.setBool("is_checkin", false);
+                        sharedPreferences.setBool("isSdm", false);
+                        if (api.atasanId != null) {
+                          sharedPreferences.setInt("atasan_id", api.atasanId!);
+                        }
+                        if (api.foto != null) {
+                          sharedPreferences.setString("foto", api.foto!);
+                        }
+                        var provider =
+                            Provider.of<NotifProvider>(context, listen: false);
+                        provider.addListNotif(api.id);
+                        var providerCounter = Provider.of<NotifCounterProvider>(
+                            context,
+                            listen: false);
+                        providerCounter.addListNotif(api.id);
+                        var positionProvider = Provider.of<PositionProvider>(
+                            context,
+                            listen: false);
+                        Position position =
+                            positionProvider.getPosition(api.positionId);
+                        sharedPreferences.setString(
+                            "position", position.position);
+                        var usersProvider =
+                            Provider.of<UsersProvider>(context, listen: false);
+                        if (api.nip != "000000") {
+                          Users users = usersProvider.getUsers(api.nip);
+                          sharedPreferences.setString("nama", users.name);
+                          sharedPreferences.setString(
+                              "nama_jabatan", users.namaJabatan);
+                        } else {
+                          sharedPreferences.setString("nama", api.username);
+                        }
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomePage()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PekerjaanHarianPage(
+                                      idUser: api.id,
+                                    )));
+                      }
+                    } else {
+                      final snackbar = SnackBar(
+                        content: Text(login.message),
+                        backgroundColor: Colors.red,
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                    }
                   }
                 }
               },

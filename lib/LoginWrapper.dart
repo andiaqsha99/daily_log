@@ -3,6 +3,7 @@ import 'package:daily_log/LoginPage.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/UsersProvider.dart';
+import 'package:daily_log/sdm/DownloadKinerjaPage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +22,7 @@ class _LoginWrapperState extends State<LoginWrapper> {
   int idUser = 0;
   int idPosition = 0;
   bool isLogin = false;
+  bool isSdm = false;
 
   @override
   void initState() {
@@ -35,6 +37,7 @@ class _LoginWrapperState extends State<LoginWrapper> {
       jabatan = sharedPreferences.getString("jabatan") ?? " ";
       idUser = sharedPreferences.getInt("id_user") ?? 0;
       idPosition = sharedPreferences.getInt("position_id") ?? 0;
+      isSdm = sharedPreferences.getBool("isSdm") ?? false;
 
       var provider = Provider.of<NotifProvider>(context, listen: false);
       provider.addListNotif(idUser);
@@ -56,7 +59,11 @@ class _LoginWrapperState extends State<LoginWrapper> {
 
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (context) {
-        return isLogin ? HomePage() : LoginPage();
+        return isLogin
+            ? isSdm
+                ? DownloadKinerjaPage()
+                : HomePage()
+            : LoginPage();
       }));
     });
   }
