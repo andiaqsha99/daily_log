@@ -23,11 +23,12 @@ class PekerjaanHarianPage extends StatefulWidget {
 
 class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
   late PekerjaanResponse pekerjaanResponse;
-  List<List<SubPekerjaan>> mapPekerjaan = [];
-  List<List<SubPekerjaan>> listPekerjaan = [];
+  List<SubPekerjaan> mapPekerjaan = [];
+  List<SubPekerjaan> listSubPekerjaan = [];
   int idAtasan = 0;
   DateTime dateFilled = DateTime.now();
-  List<Pekerjaan> items = [];
+  List<Pekerjaan> listPekerjaan = [];
+  Pekerjaan? pekerjaanOthers;
 
   @override
   void initState() {
@@ -46,7 +47,12 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
   getListPekerjaan() async {
     pekerjaanResponse = await ApiService().getPekerjaan(widget.idUser);
     setState(() {
-      items = pekerjaanResponse.data;
+      var templistPekerjaan = pekerjaanResponse.data;
+      var indexOthers =
+          templistPekerjaan.indexWhere((element) => element.nama == "Others");
+      pekerjaanOthers = templistPekerjaan.removeAt(indexOthers);
+      templistPekerjaan.add(pekerjaanOthers!);
+      listPekerjaan = templistPekerjaan;
     });
   }
 
@@ -72,7 +78,7 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                   padding: EdgeInsets.only(left: 16, top: 8),
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Tupoksi",
+                    "Pekerjaan",
                     style: TextStyle(color: Colors.blue, fontSize: 16),
                   ),
                 ),
@@ -89,9 +95,6 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                         if (date != null) {
                           setState(() {
                             dateFilled = date;
-                            mapPekerjaan.forEach((elements) {
-                              listPekerjaan.add(elements);
-                            });
                           });
                         }
                       },
@@ -100,81 +103,124 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
               ],
             ),
             SizedBox(height: 16),
-            ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                mapPekerjaan.clear();
-                mapPekerjaan.add([
-                  newSubPekerjaan(items[index].id, widget.idUser, dateFilled)
-                ]);
-                return PekerjaanListWidget(
-                  headerText: items[index].nama,
-                  idPekerjaan: items[index].id,
-                  listSubPekerjaan: mapPekerjaan[index],
-                  idUser: widget.idUser,
-                  dateFilled: dateFilled,
-                );
-              },
-              itemCount: items.length,
-            ),
+            mapPekerjaan.length == 0
+                ? Text("Tekan 'Tambah' untuk memasukkan pekerjaan")
+                : ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return PekerjaanListWidget(
+                        subPekerjaan: mapPekerjaan[index],
+                        listPekerjaan: listPekerjaan,
+                      );
+                    },
+                    itemCount: mapPekerjaan.length,
+                  ),
             Container(
-              alignment: Alignment.centerRight,
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: MaterialButton(
-                onPressed: () async {
-                  DateTime date = DateTime.now();
-                  String selectDate =
-                      DateFormat("yyyy-MM-dd").format(dateFilled);
-                  String formatDate = DateFormat("HH:mm:ss").format(date);
-
-                  mapPekerjaan.forEach((elements) {
-                    listPekerjaan.add(elements);
-                  });
-
-                  listPekerjaan.forEach((elements) {
-                    elements.forEach((element) async {
-                      element.tanggal = "$selectDate $formatDate";
-                      if (element.nama != '') {
-                        var subpekerjaan =
-                            await ApiService().submitSubPekerjaan(element);
-                        if (subpekerjaan.id != 0) {
-                          await ApiService().createSubmitNotif(
-                              idAtasan, subpekerjaan.id, widget.idUser);
-                        }
-                      }
-                    });
-                  });
-                  AlertDialog alertDialog = AlertDialog(
-                    content: Text("Submit pekerjaan berhasil"),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomePage()));
-                          },
-                          child: Text("OK"))
-                    ],
-                  );
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return alertDialog;
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MaterialButton(
+                    onPressed: () {
+                      setState(() {
+                        mapPekerjaan
+                            .add(newSubPekerjaan(1, widget.idUser, dateFilled));
                       });
-                },
-                height: 56,
-                minWidth: 96,
-                color: Colors.blue,
-                textColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                child: Text(
-                  "SUBMIT",
-                  style: TextStyle(fontSize: 14),
-                ),
+                    },
+                    height: 56,
+                    minWidth: 96,
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                      "TAMBAH",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 16,
+                  ),
+                  MaterialButton(
+                    onPressed: () async {
+                      DateTime date = DateTime.now();
+                      String selectDate =
+                          DateFormat("yyyy-MM-dd").format(dateFilled);
+                      String formatDate = DateFormat("HH:mm:ss").format(date);
+
+                      mapPekerjaan.forEach((elements) {
+                        listSubPekerjaan.add(elements);
+                      });
+
+                      SubPekerjaan? check = listSubPekerjaan.firstWhere(
+                        (element) =>
+                            element.nama == "-" &&
+                            element.idPekerjaan == pekerjaanOthers!.id,
+                        orElse: () => SubPekerjaan(),
+                      );
+                      if (check.nama == "-" &&
+                          check.idPekerjaan == pekerjaanOthers!.id) {
+                        AlertDialog alertDialog = AlertDialog(
+                          content: Text("Keterangan wajib diisi"),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text("OK"))
+                          ],
+                        );
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return alertDialog;
+                            });
+                      } else {
+                        listSubPekerjaan.forEach((element) async {
+                          element.tanggal = "$selectDate $formatDate";
+                          if (element.nama != '') {
+                            var subpekerjaan =
+                                await ApiService().submitSubPekerjaan(element);
+                            if (subpekerjaan.id != 0) {
+                              await ApiService().createSubmitNotif(
+                                  idAtasan, subpekerjaan.id, widget.idUser);
+                            }
+                          }
+                        });
+                        AlertDialog alertDialog = AlertDialog(
+                          content: Text("Submit pekerjaan berhasil"),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HomePage()));
+                                },
+                                child: Text("OK"))
+                          ],
+                        );
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return alertDialog;
+                            });
+                      }
+                    },
+                    height: 56,
+                    minWidth: 96,
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                      "SUBMIT",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(
@@ -189,18 +235,10 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
 }
 
 class PekerjaanListWidget extends StatefulWidget {
-  final int idUser;
-  final String headerText;
-  final int idPekerjaan;
-  final List<SubPekerjaan> listSubPekerjaan;
-  final DateTime dateFilled;
+  final SubPekerjaan subPekerjaan;
+  final List<Pekerjaan> listPekerjaan;
   const PekerjaanListWidget(
-      {Key? key,
-      required this.headerText,
-      required this.idPekerjaan,
-      required this.listSubPekerjaan,
-      required this.idUser,
-      required this.dateFilled})
+      {Key? key, required this.subPekerjaan, required this.listPekerjaan})
       : super(key: key);
 
   @override
@@ -208,53 +246,45 @@ class PekerjaanListWidget extends StatefulWidget {
 }
 
 class _PekerjaanListWidgetState extends State<PekerjaanListWidget> {
+  Pekerjaan? selectedValue;
   @override
   void initState() {
+    selectedValue = widget.listPekerjaan[0];
+    widget.subPekerjaan.idPekerjaan = selectedValue!.id;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.only(left: 16, right: 16, bottom: 8),
-      child: ExpansionTile(
-        maintainState: true,
-        title: Text(widget.headerText),
-        children: [
-          ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: widget.listSubPekerjaan.length,
-              itemBuilder: (context, index) {
-                return InputPekerjaanWidget(
-                  subPekerjaan: widget.listSubPekerjaan[index],
-                );
-              }),
-          Container(
-            alignment: Alignment.centerRight,
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: MaterialButton(
-              onPressed: () {
-                setState(() {
-                  widget.listSubPekerjaan.add(newSubPekerjaan(
-                      widget.idPekerjaan, widget.idUser, widget.dateFilled));
-                });
-              },
-              height: 56,
-              minWidth: 96,
-              color: Colors.blue,
-              textColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text(
-                "TAMBAH",
-                style: TextStyle(fontSize: 14),
+        margin: EdgeInsets.only(left: 16, right: 16, bottom: 8),
+        child: Container(
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(top: 16, left: 16, right: 16),
+                child: DropdownButton<Pekerjaan>(
+                    value: selectedValue,
+                    isExpanded: true,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedValue = value;
+                        widget.subPekerjaan.idPekerjaan = value!.id;
+                      });
+                    },
+                    items: widget.listPekerjaan
+                        .map<DropdownMenuItem<Pekerjaan>>((Pekerjaan value) =>
+                            DropdownMenuItem<Pekerjaan>(
+                                value: value, child: Text(value.nama)))
+                        .toList()),
               ),
-            ),
-          )
-        ],
-      ),
-    );
+              InputPekerjaanWidget(
+                subPekerjaan: widget.subPekerjaan,
+                pekerjaan: selectedValue,
+              )
+            ],
+          ),
+        ));
   }
 }
 
@@ -262,8 +292,8 @@ SubPekerjaan newSubPekerjaan(int idPekerjaan, int idUser, DateTime dateFilled) {
   DateTime date = DateTime.now();
   String selectDate = DateFormat("yyyy-MM-dd").format(dateFilled);
   String formatDate = DateFormat("HH:mm:ss").format(date);
-  print("tes $selectDate $formatDate");
   return SubPekerjaan(
+      nama: "-",
       idPekerjaan: idPekerjaan,
       tanggal: "$selectDate $formatDate",
       status: 'submit',
@@ -271,8 +301,10 @@ SubPekerjaan newSubPekerjaan(int idPekerjaan, int idUser, DateTime dateFilled) {
 }
 
 class InputPekerjaanWidget extends StatefulWidget {
+  final Pekerjaan? pekerjaan;
   final SubPekerjaan subPekerjaan;
-  const InputPekerjaanWidget({Key? key, required this.subPekerjaan})
+  const InputPekerjaanWidget(
+      {Key? key, required this.subPekerjaan, required this.pekerjaan})
       : super(key: key);
 
   @override
@@ -294,7 +326,6 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
   currentJamValue(value) {
     setState(() {
       jam = value;
-      // widget.subPekerjaan.durasi = jam;
     });
   }
 
@@ -308,10 +339,13 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 16, right: 16, top: 8),
+      margin: EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Detail Pekerjaan"),
+          widget.pekerjaan!.nama == "Others"
+              ? Text("Keterangan (wajib)")
+              : Text("Keterangan (opsional)"),
           SizedBox(
             height: 4,
           ),
@@ -320,7 +354,7 @@ class _InputPekerjaanWidgetState extends State<InputPekerjaanWidget> {
               onChanged: (value) => widget.subPekerjaan.nama = value,
               controller: _textEditingController,
               decoration: InputDecoration(
-                  hintText: "Detail Pekerjaan",
+                  hintText: "Keterangan",
                   hintStyle: TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10))),
