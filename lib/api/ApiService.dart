@@ -21,8 +21,8 @@ class ApiService {
   // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
   // final String storageUrl =
   //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  final String baseUrl = "http://192.168.166.20:8000/api";
-  final String storageUrl = "http://192.168.166.20:8000/storage/";
+  final String baseUrl = "http://192.168.36.20:8000/api";
+  final String storageUrl = "http://192.168.36.20:8000/storage/";
 
   var client = http.Client();
 

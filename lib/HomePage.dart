@@ -9,7 +9,9 @@ import 'package:daily_log/PersetujuanAtasanPage.dart';
 import 'package:daily_log/PersetujuanPage.dart';
 import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/QrCodePage.dart';
+import 'package:daily_log/api/ApiService.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatelessWidget {
@@ -82,16 +84,21 @@ class _MenuPageState extends State<MenuPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => isCheckIn
-                                    ? CheckOutPresensiPage(
-                                        idUser: this.idUSer,
-                                      )
-                                    : CheckInPresensiPage(
-                                        idUser: this.idUSer)));
+                      onPressed: () async {
+                        DateTime dateTime = DateTime.now();
+                        var date = DateFormat("yyyy-MM-dd").format(dateTime);
+                        var presenceResponse =
+                            await ApiService().getTodayPresence(idUSer, date);
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          if (presenceResponse.data.isEmpty) {
+                            return CheckInPresensiPage(idUser: this.idUSer);
+                          } else {
+                            return CheckOutPresensiPage(
+                              idUser: this.idUSer,
+                            );
+                          }
+                        }));
                       },
                       icon: Icon(
                         Icons.alarm,

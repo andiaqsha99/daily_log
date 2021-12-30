@@ -25,12 +25,24 @@ class _InputFieldState extends State<InputField> {
   late TextEditingController _passwordController;
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = false;
+  bool _isRememberMe = true;
 
   @override
   void initState() {
     super.initState();
     _usernameController = TextEditingController();
     _passwordController = TextEditingController();
+    setRememberMe();
+  }
+
+  setRememberMe() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    var username = sharedPreferences.getString("username");
+    var password = sharedPreferences.getString("password");
+    if (password != null && username != null) {
+      _usernameController.text = username;
+      _passwordController.text = password;
+    }
   }
 
   @override
@@ -110,12 +122,19 @@ class _InputFieldState extends State<InputField> {
             Align(
               alignment: Alignment.centerRight,
               child: Container(
-                child: Text(
-                  "Lupa password?",
-                  style: TextStyle(color: Colors.grey),
-                  textAlign: TextAlign.end,
-                ),
-              ),
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Checkbox(
+                      value: _isRememberMe,
+                      onChanged: (val) {
+                        setState(() {
+                          _isRememberMe = val!;
+                        });
+                      }),
+                  Text("Remember Me")
+                ],
+              )),
             ),
             SizedBox(
               height: 16,
@@ -148,12 +167,19 @@ class _InputFieldState extends State<InputField> {
                       Pengguna api = login.data[0];
                       if (_usernameController.text.trim() == api.username) {
                         sharedPreferences.setString("username", api.username);
-                        sharedPreferences.setBool("isLogin", true);
                         sharedPreferences.setString("jabatan", api.jabatan);
                         sharedPreferences.setInt("position_id", api.positionId);
                         sharedPreferences.setInt("id_user", api.id);
                         sharedPreferences.setBool("is_checkin", false);
                         sharedPreferences.setBool("isSdm", false);
+                        if (_isRememberMe) {
+                          sharedPreferences.setBool("isLogin", true);
+                          sharedPreferences.setString(
+                              "password", pengguna.password!);
+                        } else {
+                          sharedPreferences.setBool("isLogin", false);
+                          sharedPreferences.remove("password");
+                        }
                         if (api.atasanId != null) {
                           sharedPreferences.setInt("atasan_id", api.atasanId!);
                         }

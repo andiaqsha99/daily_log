@@ -48,7 +48,6 @@ class MenuBottom extends StatelessWidget {
                               onPressed: () async {
                                 final sharedPreferences =
                                     await SharedPreferences.getInstance();
-                                sharedPreferences.clear();
                                 sharedPreferences.setBool("isLogin", false);
                                 Navigator.of(context).pushAndRemoveUntil(
                                     MaterialPageRoute(

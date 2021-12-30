@@ -69,12 +69,25 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
     print(_locationData.accuracy);
   }
 
+  getLastCity() async {
+    var sharedPreference = await SharedPreferences.getInstance();
+    var lastCity = sharedPreference.getString("city");
+    if (lastCity != null) {
+      var latitude = sharedPreference.getString("latitude");
+      var longitude = sharedPreference.getString("longitude");
+      city = City(
+          id: 1, city: lastCity, latitude: latitude!, longitude: longitude!);
+      _cityController.text = lastCity;
+    }
+  }
+
   @override
   void initState() {
     cityResponse = ApiService().getCity();
     cityResponse.then((value) => listCity.addAll(value.data));
     super.initState();
     getLocationData();
+    getLastCity();
   }
 
   @override
@@ -229,6 +242,11 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
                             await ApiService().submitPresence(presence);
                             var sharedPreference =
                                 await SharedPreferences.getInstance();
+                            sharedPreference.setString("city", city!.city);
+                            sharedPreference.setString(
+                                "latitude", city!.latitude);
+                            sharedPreference.setString(
+                                "longitude", city!.longitude);
                             sharedPreference.setBool("is_checkin", true);
                             AlertDialog alertDialog = AlertDialog(
                               content: Text("Check In berhasil"),
