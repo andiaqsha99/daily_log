@@ -9,6 +9,7 @@ import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/Users.dart';
 import 'package:daily_log/model/UsersProvider.dart';
 import 'package:daily_log/sdm/DownloadKinerjaPage.dart';
+import 'package:daily_log/sdm/SdmHomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -148,10 +149,8 @@ class _InputFieldState extends State<InputField> {
                       _passwordController.text == '12345678') {
                     sharedPreferences.setBool("isLogin", true);
                     sharedPreferences.setBool("isSdm", true);
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DownloadKinerjaPage()));
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => SdmHomePage()));
                   } else {
                     Pengguna pengguna = Pengguna(
                         id: 1,

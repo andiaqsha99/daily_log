@@ -4,6 +4,7 @@ import 'package:daily_log/model/CityResponse.dart';
 import 'package:daily_log/model/DurasiHarianResponse.dart';
 import 'package:daily_log/model/KehadiranResponse.dart';
 import 'package:daily_log/model/NotifResponse.dart';
+import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
@@ -18,11 +19,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  // final String storageUrl =
-  //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  final String baseUrl = "http://192.168.36.20:8000/api";
-  final String storageUrl = "http://192.168.36.20:8000/storage/";
+  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  final String storageUrl =
+      "https://hurryup.universitaspertamina.ac.id/daily/storage/";
+  // final String baseUrl = "http://192.168.1.9:8000/api";
+  // final String storageUrl = "http://192.168.1.9:8000/storage/";
 
   var client = http.Client();
 
@@ -389,5 +390,31 @@ class ApiService {
     var data = jsonDecode(response.body);
     print(data);
     return DurasiHarianResponse.fromJson(data);
+  }
+
+  Future<void> submitPekerjaan(Pekerjaan pekerjaan) async {
+    final response = await client.post(Uri.parse("$baseUrl/pekerjaan/store"),
+        headers: {"content-type": "application/json"},
+        body: pekerjaanToJson(pekerjaan));
+    print(response.body);
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<void> updatePekerjaan(Pekerjaan pekerjaan) async {
+    final response = await client.post(Uri.parse("$baseUrl/pekerjaan/update"),
+        headers: {"content-type": "application/json"},
+        body: pekerjaanToJson(pekerjaan));
+    print(response.body);
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<void> deletePekerjaan(int pekerjaanId) async {
+    final response =
+        await client.delete(Uri.parse("$baseUrl/pekerjaan/$pekerjaanId"));
+    print(response.body);
+    var data = jsonDecode(response.body);
+    print(data);
   }
 }

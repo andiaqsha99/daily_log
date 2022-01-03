@@ -3,7 +3,7 @@ import 'package:daily_log/LoginPage.dart';
 import 'package:daily_log/model/NotifProvider.dart';
 import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/UsersProvider.dart';
-import 'package:daily_log/sdm/DownloadKinerjaPage.dart';
+import 'package:daily_log/sdm/SdmHomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,7 +61,7 @@ class _LoginWrapperState extends State<LoginWrapper> {
           .pushReplacement(MaterialPageRoute(builder: (context) {
         return isLogin
             ? isSdm
-                ? DownloadKinerjaPage()
+                ? SdmHomePage()
                 : HomePage()
             : LoginPage();
       }));

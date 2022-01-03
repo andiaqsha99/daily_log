@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Pekerjaan {
   int id;
   String nama;
@@ -17,4 +19,13 @@ class Pekerjaan {
         idUser: map['id_user'],
         tanggal: map['tanggal']);
   }
+
+  Map<String, dynamic> toJson() {
+    return {"id": id, "nama": nama, "tanggal": tanggal, "id_user": idUser};
+  }
+}
+
+String pekerjaanToJson(Pekerjaan data) {
+  final jsonData = data.toJson();
+  return json.encode(jsonData);
 }
