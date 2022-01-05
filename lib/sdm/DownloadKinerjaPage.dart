@@ -1,3 +1,6 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:daily_log/api/ApiService.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
@@ -5,7 +8,10 @@ import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class DownloadKinerjaPage extends StatefulWidget {
@@ -18,6 +24,7 @@ class DownloadKinerjaPage extends StatefulWidget {
 class _DownloadKinerjaPageState extends State<DownloadKinerjaPage> {
   DateTimeRange? dateTimeRange;
   int totalPekerjaan = 0;
+  bool isShowList = false;
 
   TextEditingController _fromDateController = TextEditingController();
   TextEditingController _untilDateController = TextEditingController();
@@ -98,7 +105,11 @@ class _DownloadKinerjaPageState extends State<DownloadKinerjaPage> {
                     height: 8,
                   ),
                   MaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        isShowList = true;
+                      });
+                    },
                     height: 48,
                     minWidth: 96,
                     color: Colors.blue,
@@ -114,7 +125,13 @@ class _DownloadKinerjaPageState extends State<DownloadKinerjaPage> {
               ),
             ),
           ),
-          ListTeam(idUser: 2),
+          isShowList
+              ? ListTeam(
+                  idUser: 2,
+                  firstDate: _fromDateController.text,
+                  lastDate: _untilDateController.text,
+                )
+              : Center(child: Text("Masukkan tanggal terlebih dahulu")),
         ],
       )),
     );
@@ -160,10 +177,14 @@ class _DownloadKinerjaPageState extends State<DownloadKinerjaPage> {
 
 class ListTeam extends StatefulWidget {
   final int idUser;
-  const ListTeam({
-    Key? key,
-    required this.idUser,
-  }) : super(key: key);
+  final String firstDate;
+  final String lastDate;
+  const ListTeam(
+      {Key? key,
+      required this.idUser,
+      required this.firstDate,
+      required this.lastDate})
+      : super(key: key);
 
   @override
   _ListTeamState createState() => _ListTeamState();
@@ -202,6 +223,8 @@ class _ListTeamState extends State<ListTeam> {
               itemBuilder: (context, index) {
                 return ItemListTim(
                   pengguna: items[index],
+                  firstDate: widget.firstDate,
+                  lastDate: widget.lastDate,
                 );
               });
         }
@@ -214,10 +237,14 @@ class _ListTeamState extends State<ListTeam> {
 
 class ItemListTim extends StatefulWidget {
   final Pengguna pengguna;
-  const ItemListTim({
-    Key? key,
-    required this.pengguna,
-  }) : super(key: key);
+  final String firstDate;
+  final String lastDate;
+  const ItemListTim(
+      {Key? key,
+      required this.pengguna,
+      required this.firstDate,
+      required this.lastDate})
+      : super(key: key);
 
   @override
   _ItemListTimState createState() => _ItemListTimState();
@@ -228,10 +255,35 @@ class _ItemListTimState extends State<ItemListTim> {
   bool isAtasan = true;
   late Future<PenggunaResponse> penggunaResponse;
 
+  ReceivePort _port = ReceivePort();
+
   @override
   void initState() {
     loadStaffData();
     super.initState();
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState(() {});
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    super.dispose();
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    send!.send([id, status, progress]);
   }
 
   loadStaffData() async {
@@ -266,7 +318,26 @@ class _ItemListTimState extends State<ItemListTim> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        //download excel
+                        var fdate =
+                            DateFormat("dd/MM/yyyy").parse(widget.firstDate);
+                        var firstDate = DateFormat("yyyy-MM-dd").format(fdate);
+                        var ldate =
+                            DateFormat("dd/MM/yyyy").parse(widget.lastDate);
+                        var lastDate = DateFormat("yyyy-MM-dd").format(ldate);
+                        var status = await Permission.storage.request();
+                        if (status.isGranted) {
+                          final baseStorage =
+                              await getExternalStorageDirectory();
+                          await FlutterDownloader.enqueue(
+                            url:
+                                '${ApiService().baseUrl}/pengguna/${widget.pengguna.id}/persetujuan/subpekerjaan/valid/$firstDate/$lastDate/download',
+                            savedDir: baseStorage!.path,
+                            showNotification:
+                                true, // show download progress in status bar (for Android)
+                            openFileFromNotification:
+                                true, // click on notification to open downloaded file (for Android)
+                          );
+                        }
                       },
                       child: Icon(Icons.download),
                     ),
@@ -287,7 +358,24 @@ class _ItemListTimState extends State<ItemListTim> {
                 )
               : GestureDetector(
                   onTap: () async {
-                    //download excel
+                    var fdate =
+                        DateFormat("dd/MM/yyyy").parse(widget.firstDate);
+                    var firstDate = DateFormat("yyyy-MM-dd").format(fdate);
+                    var ldate = DateFormat("dd/MM/yyyy").parse(widget.lastDate);
+                    var lastDate = DateFormat("yyyy-MM-dd").format(ldate);
+                    var status = await Permission.storage.request();
+                    if (status.isGranted) {
+                      final baseStorage = await getExternalStorageDirectory();
+                      await FlutterDownloader.enqueue(
+                        url:
+                            '${ApiService().baseUrl}/pengguna/${widget.pengguna.id}/persetujuan/subpekerjaan/valid/$firstDate/$lastDate/download',
+                        savedDir: baseStorage!.path,
+                        showNotification:
+                            true, // show download progress in status bar (for Android)
+                        openFileFromNotification:
+                            true, // click on notification to open downloaded file (for Android)
+                      );
+                    }
                   },
                   child: Icon(Icons.download),
                 ),
@@ -311,6 +399,8 @@ class _ItemListTimState extends State<ItemListTim> {
                         itemBuilder: (context, index) {
                           return ItemListTim(
                             pengguna: items[index],
+                            firstDate: widget.firstDate,
+                            lastDate: widget.lastDate,
                           );
                         });
                   }

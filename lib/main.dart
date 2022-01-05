@@ -4,9 +4,14 @@ import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/SettingProvider.dart';
 import 'package:daily_log/model/UsersProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug: true // optional: set false to disable printing logs to console
+      );
   runApp(MyApp());
 }
 
