@@ -56,75 +56,82 @@ class _SdmHomePageState extends State<SdmHomePage> {
             ))
       ]),
       body: SafeArea(
-        child: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 2,
-              mainAxisSpacing: 5,
-              crossAxisSpacing: 30,
-              primary: false,
-              children: [
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  color: Color(0xffD93025),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => DownloadKinerjaPage()));
-                        },
-                        icon: Icon(
-                          Icons.download,
-                          color: Colors.white,
-                        ),
-                        iconSize: 72,
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: GridView.count(
+                  shrinkWrap: true,
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 5,
+                  crossAxisSpacing: 30,
+                  primary: false,
+                  children: [
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      color: Color(0xffD93025),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DownloadKinerjaPage()));
+                            },
+                            icon: Icon(
+                              Icons.download,
+                              color: Colors.white,
+                            ),
+                            iconSize: 72,
+                          ),
+                          Text("Download laporan",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ))
+                        ],
                       ),
-                      Text("Download laporan",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ))
-                    ],
-                  ),
-                ),
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  color: Color(0xffD93025),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => InputPekerjaanPage()));
-                        },
-                        icon: Icon(
-                          Icons.note_add,
-                          color: Colors.white,
-                        ),
-                        iconSize: 72,
+                    ),
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      color: Color(0xffD93025),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          InputPekerjaanPage()));
+                            },
+                            icon: Icon(
+                              Icons.note_add,
+                              color: Colors.white,
+                            ),
+                            iconSize: 72,
+                          ),
+                          Text("Input Pekerjaan",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ))
+                        ],
                       ),
-                      Text("Input Pekerjaan",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ))
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
