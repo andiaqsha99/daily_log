@@ -34,6 +34,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 : GroupedListView<Notif, String>(
                     shrinkWrap: true,
                     elements: widget.listNotif,
+                    order: GroupedListOrder.DESC,
                     groupBy: (element) {
                       return element.date;
                     },
