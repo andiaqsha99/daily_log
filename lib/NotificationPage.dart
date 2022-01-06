@@ -27,44 +27,47 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Column(
-          children: [
-            widget.listNotif.length == 0
-                ? Center(child: Text("Tidak ada pemberitahuan"))
-                : GroupedListView<Notif, String>(
-                    shrinkWrap: true,
-                    elements: widget.listNotif,
-                    order: GroupedListOrder.DESC,
-                    groupBy: (element) {
-                      return element.date;
-                    },
-                    groupSeparatorBuilder: (groupBy) {
-                      String dateFormat = DateFormat("dd MMMM yyyy")
-                          .format(DateTime.parse(groupBy));
-                      return Text(dateFormat);
-                    },
-                    itemBuilder: (context, notif) {
-                      if (notif.status == 'submit') {
-                        return FutureBuilder<Pengguna>(
-                            future: ApiService().getPenggunaById(notif.sender!),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return NotificationItemSubmit(
-                                  notif: notif,
-                                  pengguna: snapshot.data!,
-                                );
-                              } else {
-                                return SizedBox();
-                              }
-                            });
-                      } else {
-                        return NotificationItem(
-                          notif: notif,
-                        );
-                      }
-                    },
-                  )
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              widget.listNotif.length == 0
+                  ? Center(child: Text("Tidak ada pemberitahuan"))
+                  : GroupedListView<Notif, String>(
+                      shrinkWrap: true,
+                      elements: widget.listNotif,
+                      order: GroupedListOrder.DESC,
+                      groupBy: (element) {
+                        return element.date;
+                      },
+                      groupSeparatorBuilder: (groupBy) {
+                        String dateFormat = DateFormat("dd MMMM yyyy")
+                            .format(DateTime.parse(groupBy));
+                        return Text(dateFormat);
+                      },
+                      itemBuilder: (context, notif) {
+                        if (notif.status == 'submit') {
+                          return FutureBuilder<Pengguna>(
+                              future:
+                                  ApiService().getPenggunaById(notif.sender!),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return NotificationItemSubmit(
+                                    notif: notif,
+                                    pengguna: snapshot.data!,
+                                  );
+                                } else {
+                                  return SizedBox();
+                                }
+                              });
+                        } else {
+                          return NotificationItem(
+                            notif: notif,
+                          );
+                        }
+                      },
+                    )
+            ],
+          ),
         ),
       ),
     );
