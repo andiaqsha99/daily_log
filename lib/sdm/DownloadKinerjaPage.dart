@@ -290,6 +290,28 @@ class _ItemListTimState extends State<ItemListTim> {
     penggunaResponse = ApiService().getPenggunaStaff(widget.pengguna.id);
   }
 
+  _downloadExcel(String filename) async {
+    var fdate = DateFormat("dd/MM/yyyy").parse(widget.firstDate);
+    var firstDate = DateFormat("yyyy-MM-dd").format(fdate);
+    var ldate = DateFormat("dd/MM/yyyy").parse(widget.lastDate);
+    var lastDate = DateFormat("yyyy-MM-dd").format(ldate);
+    var status = await Permission.storage.request();
+    if (status.isGranted) {
+      final baseStorage = await getExternalStorageDirectory();
+      await FlutterDownloader.enqueue(
+        url:
+            '${ApiService().baseUrl}/pengguna/${widget.pengguna.id}/persetujuan/subpekerjaan/valid/$firstDate/$lastDate/download',
+        savedDir: baseStorage!.path,
+        saveInPublicStorage: true,
+        fileName: filename,
+        showNotification:
+            true, // show download progress in status bar (for Android)
+        openFileFromNotification:
+            true, // click on notification to open downloaded file (for Android)
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var positionProvider = Provider.of<PositionProvider>(context);
@@ -318,26 +340,9 @@ class _ItemListTimState extends State<ItemListTim> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        var fdate =
-                            DateFormat("dd/MM/yyyy").parse(widget.firstDate);
-                        var firstDate = DateFormat("yyyy-MM-dd").format(fdate);
-                        var ldate =
-                            DateFormat("dd/MM/yyyy").parse(widget.lastDate);
-                        var lastDate = DateFormat("yyyy-MM-dd").format(ldate);
-                        var status = await Permission.storage.request();
-                        if (status.isGranted) {
-                          final baseStorage =
-                              await getExternalStorageDirectory();
-                          await FlutterDownloader.enqueue(
-                            url:
-                                '${ApiService().baseUrl}/pengguna/${widget.pengguna.id}/persetujuan/subpekerjaan/valid/$firstDate/$lastDate/download',
-                            savedDir: baseStorage!.path,
-                            showNotification:
-                                true, // show download progress in status bar (for Android)
-                            openFileFromNotification:
-                                true, // click on notification to open downloaded file (for Android)
-                          );
-                        }
+                        _downloadExcel(
+                          usersProvider.getUsers(widget.pengguna.nip).name,
+                        );
                       },
                       child: Icon(Icons.download),
                     ),
@@ -358,24 +363,9 @@ class _ItemListTimState extends State<ItemListTim> {
                 )
               : GestureDetector(
                   onTap: () async {
-                    var fdate =
-                        DateFormat("dd/MM/yyyy").parse(widget.firstDate);
-                    var firstDate = DateFormat("yyyy-MM-dd").format(fdate);
-                    var ldate = DateFormat("dd/MM/yyyy").parse(widget.lastDate);
-                    var lastDate = DateFormat("yyyy-MM-dd").format(ldate);
-                    var status = await Permission.storage.request();
-                    if (status.isGranted) {
-                      final baseStorage = await getExternalStorageDirectory();
-                      await FlutterDownloader.enqueue(
-                        url:
-                            '${ApiService().baseUrl}/pengguna/${widget.pengguna.id}/persetujuan/subpekerjaan/valid/$firstDate/$lastDate/download',
-                        savedDir: baseStorage!.path,
-                        showNotification:
-                            true, // show download progress in status bar (for Android)
-                        openFileFromNotification:
-                            true, // click on notification to open downloaded file (for Android)
-                      );
-                    }
+                    _downloadExcel(
+                      usersProvider.getUsers(widget.pengguna.nip).name,
+                    );
                   },
                   child: Icon(Icons.download),
                 ),
