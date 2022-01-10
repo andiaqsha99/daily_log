@@ -19,11 +19,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  final String storageUrl =
-      "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  // final String baseUrl = "http://192.168.81.253:8000/api";
-  // final String storageUrl = "http://192.168.81.253:8000/storage/";
+  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  // final String storageUrl =
+  //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
+  final String baseUrl = "http://192.168.81.253:8000/api";
+  final String storageUrl = "http://192.168.81.253:8000/storage/";
 
   var client = http.Client();
 
