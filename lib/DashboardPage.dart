@@ -37,6 +37,7 @@ class DashboardPage extends StatelessWidget {
           appBar: AppBar(
             title: Text("Dashboard"),
             bottom: TabBar(
+                indicatorWeight: 5.0,
                 labelPadding: EdgeInsets.symmetric(horizontal: 10.0),
                 tabs: [
                   Tab(
@@ -218,6 +219,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                                 '1 Hari',
                                 '1 Minggu',
                                 '1 Bulan',
+                                '1 Semester',
                                 'By Calendar'
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
@@ -323,6 +325,17 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                           case '1 Bulan':
                             String firstDate = dateFormat
                                 .format(now.subtract(Duration(days: 30)));
+                            String lastDate = dateFormat.format(now);
+                            print(firstDate);
+                            print(lastDate);
+                            setState(() {
+                              loadDurasiHarianTim(firstDate, lastDate);
+                              loadDataTotalPekerjaan(firstDate, lastDate);
+                            });
+                            break;
+                          case '1 Semester':
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 180)));
                             String lastDate = dateFormat.format(now);
                             print(firstDate);
                             print(lastDate);
@@ -738,6 +751,7 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                                 '1 Hari',
                                 '1 Minggu',
                                 '1 Bulan',
+                                '1 Semester',
                                 'By Calendar'
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
@@ -852,6 +866,16 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                             print(lastDate);
                             setState(() {
                               selectedFilter = dropdownValue;
+                              loadKehadiranTim(firstDate, lastDate);
+                            });
+                            break;
+                          case '1 Semester':
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 180)));
+                            String lastDate = dateFormat.format(now);
+                            print(firstDate);
+                            print(lastDate);
+                            setState(() {
                               loadKehadiranTim(firstDate, lastDate);
                             });
                             break;
@@ -994,6 +1018,9 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
   loadDurasiHarianTim(String firstDate, String endDate) async {
     _firstDate = firstDate;
     _lastDate = endDate;
+    PenggunaResponse penggunaResponse =
+        await ApiService().getPenggunaStaff(widget.idUser);
+    List<Pengguna> listStaff = penggunaResponse.data;
     if (firstDate == endDate) {
       isOneDay = true;
       var durasiResponse = await ApiService()
@@ -1002,7 +1029,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
         listDurasiHarian.clear();
         List<DurasiHarian> listDurasiTemp = durasiResponse.data;
         listDurasiTemp.forEach((element) {
-          element.durasi = element.durasi * 100 ~/ 480;
+          element.durasi = element.durasi * 100 ~/ 480 ~/ listStaff.length;
           log(element.durasi.toString());
           listDurasiHarian.add(element);
         });
@@ -1015,7 +1042,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
         listDurasiHarian.clear();
         List<DurasiHarian> listDurasiTemp = durasiResponse.data;
         listDurasiTemp.forEach((element) {
-          element.durasi = element.durasi * 100 ~/ 480;
+          element.durasi = element.durasi * 100 ~/ 480 ~/ listStaff.length;
           log(element.durasi.toString());
           listDurasiHarian.add(element);
         });
@@ -1102,6 +1129,7 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                                 '1 Hari',
                                 '1 Minggu',
                                 '1 Bulan',
+                                '1 Semester',
                                 'By Calendar'
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
@@ -1205,6 +1233,17 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                           case '1 Bulan':
                             String firstDate = dateFormat
                                 .format(now.subtract(Duration(days: 30)));
+                            String lastDate = dateFormat.format(now);
+                            print(firstDate);
+                            print(lastDate);
+                            setState(() {
+                              loadDurasiHarianTim(firstDate, lastDate);
+                              loadDataTotalPekerjaan(firstDate, lastDate);
+                            });
+                            break;
+                          case '1 Semester':
+                            String firstDate = dateFormat
+                                .format(now.subtract(Duration(days: 180)));
                             String lastDate = dateFormat.format(now);
                             print(firstDate);
                             print(lastDate);
