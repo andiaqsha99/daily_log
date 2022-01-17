@@ -38,6 +38,8 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
+  Color cardColor = Color(0xffffcccb);
+  Color iconColor = Colors.black;
   String jabatan = " ";
   int idUSer = 0;
   int idPosition = 0;
@@ -79,7 +81,7 @@ class _MenuPageState extends State<MenuPage> {
                     borderRadius: BorderRadius.circular(15)),
                 elevation: 4,
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -102,13 +104,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.alarm,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("Kehadiran",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -118,7 +120,7 @@ class _MenuPageState extends State<MenuPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   children: [
                     IconButton(
@@ -132,13 +134,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.desktop_windows,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("Pekerjaan Harian",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -148,7 +150,7 @@ class _MenuPageState extends State<MenuPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -161,12 +163,12 @@ class _MenuPageState extends State<MenuPage> {
                                       idUser: this.idUSer,
                                     )));
                       },
-                      icon: Icon(Icons.assignment_ind, color: Colors.white),
+                      icon: Icon(Icons.assignment_ind, color: iconColor),
                       iconSize: 72,
                     ),
                     Text("Laporan Kinerja",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -176,7 +178,7 @@ class _MenuPageState extends State<MenuPage> {
                     borderRadius: BorderRadius.circular(15)),
                 elevation: 4,
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   children: [
                     IconButton(
@@ -190,13 +192,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.assignment_turned_in,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("Persetujuan",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -206,7 +208,7 @@ class _MenuPageState extends State<MenuPage> {
                     borderRadius: BorderRadius.circular(15)),
                 elevation: 4,
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   children: [
                     IconButton(
@@ -218,13 +220,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.qr_code,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("QR Code",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -236,7 +238,7 @@ class _MenuPageState extends State<MenuPage> {
                       borderRadius: BorderRadius.circular(15)),
                   elevation: 4,
                   // color: Color(0xFFB0D8FD),
-                  color: Color(0xffD93025),
+                  color: cardColor,
                   child: Column(
                     children: [
                       IconButton(
@@ -251,13 +253,13 @@ class _MenuPageState extends State<MenuPage> {
                         },
                         icon: Icon(
                           Icons.dashboard,
-                          color: Colors.white,
+                          color: iconColor,
                         ),
                         iconSize: 72,
                       ),
                       Text("Dashboard",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: iconColor,
                           ))
                     ],
                   ),

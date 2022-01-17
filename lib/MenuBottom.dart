@@ -25,7 +25,7 @@ class MenuBottom extends StatelessWidget {
                   },
               icon: Icon(
                 Icons.home,
-                color: Colors.white,
+                color: Colors.black,
               )),
           IconButton(
               onPressed: () async {
@@ -61,7 +61,7 @@ class MenuBottom extends StatelessWidget {
               },
               icon: Icon(
                 Icons.logout,
-                color: Colors.white,
+                color: Colors.black,
               ))
         ],
       ),

@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:daily_log/model/CityResponse.dart';
 import 'package:daily_log/model/DurasiHarianResponse.dart';
 import 'package:daily_log/model/KehadiranResponse.dart';
+import 'package:daily_log/model/LaporanKinerjaResponse.dart';
 import 'package:daily_log/model/NotifResponse.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
 import 'package:daily_log/model/PersetujuanResponse.dart';
+import 'package:daily_log/model/PieChartDataResponse.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/Presence.dart';
 import 'package:daily_log/model/PresenceResponse.dart';
@@ -22,8 +24,8 @@ class ApiService {
   // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
   // final String storageUrl =
   //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  final String baseUrl = "http://192.168.81.253:8000/api";
-  final String storageUrl = "http://192.168.81.253:8000/storage/";
+  final String baseUrl = "http://192.168.45.253:8000/api";
+  final String storageUrl = "http://192.168.45.253:8000/storage/";
 
   var client = http.Client();
 
@@ -416,5 +418,24 @@ class ApiService {
     print(response.body);
     var data = jsonDecode(response.body);
     print(data);
+  }
+
+  Future<PieChartDataResponse> getPieChartData(
+      int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/piechart/$idStaff/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PieChartDataResponse.fromJson(data);
+  }
+
+  Future<List<LaporanKinerjaResponse>> getLaporanKinerjaData(
+      int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/kinerja/$idStaff/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    return List<LaporanKinerjaResponse>.from(data['data'].map((kinerja) {
+      return LaporanKinerjaResponse.fromJson(kinerja);
+    }));
   }
 }

@@ -271,8 +271,8 @@ class _CheckInPresensiPageState extends State<CheckInPresensiPage> {
                           }
                         },
                         height: 48,
-                        color: Colors.blue,
-                        textColor: Colors.white,
+                        color: Theme.of(context).primaryColor,
+                        // textColor: Colors.white,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                         child: Text(

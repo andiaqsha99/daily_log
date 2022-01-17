@@ -31,10 +31,18 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: ThemeData(
-              appBarTheme: AppBarTheme(color: Color(0xffB31412)),
+              // appBarTheme: AppBarTheme(color: Color(0xffB31412)),
+              // appBarTheme: AppBarTheme(color: Color(0xffce93d8)),
+              appBarTheme: AppBarTheme(
+                  color: Color(0xffef9a9a), foregroundColor: Colors.black),
+              // appBarTheme: AppBarTheme(color: Color(0xffe28c38)),
               fontFamily: 'Helvetica',
+              buttonTheme: ButtonThemeData(buttonColor: Color(0xffef9a9a)),
               // primarySwatch: Colors.blue,
-              primaryColor: Color(0xffB31412)),
+              // primaryColor: Color(0xffB31412)),
+              // primaryColor: Color(0xffce93d8)),
+              primaryColor: Color(0xffef9a9a)),
+          // primaryColor: Color(0xffe28c38)),
           home: LoginWrapper()),
     );
   }

@@ -127,8 +127,8 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                                   child: Text("KEMBALI"),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(6)),
-                                  color: Color(0xFF1A73E9),
-                                  textColor: Colors.white,
+                                  color: Theme.of(context).primaryColor,
+                                  // textColor: Colors.white,
                                   height: 40,
                                 ),
                                 SizedBox(
@@ -172,8 +172,8 @@ class _ListValidasiPekerjaanPageState extends State<ListValidasiPekerjaanPage> {
                                   child: Text("VALIDASI"),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(6)),
-                                  color: Color(0xFF1A73E9),
-                                  textColor: Colors.white,
+                                  color: Theme.of(context).primaryColor,
+                                  // textColor: Colors.white,
                                   height: 40,
                                 )
                               ],

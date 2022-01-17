@@ -13,6 +13,7 @@ import 'package:daily_log/model/DurasiHarian.dart';
 import 'package:daily_log/model/Kehadiran.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
+import 'package:daily_log/model/PieChartData.dart';
 import 'package:daily_log/model/Position.dart';
 import 'package:daily_log/model/PositionProvider.dart';
 import 'package:daily_log/model/PositionResponse.dart';
@@ -37,6 +38,7 @@ class DashboardPage extends StatelessWidget {
           appBar: AppBar(
             title: Text("Dashboard"),
             bottom: TabBar(
+                indicatorColor: Color(0xffba6b6c),
                 indicatorWeight: 5.0,
                 labelPadding: EdgeInsets.symmetric(horizontal: 10.0),
                 tabs: [
@@ -84,7 +86,7 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
   String _firstDate = '';
   String _lastDate = '';
 
-  List<DurasiHarian> listDurasiHarian = [];
+  List<PieChartData> listDurasiHarian = [];
 
   TextEditingController _fromDateController = TextEditingController();
   TextEditingController _untilDateController = TextEditingController();
@@ -125,16 +127,22 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
     listDurasiHarian.clear();
     if (firstDate == endDate) {
       isOneDay = true;
-      var durasiResponse = await ApiService()
-          .getDurasiHarianTim1Hari(widget.idUser, firstDate, endDate);
+      var durasiResponse =
+          await ApiService().getPieChartData(widget.idUser, firstDate, endDate);
       setState(() {
+        durasiResponse.data.forEach((element) {
+          element.durasi = element.durasi ~/ 60;
+        });
         listDurasiHarian = durasiResponse.data;
       });
     } else {
       isOneDay = false;
-      var durasiResponse = await ApiService()
-          .getDurasiHarianTim(widget.idUser, firstDate, endDate);
+      var durasiResponse =
+          await ApiService().getPieChartData(widget.idUser, firstDate, endDate);
       setState(() {
+        durasiResponse.data.forEach((element) {
+          element.durasi = element.durasi ~/ 60;
+        });
         listDurasiHarian = durasiResponse.data;
       });
     }
@@ -152,29 +160,29 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                 ? Center(
                     child: Text("Tidak ada data"),
                   )
-                : Container(
-                    height: MediaQuery.of(context).size.height * 0.35,
-                    width: double.infinity,
-                    child: LineChartTotalPekerjaan(
-                      listData: listDurasiHarian,
-                      isOneDay: isOneDay,
-                    )),
+                : Wrap(
+                    children: <Widget>[
+                      PieChartTim(
+                        listPieChartData: listDurasiHarian,
+                      )
+                    ],
+                  ),
             SizedBox(
               height: 8,
             ),
             Container(
               padding: EdgeInsets.all(8),
-              color: Colors.blue,
+              color: Theme.of(context).primaryColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     totalPekerjaan.toString(),
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.black),
                   ),
                   Text(
                     "Total Pekerjaan",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.black),
                   )
                 ],
               ),
@@ -360,8 +368,8 @@ class _LaporanKinerjaTimState extends State<LaporanKinerjaTim> {
                       },
                       height: 48,
                       minWidth: 96,
-                      color: Colors.blue,
-                      textColor: Colors.white,
+                      color: Theme.of(context).primaryColor,
+                      // textColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                       child: Text(
@@ -895,8 +903,8 @@ class _DashboardKehadiranState extends State<DashboardKehadiran> {
                       },
                       height: 48,
                       minWidth: 96,
-                      color: Colors.blue,
-                      textColor: Colors.white,
+                      color: Theme.of(context).primaryColor,
+                      // textColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                       child: Text(
@@ -1074,17 +1082,17 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
             ),
             Container(
               padding: EdgeInsets.all(8),
-              color: Colors.blue,
+              color: Theme.of(context).primaryColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     totalPekerjaan.toString(),
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.black),
                   ),
                   Text(
                     "Total Beban Kerja",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.black),
                   )
                 ],
               ),
@@ -1268,8 +1276,8 @@ class _BebanKerjaTimState extends State<BebanKerjaTim> {
                       },
                       height: 48,
                       minWidth: 96,
-                      color: Colors.blue,
-                      textColor: Colors.white,
+                      color: Theme.of(context).primaryColor,
+                      // textColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                       child: Text(
@@ -1521,6 +1529,31 @@ class _LineChartTotalPekerjaanState extends State<LineChartTotalPekerjaan> {
                   durasiHarian.tanggal,
               yValueMapper: (DurasiHarian durasiHarian, _) =>
                   durasiHarian.durasi)
+        ]);
+  }
+}
+
+class PieChartTim extends StatelessWidget {
+  final List<PieChartData> listPieChartData;
+  const PieChartTim({Key? key, required this.listPieChartData})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return chart.SfCircularChart(
+        legend: chart.Legend(
+            isVisible: true,
+            position: chart.LegendPosition.bottom,
+            overflowMode: chart.LegendItemOverflowMode.wrap),
+        series: <chart.CircularSeries>[
+          // Render pie chart
+          chart.PieSeries<PieChartData, String>(
+              dataLabelSettings: chart.DataLabelSettings(
+                  // Renders the data label
+                  isVisible: true),
+              dataSource: listPieChartData,
+              xValueMapper: (PieChartData data, _) => data.nama,
+              yValueMapper: (PieChartData data, _) => data.durasi),
         ]);
   }
 }

@@ -79,12 +79,14 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Pekerjaan",
-                    style: TextStyle(color: Colors.blue, fontSize: 16),
+                    style: TextStyle(color: Colors.black, fontSize: 16),
                   ),
                 ),
                 Container(
                   margin: EdgeInsets.only(right: 16),
                   child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Theme.of(context).primaryColor),
                       onPressed: () async {
                         final date = await showDatePicker(
                             context: context,
@@ -98,7 +100,10 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                           });
                         }
                       },
-                      child: Text(DateFormat("dd/MM/yyyy").format(dateFilled))),
+                      child: Text(
+                        DateFormat("dd/MM/yyyy").format(dateFilled),
+                        style: TextStyle(color: Colors.black),
+                      )),
                 )
               ],
             ),
@@ -130,8 +135,8 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                     },
                     height: 56,
                     minWidth: 96,
-                    color: Colors.blue,
-                    textColor: Colors.white,
+                    color: Theme.of(context).primaryColor,
+                    // textColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                     child: Text(
@@ -211,8 +216,8 @@ class _PekerjaanHarianPageState extends State<PekerjaanHarianPage> {
                     },
                     height: 56,
                     minWidth: 96,
-                    color: Colors.blue,
-                    textColor: Colors.white,
+                    color: Theme.of(context).primaryColor,
+                    // textColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                     child: Text(
