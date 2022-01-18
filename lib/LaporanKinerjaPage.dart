@@ -394,72 +394,76 @@ class _ListLaporanKinerjaState extends State<ListLaporanKinerja> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          DateFormat("dd MMMM yyyy")
-              .format(DateTime.parse(widget.laporanKinerjaResponse.tanggal)),
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
         Card(
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child: ExpansionTile(
+              title: Text(
+                DateFormat("dd MMMM yyyy").format(
+                    DateTime.parse(widget.laporanKinerjaResponse.tanggal)),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               children: [
-                GroupedListView<LaporanKinerja, String>(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  elements: widget.laporanKinerjaResponse.listLaporanKinerja,
-                  groupBy: (element) {
-                    return element.namaPekerjaan;
-                  },
-                  groupSeparatorBuilder: (groupBy) {
-                    return Text(
-                      groupBy,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    );
-                  },
-                  itemBuilder: (context, element) {
-                    return Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.only(left: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            element.nama,
-                          ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Text((() {
-                            if (element.durasi < 10) {
-                              return "Durasi: 00:0${element.durasi}";
-                            } else if (element.durasi > 59) {
-                              int jam = element.durasi ~/ 60;
-                              int menit = element.durasi % 60;
-                              if (menit < 10) {
-                                return "Durasi: 0$jam:0$menit";
-                              }
-                              return "Durasi: $jam:$menit";
-                            } else {
-                              return "Durasi: 00:${element.durasi}";
-                            }
-                          }())),
-                          const Divider(
-                            height: 20,
-                            thickness: 2,
-                            indent: 0,
-                            endIndent: 0,
-                          ),
-                        ],
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GroupedListView<LaporanKinerja, String>(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        elements:
+                            widget.laporanKinerjaResponse.listLaporanKinerja,
+                        groupBy: (element) {
+                          return element.namaPekerjaan;
+                        },
+                        groupSeparatorBuilder: (groupBy) {
+                          return Text(
+                            groupBy,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          );
+                        },
+                        itemBuilder: (context, element) {
+                          return Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.only(left: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  element.nama,
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                Text((() {
+                                  if (element.durasi < 10) {
+                                    return "Durasi: 00:0${element.durasi}";
+                                  } else if (element.durasi > 59) {
+                                    int jam = element.durasi ~/ 60;
+                                    int menit = element.durasi % 60;
+                                    if (menit < 10) {
+                                      return "Durasi: 0$jam:0$menit";
+                                    }
+                                    return "Durasi: $jam:$menit";
+                                  } else {
+                                    return "Durasi: 00:${element.durasi}";
+                                  }
+                                }())),
+                                const Divider(
+                                  height: 20,
+                                  thickness: 2,
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+                    ],
+                  ),
+                )
+              ]),
         ),
       ],
     );
