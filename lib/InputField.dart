@@ -212,7 +212,9 @@ class _InputFieldState extends State<InputField> {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomePage()));
+                                builder: (context) => HomePage(
+                                      isStartApp: true,
+                                    )));
                         Navigator.push(
                             context,
                             MaterialPageRoute(

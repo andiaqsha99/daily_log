@@ -62,7 +62,9 @@ class _LoginWrapperState extends State<LoginWrapper> {
         return isLogin
             ? isSdm
                 ? SdmHomePage()
-                : HomePage()
+                : HomePage(
+                    isStartApp: true,
+                  )
             : LoginPage();
       }));
     });

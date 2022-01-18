@@ -11,11 +11,48 @@ import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/QrCodePage.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+import 'model/Pengumuman.dart';
+
+class HomePage extends StatefulWidget {
+  final bool? isStartApp;
+  const HomePage({Key? key, this.isStartApp}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isStartApp != null) {
+      SchedulerBinding.instance!.addPostFrameCallback((timeStamp) {
+        showPengumumanDialog();
+      });
+    }
+  }
+
+  showPengumumanDialog() async {
+    var pengumumanResponse = await ApiService().getListPengumuman();
+    List<Pengumuman> listPengumuman = pengumumanResponse.data;
+    if (listPengumuman.length > 0) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Pengumuman"),
+              content: Container(
+                child:
+                    Text(listPengumuman[listPengumuman.length - 1].pengumuman),
+              ),
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
