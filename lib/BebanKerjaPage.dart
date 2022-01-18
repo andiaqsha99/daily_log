@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 
+import 'model/LaporanKinerjaResponse.dart';
 import 'model/PersetujuanPekerjaan.dart';
 
 class BebanKerjaPage extends StatefulWidget {
@@ -35,13 +36,13 @@ class BebanKerjaPage extends StatefulWidget {
 }
 
 class _BebanKerjaPageState extends State<BebanKerjaPage> {
-  late Future<PersetujuanResponse> pekerjaanResponse;
+  late Future<List<LaporanKinerjaResponse>> laporanKinerjaResponse;
   int totalPekerjaan = 0;
   List<DurasiHarian> listDurasiHarian = [];
   String selectedDate = '';
   var now = new DateTime.now();
-  String? _firstDate = '';
-  String? _lastDate = '';
+  String? _firstDate = '-';
+  String? _lastDate = '-';
   Pengguna? _pengguna;
 
   @override
@@ -59,8 +60,10 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
   }
 
   setDate() {
-    _firstDate = widget.firstDate;
-    _lastDate = widget.lastDate;
+    if (widget.firstDate != null) {
+      _firstDate = widget.firstDate;
+      _lastDate = widget.lastDate;
+    }
   }
 
   loadDataTotalPekerjaan(DateTime date) async {
@@ -70,7 +73,7 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-    if (_firstDate != null && _lastDate != null) {
+    if (_firstDate != '-' && _lastDate != '-') {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
     }
@@ -93,8 +96,8 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
     }
-    pekerjaanResponse =
-        ApiService().getPekerjaanSatuBulan(widget.idUser, firstDate, endDate);
+    laporanKinerjaResponse =
+        ApiService().getLaporanKinerjaData(widget.idUser, firstDate, endDate);
   }
 
   loadDurasiHarianPerBulan(DateTime date) async {
@@ -105,7 +108,7 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-    if (widget.firstDate != null && widget.lastDate != null) {
+    if (_firstDate != '-' && _lastDate != '-') {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
     }
@@ -150,6 +153,8 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
                   width: double.infinity,
                   height: 40,
                   child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Theme.of(context).primaryColor),
                       onPressed: () {
                         showMonthPicker(
                                 context: context,
@@ -158,6 +163,8 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
                             .then((date) {
                           if (date != null) {
                             setState(() {
+                              _firstDate = '-';
+                              _lastDate = '-';
                               print(date);
                               String thisMonth =
                                   DateFormat("MMMM yyyy").format(date);
@@ -175,6 +182,7 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
                         child: Text(
                           selectedDate,
                           textAlign: TextAlign.right,
+                          style: TextStyle(color: Colors.black),
                         ),
                       ))),
               SizedBox(
@@ -214,22 +222,22 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
                           height: 8,
                         ),
                         Text("Daftar Pekerjaan"),
-                        FutureBuilder<PersetujuanResponse>(
-                            future: pekerjaanResponse,
+                        FutureBuilder<List<LaporanKinerjaResponse>>(
+                            future: laporanKinerjaResponse,
                             builder: (context, snapshot) {
                               if (snapshot.hasError) {
                                 return Text("Error");
                               } else if (snapshot.hasData) {
-                                List<PersetujuanPekerjaan> items =
-                                    snapshot.data!.data;
+                                List<LaporanKinerjaResponse> items =
+                                    snapshot.data!;
                                 if (items.length > 0) {
                                   return ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount: items.length,
                                       itemBuilder: (context, index) {
-                                        return ListPekerjaanValid(
-                                          pekerjaan: items[index],
+                                        return ListLaporanKinerja(
+                                          laporanKinerjaResponse: items[index],
                                         );
                                       });
                                 } else {

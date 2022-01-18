@@ -248,125 +248,125 @@ class _LaporanKinerjaPageState extends State<LaporanKinerjaPage> {
   }
 }
 
-class ListPekerjaanValid extends StatefulWidget {
-  final PersetujuanPekerjaan pekerjaan;
-  const ListPekerjaanValid({Key? key, required this.pekerjaan})
-      : super(key: key);
+// class ListPekerjaanValid extends StatefulWidget {
+//   final PersetujuanPekerjaan pekerjaan;
+//   const ListPekerjaanValid({Key? key, required this.pekerjaan})
+//       : super(key: key);
 
-  @override
-  _ListPekerjaanValidState createState() => _ListPekerjaanValidState();
-}
+//   @override
+//   _ListPekerjaanValidState createState() => _ListPekerjaanValidState();
+// }
 
-class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
-  late List<SubPekerjaan> listSubpekerjaan;
-  int durasi = 0;
-  int jam = 0;
-  int menit = 0;
+// class _ListPekerjaanValidState extends State<ListPekerjaanValid> {
+//   late List<SubPekerjaan> listSubpekerjaan;
+//   int durasi = 0;
+//   int jam = 0;
+//   int menit = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    listSubpekerjaan = widget.pekerjaan.subPekerjaan;
-    setTotalDurasi();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     listSubpekerjaan = widget.pekerjaan.subPekerjaan;
+//     setTotalDurasi();
+//   }
 
-  setTotalDurasi() async {
-    listSubpekerjaan.forEach((element) {
-      setState(() {
-        durasi = durasi + element.durasi;
-      });
-    });
-    setState(() {
-      jam = durasi ~/ 60;
-      menit = durasi % 60;
-    });
-  }
+//   setTotalDurasi() async {
+//     listSubpekerjaan.forEach((element) {
+//       setState(() {
+//         durasi = durasi + element.durasi;
+//       });
+//     });
+//     setState(() {
+//       jam = durasi ~/ 60;
+//       menit = durasi % 60;
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Card(
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                this.widget.pekerjaan.nama,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Text(menit > 9
-                  ? jam > 9
-                      ? "Durasi: $jam:$menit"
-                      : "Durasi: 0$jam:$menit"
-                  : jam > 9
-                      ? "Durasi: $jam:0$menit"
-                      : "Durasi: 0$jam:0$menit"),
-              const Divider(
-                height: 20,
-                thickness: 2,
-                indent: 0,
-                endIndent: 0,
-              ),
-              ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: listSubpekerjaan.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.only(left: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            listSubpekerjaan[index].nama,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Text("Tanggal: " +
-                              DateFormat("dd-MM-yyyy").format(DateTime.parse(
-                                  listSubpekerjaan[index].tanggal))),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Text((() {
-                            if (listSubpekerjaan[index].durasi < 10) {
-                              return "Durasi: 00:0${listSubpekerjaan[index].durasi}";
-                            } else if (listSubpekerjaan[index].durasi > 59) {
-                              int jam = listSubpekerjaan[index].durasi ~/ 60;
-                              int menit = listSubpekerjaan[index].durasi % 60;
-                              if (menit < 10) {
-                                return "Durasi: 0$jam:0$menit";
-                              }
-                              return "Durasi: $jam:$menit";
-                            } else {
-                              return "Durasi: 00:${listSubpekerjaan[index].durasi}";
-                            }
-                          }())),
-                          const Divider(
-                            height: 20,
-                            thickness: 2,
-                            indent: 0,
-                            endIndent: 0,
-                          ),
-                        ],
-                      ),
-                    );
-                  })
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: Card(
+//         child: Container(
+//           width: double.infinity,
+//           padding: EdgeInsets.all(8),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 this.widget.pekerjaan.nama,
+//                 style: TextStyle(fontWeight: FontWeight.bold),
+//               ),
+//               SizedBox(
+//                 height: 4,
+//               ),
+//               Text(menit > 9
+//                   ? jam > 9
+//                       ? "Durasi: $jam:$menit"
+//                       : "Durasi: 0$jam:$menit"
+//                   : jam > 9
+//                       ? "Durasi: $jam:0$menit"
+//                       : "Durasi: 0$jam:0$menit"),
+//               const Divider(
+//                 height: 20,
+//                 thickness: 2,
+//                 indent: 0,
+//                 endIndent: 0,
+//               ),
+//               ListView.builder(
+//                   physics: NeverScrollableScrollPhysics(),
+//                   itemCount: listSubpekerjaan.length,
+//                   shrinkWrap: true,
+//                   itemBuilder: (context, index) {
+//                     return Container(
+//                       width: double.infinity,
+//                       padding: EdgeInsets.only(left: 16),
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Text(
+//                             listSubpekerjaan[index].nama,
+//                             style: TextStyle(fontWeight: FontWeight.bold),
+//                           ),
+//                           SizedBox(
+//                             height: 4,
+//                           ),
+//                           Text("Tanggal: " +
+//                               DateFormat("dd-MM-yyyy").format(DateTime.parse(
+//                                   listSubpekerjaan[index].tanggal))),
+//                           SizedBox(
+//                             height: 4,
+//                           ),
+//                           Text((() {
+//                             if (listSubpekerjaan[index].durasi < 10) {
+//                               return "Durasi: 00:0${listSubpekerjaan[index].durasi}";
+//                             } else if (listSubpekerjaan[index].durasi > 59) {
+//                               int jam = listSubpekerjaan[index].durasi ~/ 60;
+//                               int menit = listSubpekerjaan[index].durasi % 60;
+//                               if (menit < 10) {
+//                                 return "Durasi: 0$jam:0$menit";
+//                               }
+//                               return "Durasi: $jam:$menit";
+//                             } else {
+//                               return "Durasi: 00:${listSubpekerjaan[index].durasi}";
+//                             }
+//                           }())),
+//                           const Divider(
+//                             height: 20,
+//                             thickness: 2,
+//                             indent: 0,
+//                             endIndent: 0,
+//                           ),
+//                         ],
+//                       ),
+//                     );
+//                   })
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class ListLaporanKinerja extends StatefulWidget {
   final LaporanKinerjaResponse laporanKinerjaResponse;
