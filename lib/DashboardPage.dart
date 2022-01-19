@@ -1401,13 +1401,14 @@ class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
         legend: chart.Legend(
             isVisible: true, position: chart.LegendPosition.bottom),
         primaryXAxis: chart.DateTimeAxis(
-            edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
-            intervalType: widget.isOneDay
-                ? chart.DateTimeIntervalType.hours
-                : chart.DateTimeIntervalType.days),
+          edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
+          // intervalType: widget.isOneDay
+          //     ? chart.DateTimeIntervalType.hours
+          //     : chart.DateTimeIntervalType.days
+        ),
         series: <chart.ChartSeries>[
           // Renders line chart
-          chart.LineSeries<DurasiHarian, DateTime>(
+          chart.ColumnSeries<DurasiHarian, DateTime>(
               name: 'Total beban kerja & tanggal',
               enableTooltip: true,
               dataSource: widget.listData,

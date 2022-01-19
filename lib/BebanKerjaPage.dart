@@ -92,7 +92,7 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
     print(lastDayDateTime);
     String firstDate = DateFormat("yyyy-MM-dd").format(date);
     String endDate = DateFormat("yyyy-MM-dd").format(lastDayDateTime);
-    if (widget.firstDate != null && widget.lastDate != null) {
+    if (_firstDate != '-' && _lastDate != '-') {
       firstDate = widget.firstDate!;
       endDate = widget.lastDate!;
     }
@@ -119,7 +119,7 @@ class _BebanKerjaPageState extends State<BebanKerjaPage> {
       listDurasiTemp.forEach((element) {
         element.durasi = element.durasi * 100 ~/ 480;
         log(element.durasi.toString());
-        listDurasiHarian.add(element);
+        listDurasiHarian = listDurasiTemp;
       });
     });
   }
