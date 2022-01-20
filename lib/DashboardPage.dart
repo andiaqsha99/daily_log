@@ -1401,11 +1401,8 @@ class _LineChartBebanKerjaState extends State<LineChartBebanKerja> {
         legend: chart.Legend(
             isVisible: true, position: chart.LegendPosition.bottom),
         primaryXAxis: chart.DateTimeAxis(
-          edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
-          // intervalType: widget.isOneDay
-          //     ? chart.DateTimeIntervalType.hours
-          //     : chart.DateTimeIntervalType.days
-        ),
+            edgeLabelPlacement: chart.EdgeLabelPlacement.shift,
+            intervalType: chart.DateTimeIntervalType.days),
         series: <chart.ChartSeries>[
           // Renders line chart
           chart.ColumnSeries<DurasiHarian, DateTime>(
