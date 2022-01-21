@@ -212,7 +212,9 @@ class _InputFieldState extends State<InputField> {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomePage()));
+                                builder: (context) => HomePage(
+                                      isStartApp: true,
+                                    )));
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -233,8 +235,8 @@ class _InputFieldState extends State<InputField> {
               height: 56,
               minWidth: double.infinity,
               // color: Colors.blue,
-              color: Color(0xffB31412),
-              textColor: Colors.white,
+              color: Theme.of(context).primaryColor,
+              // textColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
               child: Text(

@@ -143,8 +143,8 @@ class _CheckOutPresensiPageState extends State<CheckOutPresensiPage> {
                   },
                   height: 48,
                   minWidth: 96,
-                  color: Color(0xFFF48D2E),
-                  textColor: Colors.white,
+                  color: Theme.of(context).primaryColor,
+                  // textColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   child: Text(

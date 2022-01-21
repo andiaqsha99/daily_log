@@ -80,6 +80,8 @@ class _KehadiranPageState extends State<KehadiranPage> {
                   width: double.infinity,
                   height: 40,
                   child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Theme.of(context).primaryColor),
                       onPressed: () {
                         showMonthPicker(
                                 context: context,
@@ -103,6 +105,7 @@ class _KehadiranPageState extends State<KehadiranPage> {
                         child: Text(
                           selectedDate,
                           textAlign: TextAlign.right,
+                          style: TextStyle(color: Colors.black),
                         ),
                       ))),
               SizedBox(

@@ -18,6 +18,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
   String? foto;
   String name = " ";
   String? namaJabatan;
+  Color colorText = Colors.black;
 
   @override
   void initState() {
@@ -44,7 +45,10 @@ class _ProfilStatusState extends State<ProfilStatus> {
     return Container(
       padding: EdgeInsets.all(16),
       // color: Color(0xFF5A9EFF),
-      color: Color(0xffD93025),
+      // color: Color(0xffD93025),
+      // color: Color(0xffffbc67),
+
+      color: Color(0xffffcccb),
       child: Row(
         children: [
           Expanded(
@@ -64,7 +68,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
               },
               child: foto == null
                   ? CircleAvatar(
-                      backgroundColor: Colors.white,
+                      backgroundColor: colorText,
                       maxRadius: 36,
                     )
                   : CircleAvatar(
@@ -83,7 +87,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
                 children: [
                   Text(
                     "Selamat Datang,",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(color: colorText, fontSize: 18),
                   ),
                   SizedBox(
                     height: 8,
@@ -91,7 +95,7 @@ class _ProfilStatusState extends State<ProfilStatus> {
                   Text(
                     name,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: colorText,
                       fontSize: 16,
                     ),
                   ),
@@ -100,10 +104,10 @@ class _ProfilStatusState extends State<ProfilStatus> {
                   ),
                   namaJabatan != null
                       ? Text(namaJabatan!,
-                          style: TextStyle(color: Colors.white, fontSize: 16))
+                          style: TextStyle(color: colorText, fontSize: 16))
                       : Text(
                           position,
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(color: colorText, fontSize: 16),
                         )
                 ],
               ),

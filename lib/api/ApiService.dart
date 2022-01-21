@@ -3,12 +3,16 @@ import 'dart:convert';
 import 'package:daily_log/model/CityResponse.dart';
 import 'package:daily_log/model/DurasiHarianResponse.dart';
 import 'package:daily_log/model/KehadiranResponse.dart';
+import 'package:daily_log/model/LaporanKinerjaResponse.dart';
 import 'package:daily_log/model/NotifResponse.dart';
 import 'package:daily_log/model/Pekerjaan.dart';
 import 'package:daily_log/model/PekerjaanResponse.dart';
 import 'package:daily_log/model/Pengguna.dart';
 import 'package:daily_log/model/PenggunaResponse.dart';
+import 'package:daily_log/model/Pengumuman.dart';
+import 'package:daily_log/model/PengumumanResponse.dart';
 import 'package:daily_log/model/PersetujuanResponse.dart';
+import 'package:daily_log/model/PieChartDataResponse.dart';
 import 'package:daily_log/model/PositionResponse.dart';
 import 'package:daily_log/model/Presence.dart';
 import 'package:daily_log/model/PresenceResponse.dart';
@@ -19,11 +23,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class ApiService {
-  // final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
-  // final String storageUrl =
-  //     "https://hurryup.universitaspertamina.ac.id/daily/storage/";
-  final String baseUrl = "http://192.168.81.253:8000/api";
-  final String storageUrl = "http://192.168.81.253:8000/storage/";
+  final String baseUrl = "https://hurryup.universitaspertamina.ac.id/daily/api";
+  final String storageUrl =
+      "https://hurryup.universitaspertamina.ac.id/daily/storage/";
+  // final String baseUrl = "http://192.168.45.253:8000/api";
+  // final String storageUrl = "http://192.168.45.253:8000/storage/";
 
   var client = http.Client();
 
@@ -413,6 +417,58 @@ class ApiService {
   Future<void> deletePekerjaan(int pekerjaanId) async {
     final response =
         await client.delete(Uri.parse("$baseUrl/pekerjaan/$pekerjaanId"));
+    print(response.body);
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<PieChartDataResponse> getPieChartData(
+      int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/piechart/$idStaff/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PieChartDataResponse.fromJson(data);
+  }
+
+  Future<List<LaporanKinerjaResponse>> getLaporanKinerjaData(
+      int idStaff, String dateFrom, String dateTo) async {
+    final response = await client.get(
+        (Uri.parse("$baseUrl/kinerja/$idStaff/tanggal/$dateFrom/$dateTo")));
+    var data = jsonDecode(response.body);
+    return List<LaporanKinerjaResponse>.from(data['data'].map((kinerja) {
+      return LaporanKinerjaResponse.fromJson(kinerja);
+    }));
+  }
+
+  Future<PengumumanResponse> getListPengumuman() async {
+    final response = await client.get((Uri.parse("$baseUrl/pengumuman")));
+    var data = jsonDecode(response.body);
+    print(data);
+    return PengumumanResponse.fromJson(data);
+  }
+
+  Future<void> submitPengumuman(Pengumuman pengumuman) async {
+    final response = await client.post(Uri.parse("$baseUrl/pengumuman/store"),
+        headers: {"content-type": "application/json"},
+        body: pengumumanToJson(pengumuman));
+    print(response.body);
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<void> updatePengumuman(Pengumuman pengumuman) async {
+    final response = await client.post(Uri.parse("$baseUrl/pengumuman/update"),
+        headers: {"content-type": "application/json"},
+        body: pengumumanToJson(pengumuman));
+    print(response.body);
+    var data = jsonDecode(response.body);
+    print(data);
+  }
+
+  Future<void> deletePengumuman(int pengumumanId) async {
+    final response =
+        await client.delete(Uri.parse("$baseUrl/pengumuman/$pengumumanId"));
     print(response.body);
     var data = jsonDecode(response.body);
     print(data);

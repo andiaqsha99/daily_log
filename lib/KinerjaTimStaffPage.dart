@@ -173,17 +173,17 @@ class _KinerjaTimStaffPageState extends State<KinerjaTimStaffPage> {
               ),
               Container(
                 padding: EdgeInsets.all(8),
-                color: Colors.blue,
+                color: Theme.of(context).primaryColor,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       totalPekerjaan.toString(),
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.black),
                     ),
                     Text(
                       "Total Pekerjaan",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.black),
                     )
                   ],
                 ),

@@ -11,11 +11,48 @@ import 'package:daily_log/ProfilStatus.dart';
 import 'package:daily_log/QrCodePage.dart';
 import 'package:daily_log/api/ApiService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+import 'model/Pengumuman.dart';
+
+class HomePage extends StatefulWidget {
+  final bool? isStartApp;
+  const HomePage({Key? key, this.isStartApp}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isStartApp != null) {
+      SchedulerBinding.instance!.addPostFrameCallback((timeStamp) {
+        showPengumumanDialog();
+      });
+    }
+  }
+
+  showPengumumanDialog() async {
+    var pengumumanResponse = await ApiService().getListPengumuman();
+    List<Pengumuman> listPengumuman = pengumumanResponse.data;
+    if (listPengumuman.length > 0) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Pengumuman"),
+              content: Container(
+                child:
+                    Text(listPengumuman[listPengumuman.length - 1].pengumuman),
+              ),
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +75,8 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
+  Color cardColor = Color(0xffffcccb);
+  Color iconColor = Colors.black;
   String jabatan = " ";
   int idUSer = 0;
   int idPosition = 0;
@@ -79,7 +118,7 @@ class _MenuPageState extends State<MenuPage> {
                     borderRadius: BorderRadius.circular(15)),
                 elevation: 4,
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -102,13 +141,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.alarm,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("Kehadiran",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -118,7 +157,7 @@ class _MenuPageState extends State<MenuPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   children: [
                     IconButton(
@@ -132,13 +171,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.desktop_windows,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("Pekerjaan Harian",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -148,7 +187,7 @@ class _MenuPageState extends State<MenuPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -161,12 +200,12 @@ class _MenuPageState extends State<MenuPage> {
                                       idUser: this.idUSer,
                                     )));
                       },
-                      icon: Icon(Icons.assignment_ind, color: Colors.white),
+                      icon: Icon(Icons.assignment_ind, color: iconColor),
                       iconSize: 72,
                     ),
                     Text("Laporan Kinerja",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -176,7 +215,7 @@ class _MenuPageState extends State<MenuPage> {
                     borderRadius: BorderRadius.circular(15)),
                 elevation: 4,
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   children: [
                     IconButton(
@@ -190,13 +229,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.assignment_turned_in,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("Persetujuan",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -206,7 +245,7 @@ class _MenuPageState extends State<MenuPage> {
                     borderRadius: BorderRadius.circular(15)),
                 elevation: 4,
                 // color: Color(0xFFB0D8FD),
-                color: Color(0xffD93025),
+                color: cardColor,
                 child: Column(
                   children: [
                     IconButton(
@@ -218,13 +257,13 @@ class _MenuPageState extends State<MenuPage> {
                       },
                       icon: Icon(
                         Icons.qr_code,
-                        color: Colors.white,
+                        color: iconColor,
                       ),
                       iconSize: 72,
                     ),
                     Text("QR Code",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: iconColor,
                         ))
                   ],
                 ),
@@ -236,7 +275,7 @@ class _MenuPageState extends State<MenuPage> {
                       borderRadius: BorderRadius.circular(15)),
                   elevation: 4,
                   // color: Color(0xFFB0D8FD),
-                  color: Color(0xffD93025),
+                  color: cardColor,
                   child: Column(
                     children: [
                       IconButton(
@@ -251,13 +290,13 @@ class _MenuPageState extends State<MenuPage> {
                         },
                         icon: Icon(
                           Icons.dashboard,
-                          color: Colors.white,
+                          color: iconColor,
                         ),
                         iconSize: 72,
                       ),
                       Text("Dashboard",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: iconColor,
                           ))
                     ],
                   ),

@@ -26,17 +26,21 @@ class PersetujuanAtasanPage extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             title: Text("Persetujuan"),
-            bottom: TabBar(tabs: [
-              Tab(
-                text: "VALIDASI",
-              ),
-              Tab(
-                text: "MENUNGGU",
-              ),
-              Tab(
-                text: "DITOLAK",
-              )
-            ]),
+            bottom: TabBar(
+                indicatorColor: Color(0xffba6b6c),
+                indicatorWeight: 5.0,
+                labelPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                tabs: [
+                  Tab(
+                    text: "VALIDASI",
+                  ),
+                  Tab(
+                    text: "MENUNGGU",
+                  ),
+                  Tab(
+                    text: "DITOLAK",
+                  )
+                ]),
             actions: [NotificationWidget()],
           ),
           body: TabBarView(children: [

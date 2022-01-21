@@ -1,4 +1,5 @@
 import 'package:daily_log/sdm/DownloadKinerjaPage.dart';
+import 'package:daily_log/sdm/PengumumanPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,9 @@ class SdmHomePage extends StatefulWidget {
 }
 
 class _SdmHomePageState extends State<SdmHomePage> {
+  Color cardColor = Color(0xffffcccb);
+  Color iconColor = Colors.black;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +56,7 @@ class _SdmHomePageState extends State<SdmHomePage> {
             },
             icon: Icon(
               Icons.logout,
-              color: Colors.white,
+              color: iconColor,
             ))
       ]),
       body: SafeArea(
@@ -73,7 +77,7 @@ class _SdmHomePageState extends State<SdmHomePage> {
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
-                      color: Color(0xffD93025),
+                      color: cardColor,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -87,13 +91,13 @@ class _SdmHomePageState extends State<SdmHomePage> {
                             },
                             icon: Icon(
                               Icons.download,
-                              color: Colors.white,
+                              color: iconColor,
                             ),
                             iconSize: 72,
                           ),
                           Text("Download laporan",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: iconColor,
                               ))
                         ],
                       ),
@@ -102,7 +106,7 @@ class _SdmHomePageState extends State<SdmHomePage> {
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
-                      color: Color(0xffD93025),
+                      color: cardColor,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -116,13 +120,41 @@ class _SdmHomePageState extends State<SdmHomePage> {
                             },
                             icon: Icon(
                               Icons.note_add,
-                              color: Colors.white,
+                              color: iconColor,
                             ),
                             iconSize: 72,
                           ),
                           Text("Input Pekerjaan",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: iconColor,
+                              ))
+                        ],
+                      ),
+                    ),
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      color: cardColor,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => PengumumanPage()));
+                            },
+                            icon: Icon(
+                              Icons.announcement,
+                              color: iconColor,
+                            ),
+                            iconSize: 72,
+                          ),
+                          Text("Pengumuman",
+                              style: TextStyle(
+                                color: iconColor,
                               ))
                         ],
                       ),
